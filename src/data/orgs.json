@@ -1,0 +1,151 @@
+[
+  {
+    "name": "Virginia Art Factory",
+    "website": "https://virginiaartfactory.org/",
+    "category": [
+      "Creative"
+    ],
+    "area": [
+      "Manassas"
+    ],
+    "blurb": "Downtown arts nonprofit with a gallery, community theater productions, visual art and dance classes, and a summer concert series. Programs for ages five and up.",
+    "status": "Live",
+    "verified": false
+  },
+  {
+    "name": "Nova Labs",
+    "website": "https://www.nova-labs.org/",
+    "category": [
+      "Creative"
+    ],
+    "area": [
+      "Fairfax"
+    ],
+    "blurb": "Makerspace with shops for woodworking, metalworking, stained glass, sewing, jewelry and leather. Book a single class, or join as a member for ongoing access to the tools.",
+    "status": "Live",
+    "verified": false
+  },
+  {
+    "name": "Girls Who Hike Virginia",
+    "website": "https://www.gwhva.org/",
+    "category": [
+      "Sports & movement"
+    ],
+    "area": [
+      "Statewide"
+    ],
+    "blurb": "Free or low-cost group hikes for women+, led by volunteer guides and rated by difficulty so beginners can start easy. Most coordination happens in their Facebook group.",
+    "status": "Live",
+    "verified": false
+  },
+  {
+    "name": "Turning The Tables",
+    "website": "https://www.turningthetables.live/",
+    "category": [
+      "Activism",
+      "Volunteering"
+    ],
+    "area": [
+      "Fairfax"
+    ],
+    "blurb": "Grassroots Indivisible group holding postcard-writing parties to reach voters, voter registration drives, and civics and media-literacy workshops.",
+    "status": "Live",
+    "verified": false
+  },
+  {
+    "name": "Visibility Brigade",
+    "website": "https://www.visibilitybrigade.com/group-directory#virginia",
+    "category": [
+      "Activism",
+      "Volunteering"
+    ],
+    "area": [
+      "National"
+    ],
+    "blurb": "Volunteers who hold banners and signs on highway overpasses at rush hour.",
+    "status": "Live",
+    "verified": false
+  },
+  {
+    "name": "Reflex Improv",
+    "website": "https://www.refleximprov.com/",
+    "category": [
+      "Creative"
+    ],
+    "area": [
+      "Arlington",
+      "Chantilly",
+      "Fairfax",
+      "Falls Church",
+      "Reston"
+    ],
+    "blurb": "Six-week improv classes from total beginner up to performance level, plus musical improv. No acting experience needed; intro courses run $230 to $275.",
+    "status": "Live",
+    "verified": false
+  },
+  {
+    "name": "Craftspace",
+    "website": "https://www.craftspaceva.com/",
+    "category": [
+      "Creative"
+    ],
+    "area": [
+      "Chantilly"
+    ],
+    "blurb": "A stocked craft studio you can use by the hour, with Cricut machines, heat presses and laser cutters, plus classes, an adult craft night, and kids' camps.",
+    "status": "Live",
+    "verified": false
+  },
+  {
+    "name": "Dabble CRC",
+    "website": "https://www.dabblecrc.com/",
+    "category": [
+      "Creative"
+    ],
+    "area": [
+      "Manassas"
+    ],
+    "blurb": "Arts-and-crafts thrift store selling secondhand yarn, fabric, paint and scrapbooking supplies cheaply, with classes for kids, teens and adults.",
+    "status": "Live",
+    "verified": false
+  },
+  {
+    "name": "Romp n’Roll",
+    "website": "https://rompnroll.com/fairfax-va/",
+    "category": [
+      "Kids"
+    ],
+    "area": [
+      "Fairfax"
+    ],
+    "blurb": "Play gym for kids from 3 months to 5 years, with parent-and-child classes in gym, music, art, cooking and dance, plus open play and camps. A good way to meet other parents of little ones; membership-based, with a paid trial class.",
+    "status": "Live",
+    "verified": false
+  },
+  {
+    "name": "Pozez JCC of Northern Virginia",
+    "website": "https://thej.org/",
+    "category": [
+      "Religious"
+    ],
+    "area": [
+      "Fairfax"
+    ],
+    "blurb": "Pool, gym and group fitness classes, daily open-play pickleball, adult classes and affinity groups, and volunteer roles like driving seniors to appointments. Rooted in Jewish community life; most facilities run on membership, and guests can play pickleball on a day pass.",
+    "status": "Live",
+    "verified": false
+  },
+  {
+    "name": "BreadBreakers Reston",
+    "website": "https://restorationreston.org/breadbreakers",
+    "category": [
+      "Social"
+    ],
+    "area": [
+      "Reston"
+    ],
+    "blurb": "Hosted dinners for people from different backgrounds and beliefs, where the goal is understanding each other rather than debating. Meets at Lake Anne Community Center or local restaurants; run by a church but open to everyone.",
+    "status": "Live",
+    "verified": false
+  }
+]

@@ -1,0 +1,170 @@
+---
+import "../styles/global.css";
+import { copy } from "../copy";
+import { categories, categoryColor } from "../categories";
+import orgsData from "../data/orgs.json";
+
+type Org = {
+  name: string;
+  website: string;
+  category: string[];
+  area: string[];
+  blurb: string;
+  status: string;
+  verified: boolean;
+};
+
+const orgs = (orgsData as Org[])
+  .filter((o) => o.status === "Live")
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+// Only show chips for categories that have at least one listing.
+const usedCategories = categories.filter((c) =>
+  orgs.some((o) => o.category.includes(c.name)),
+);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{copy.siteTitle}</title>
+    <meta name="description" content={copy.metaDescription} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
+    />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="logo" href="/">new to <em>nova</em></a>
+        <nav class="site-nav" aria-label="Main">
+          <a href="#signup">{copy.nav.email}</a>
+          <a href="#organizers">{copy.nav.organizers}</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="wrap hero">
+        <div>
+          <h1>{copy.hero.headline} <em>{copy.hero.headlineItalic}</em></h1>
+          <label class="search-label" for="search">{copy.hero.searchLabel}</label>
+          <div class="search-field">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="m20 20-3.5-3.5"></path>
+            </svg>
+            <input id="search" type="search" autocomplete="off" placeholder={copy.hero.searchPlaceholder} />
+          </div>
+        </div>
+
+        <!-- Placeholder: becomes the Kit form -->
+        <form class="signup" id="signup" onsubmit="return false">
+          <h2>{copy.signup.heading}</h2>
+          <p>{copy.signup.body}</p>
+          <label class="visually-hidden" for="signup-email">{copy.signup.emailLabel}</label>
+          <input id="signup-email" type="email" autocomplete="email" placeholder={copy.signup.emailPlaceholder} />
+          <button class="btn btn-solid" type="submit">{copy.signup.button}</button>
+        </form>
+      </section>
+
+      <section class="wrap" aria-label="Groups">
+        <div class="filters">
+          <fieldset class="chips">
+            <legend class="visually-hidden">{copy.filters.label}</legend>
+            <button class="chip chip-all" type="button" data-category="" aria-pressed="true">{copy.filters.all}</button>
+            {usedCategories.map((c) => (
+              <button class="chip" type="button" data-category={c.name} aria-pressed="false" style={`background:${c.color}`}>
+                {c.name}
+              </button>
+            ))}
+          </fieldset>
+        </div>
+
+        <ul class="listings" id="listings">
+          {orgs.map((o) => (
+            <li
+              class="org"
+              data-categories={o.category.join("|")}
+              data-search={[o.name, o.blurb, ...o.category, ...o.area].join(" ").toLowerCase()}
+            >
+              <div>
+                <div class="pills">
+                  {o.category.map((c) => (
+                    <span class="pill" style={`background:${categoryColor(c)}`}>{c}</span>
+                  ))}
+                </div>
+                <h3><a href={o.website}>{o.name}</a></h3>
+              </div>
+              <div>
+                <p class="blurb">{o.blurb}</p>
+                <div class="org-meta">
+                  <span class="area">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"></path>
+                      <circle cx="12" cy="9" r="2.5"></circle>
+                    </svg>
+                    {o.area.join(", ")}
+                  </span>
+                  <a class="visit" href={o.website}>
+                    {copy.listing.visit}<span class="visually-hidden">: {o.name}</span>
+                  </a>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p class="empty" id="empty" role="status" hidden>{copy.listing.empty}</p>
+
+        <aside class="organizers" id="organizers">
+          <div>
+            <h2>{copy.organizers.heading}</h2>
+            <p>{copy.organizers.body}</p>
+          </div>
+          <a class="btn btn-outline" href={copy.organizers.href}>{copy.organizers.button}</a>
+        </aside>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <span>{copy.footer.site}</span>
+        <a href={copy.footer.suggestHref}>{copy.footer.suggest}</a>
+      </div>
+    </footer>
+
+    <script>
+      const search = document.getElementById("search") as HTMLInputElement;
+      const chips = document.querySelectorAll<HTMLButtonElement>(".chip");
+      const rows = document.querySelectorAll<HTMLElement>(".org");
+      const empty = document.getElementById("empty")!;
+      let active = "";
+
+      function update() {
+        const words = search.value.toLowerCase().split(/\s+/).filter(Boolean);
+        let shown = 0;
+        rows.forEach((row) => {
+          const inCategory = !active || row.dataset.categories!.split("|").includes(active);
+          const matches = words.every((w) => row.dataset.search!.includes(w));
+          row.hidden = !(inCategory && matches);
+          if (!row.hidden) shown++;
+        });
+        empty.hidden = shown > 0;
+      }
+
+      chips.forEach((chip) =>
+        chip.addEventListener("click", () => {
+          active = chip.dataset.category ?? "";
+          chips.forEach((c) => c.setAttribute("aria-pressed", String(c === chip)));
+          update();
+        }),
+      );
+      search.addEventListener("input", update);
+    </script>
+  </body>
+</html>

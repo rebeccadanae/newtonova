@@ -1,0 +1,17 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# secrets: NOTION_TOKEN lives here, never commit
+.env
+.env.*
+
+# Notion exports (contain internal "Found via" links)
+sample_orgs/
+
+# logs and OS files
+npm-debug.log*
+.DS_Store
