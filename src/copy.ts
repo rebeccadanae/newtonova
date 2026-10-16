@@ -32,6 +32,7 @@ export const copy = {
 
   listing: {
     visit: "Visit website",
+    newTab: "(opens in a new tab)",
     empty: "No groups match that yet. Try another word or category.",
   },
 

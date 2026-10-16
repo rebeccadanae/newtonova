@@ -99,7 +99,7 @@ const usedCategories = categories.filter((c) =>
                     <span class="pill" style={`background:${categoryColor(c)}`}>{c}</span>
                   ))}
                 </div>
-                <h3><a href={o.website}>{o.name}</a></h3>
+                <h3><a href={o.website} target="_blank" rel="noopener">{o.name}<span class="visually-hidden"> {copy.listing.newTab}</span></a></h3>
               </div>
               <div>
                 <p class="blurb">{o.blurb}</p>
@@ -111,8 +111,8 @@ const usedCategories = categories.filter((c) =>
                     </svg>
                     {o.area.join(", ")}
                   </span>
-                  <a class="visit" href={o.website}>
-                    {copy.listing.visit}<span class="visually-hidden">: {o.name}</span>
+                  <a class="visit" href={o.website} target="_blank" rel="noopener">
+                    {copy.listing.visit}<span class="visually-hidden">: {o.name} {copy.listing.newTab}</span>
                   </a>
                 </div>
               </div>
