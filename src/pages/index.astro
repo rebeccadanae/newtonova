@@ -101,27 +101,31 @@ const usedCategories = categories.filter((c) =>
                     <span class="pill" style={`background:${categoryColor(c)}`}>{c}</span>
                   ))}
                 </div>
-                <h3><a href={o.website} target="_blank" rel="noopener">{o.name}<span class="visually-hidden"> {copy.listing.newTab}</span></a></h3>
+                <h3>
+                  {o.website
+                    ? <a href={o.website} target="_blank" rel="noopener">{o.name}<span class="visually-hidden"> {copy.listing.newTab}</span></a>
+                    : o.name}
+                </h3>
               </div>
               <div>
                 <p class="blurb">{o.blurb}</p>
                 <div class="org-meta">
-                  <span class="area">
+                  {o.area.length > 0 && <span class="area">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                       <path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"></path>
                       <circle cx="12" cy="9" r="2.5"></circle>
                     </svg>
                     {o.area.join(", ")}
-                  </span>
-                  <a class="visit" href={o.website} target="_blank" rel="noopener">
+                  </span>}
+                  {o.website && <a class="visit" href={o.website} target="_blank" rel="noopener">
                     {copy.listing.visit}<span class="visually-hidden">: {o.name} {copy.listing.newTab}</span>
-                  </a>
+                  </a>}
                 </div>
               </div>
             </li>
           ))}
         </ul>
-        <p class="empty" id="empty" role="status" hidden>{copy.listing.empty}</p>
+        <p class="empty" id="empty" role="status" hidden={orgs.length > 0}>{copy.listing.empty}</p>
 
         <aside class="organizers" id="organizers">
           <div>

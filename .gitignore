@@ -15,3 +15,6 @@ sample_orgs/
 # logs and OS files
 npm-debug.log*
 .DS_Store
+
+# generated from Notion at build time (scripts/fetch-orgs.mjs)
+src/data/orgs.json

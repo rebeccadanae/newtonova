@@ -4,11 +4,15 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "fetch": "node --env-file-if-exists=.env scripts/fetch-orgs.mjs",
+    "predev": "npm run fetch",
     "dev": "astro dev",
+    "prebuild": "npm run fetch",
     "build": "astro build",
     "preview": "astro preview"
   },
   "dependencies": {
+    "@notionhq/client": "^5.27.1",
     "astro": "^7.4.0"
   }
 }
