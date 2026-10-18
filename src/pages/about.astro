@@ -1,0 +1,53 @@
+---
+import { Image } from "astro:assets";
+import Base from "../layouts/Base.astro";
+import { copy } from "../copy";
+import photo from "../assets/becca.jpg";
+
+const a = copy.about;
+---
+
+<Base title={a.title} description={a.metaDescription} current="about">
+  <div class="wrap">
+    <article class="about">
+      <div class="about-intro">
+        <Image
+          class="about-photo"
+          src={photo}
+          alt={a.photoAlt}
+          width={160}
+          height={160}
+          densities={[1, 2]}
+          loading="eager"
+        />
+        <h1>{a.heading} <em>{a.headingItalic}</em></h1>
+      </div>
+
+      {a.paragraphs.map((p) => <p>{p}</p>)}
+      <p>{a.lastParagraphBefore} new to <em>nova</em> {a.lastParagraphAfter}</p>
+
+      <hr />
+
+      <h2>{a.howHeading}</h2>
+      <ul>
+        <li>{a.howFree}</li>
+        <li>{a.howVerifyBefore} <a href={copy.organizers.href}>{a.howVerifyLink}</a> {a.howVerifyAfter}</li>
+        <li>{a.howSuggestBefore} <a href={copy.footer.suggestHref}>{a.howSuggestLink}</a>{a.howSuggestAfter}</li>
+      </ul>
+
+      <section class="signup about-hi" aria-labelledby="say-hi">
+        <h2 id="say-hi">{a.hiHeading}</h2>
+        <p>{a.hiIntro}</p>
+        <ul>
+          {a.hiReasons.map((r) => <li>{r}</li>)}
+        </ul>
+        <div class="about-actions">
+          <a class="btn btn-solid btn-fit" href={`mailto:${a.email}`}>{a.emailButton}</a>
+          <a class="about-linkedin" href={a.linkedinHref} target="_blank" rel="noopener">
+            {a.linkedin}<span class="visually-hidden"> {copy.listing.newTab}</span>
+          </a>
+        </div>
+      </section>
+    </article>
+  </div>
+</Base>

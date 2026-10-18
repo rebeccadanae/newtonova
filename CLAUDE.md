@@ -25,7 +25,7 @@ A free directory of Northern Virginia groups that welcome new people: creative c
 
 ## Hard rules
 
-- **No contact details anywhere in this repo or in Notion.** Org and subscriber contact info stays in Tally and Kit. Don't add email or phone fields to the data, the JSON or the pages.
+- **No contact details anywhere in this repo or in Notion.** Org and subscriber contact info stays in Tally and Kit. Don't add email or phone fields to the data, the JSON or the pages. The one exception is my own public site address, hello@newtonova.org, on the About page.
 - **Blurbs and event write-ups are in my own words.** Never scrape or copy an org's or event's description.
 - Copy on the site (headline, intro, button labels) is a placeholder until I rewrite it. Keep it easy to find in one place.
 
