@@ -17,9 +17,9 @@ A free directory of Northern Virginia groups that welcome new people: creative c
   - Data source ID: `db1b67aa-be6e-453c-9481-4e2c9549f87a` (newer Notion API versions query data sources rather than databases; check the current SDK docs for which to use)
   - Only rows with **Status = Live** are published.
   - Token in `NOTION_TOKEN`, from an integration shared with this one database only. Never commit it: `.env` locally, an environment variable on the host.
-- **Hosting: Cloudflare Pages**, deployed from GitHub. Free tier.
+- **Hosting: Cloudflare Workers** (static assets), deployed from GitHub via Workers Builds on every push to `main`. Free tier. Project name `newtonova`, live at https://newtonova.rebeccadportman.workers.dev/. No wrangler config in the repo; Cloudflare detected Astro on its own.
 - **Domain:** newtonova.org is registered at **GoDaddy**. Plan: add the site to Cloudflare and change the nameservers at GoDaddy.
-- **Rebuilds:** nightly, so Notion edits show up by morning. Likely a Cloudflare deploy hook called on a schedule by a free GitHub Action. Not needed in the first block.
+- **Rebuilds:** nightly, so Notion edits show up by morning. Deploy hooks are a Pages feature, so check how to trigger a Workers Builds rebuild on a schedule (e.g. a free GitHub Action) before building this.
 - **"Verify your listing" form: Tally.** Embed or link. Keep Tally's Notion integration **off**.
 - **Monthly email signup: Kit** (free plan). Embed Kit's form.
 
