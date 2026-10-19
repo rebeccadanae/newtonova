@@ -20,7 +20,11 @@ A free directory of Northern Virginia groups that welcome new people: creative c
 - **Hosting: Cloudflare Workers** (static assets), deployed from GitHub via Workers Builds on every push to `main`. Free tier. Project name `newtonova`, live at https://newtonova.rebeccadportman.workers.dev/. No wrangler config in the repo; Cloudflare detected Astro on its own.
 - **Domain:** newtonova.org is registered at **GoDaddy**. Plan: add the site to Cloudflare and change the nameservers at GoDaddy.
 - **Rebuilds:** nightly, so Notion edits show up by morning. Deploy hooks are a Pages feature, so check how to trigger a Workers Builds rebuild on a schedule (e.g. a free GitHub Action) before building this.
-- **"Verify your listing" form: Tally.** Embed or link. Keep Tally's Notion integration **off**.
+- **Organizer form: Tally, "Your group on newtonova"** at https://tally.so/r/RWK9Pd (stored once as `TALLY_URL` in `src/copy.ts`).
+  - Hidden fields `org` and `org_id`, prefilled from URL query params. Each listing's "Is this your group?" link passes the org's name and Notion page ID; the organizers box, footer and About page link to the form with no params.
+  - Three paths: **claim or update**, **suggest** a group, **remove** a listing.
+  - A claim with no edits is still a submission; I check the person and tick Verified. A suggestion from someone who says they organize the group counts as a claim too.
+  - Submissions are reviewed by hand and copied into Notion. Contact details stay in Tally. Tally's Notion integration stays **off**.
 - **Monthly email signup: Kit** (free plan). Embed Kit's form.
 
 ## Hard rules
@@ -33,12 +37,13 @@ A free directory of Northern Virginia groups that welcome new people: creative c
 
 | Field | Type | Use on the site |
 |---|---|---|
+| (page ID) | Notion page id | Written to orgs.json as `id` for the form link; not shown |
 | Name | title | Card heading |
 | Website | url | "Visit website" link |
 | Category | multi-select | Colored pill(s), filter chips |
 | Area | multi-select | Location line with pin icon |
 | Blurb | text | Card body |
-| Status | select: Collecting, Ready, Live | Publish only Live |
+| Status | select: Collecting, Ready, Live, Removed | Publish only Live. Removed = the org asked to come down; keep the row so it isn't re-added |
 | Verified | checkbox | Not shown yet |
 | Found via | url | Never shown (internal) |
 | Where | text | Not used until the map |

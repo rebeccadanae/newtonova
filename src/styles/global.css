@@ -354,6 +354,14 @@ a:hover {
   font-size: 15px;
 }
 
+.claim {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
 .empty {
   padding: 32px 0;
   color: var(--muted);

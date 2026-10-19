@@ -1,10 +1,11 @@
 ---
 import Base from "../layouts/Base.astro";
-import { copy } from "../copy";
+import { copy, TALLY_URL } from "../copy";
 import { categories, categoryColor } from "../categories";
 import orgsData from "../data/orgs.json";
 
 type Org = {
+  id: string;
   name: string;
   website: string;
   category: string[];
@@ -13,6 +14,10 @@ type Org = {
   status: string;
   verified: boolean;
 };
+
+// Prefills the form's hidden org and org_id fields; URLSearchParams handles encoding.
+const claimHref = (o: Org) =>
+  `${TALLY_URL}?${new URLSearchParams({ org: o.name, org_id: o.id })}`;
 
 const orgs = (orgsData as Org[])
   .filter((o) => o.status === "Live")
@@ -93,6 +98,9 @@ const usedCategories = categories.filter((c) =>
               {o.website && <a class="visit" href={o.website} target="_blank" rel="noopener">
                 {copy.listing.visit}<span class="visually-hidden">: {o.name} {copy.listing.newTab}</span>
               </a>}
+              <a class="claim" href={claimHref(o)} target="_blank" rel="noopener">
+                {copy.listing.claim}<span class="visually-hidden"> {o.name} {copy.listing.newTab}</span>
+              </a>
             </div>
           </div>
         </li>

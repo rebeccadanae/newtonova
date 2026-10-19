@@ -1,5 +1,8 @@
 // All site copy lives here. Everything is placeholder until rewritten.
 
+// "Your group on newtonova" Tally form: claim, update, suggest or remove a group.
+export const TALLY_URL = "https://tally.so/r/RWK9Pd";
+
 export const copy = {
   siteTitle: "new to nova",
   metaDescription:
@@ -33,6 +36,7 @@ export const copy = {
 
   listing: {
     visit: "Visit website",
+    claim: "Is this your group?",
     newTab: "(opens in a new tab)",
     empty: "No groups match that yet. Try another word or category.",
   },
@@ -41,7 +45,7 @@ export const copy = {
     heading: "Run one of these groups?",
     body: "Verify your listing to fix the details and show it's current. Free.",
     button: "Verify your listing",
-    href: "#", // Tally form goes here
+    href: TALLY_URL,
   },
 
   // About page copy is final (Becca's own words), not placeholder.
@@ -87,6 +91,6 @@ export const copy = {
   footer: {
     site: "newtonova.org",
     suggest: "Suggest a group",
-    suggestHref: "#", // Tally form goes here
+    suggestHref: TALLY_URL,
   },
 };

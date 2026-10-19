@@ -1,6 +1,7 @@
 // Reads Live rows from the "newtonova Orgs" Notion data source and writes
 // src/data/orgs.json for the site. Runs before every build (npm "prebuild").
-// Only fields the site shows are written: never Found via, Where, or contact info.
+// Only fields the site shows are written, plus the page id for the Tally form
+// link: never Found via, Where, or contact info.
 
 import { writeFileSync, mkdirSync } from "node:fs";
 import { Client, collectPaginatedAPI, isFullPage } from "@notionhq/client";
@@ -28,6 +29,7 @@ const orgs = rows
   .map((page) => {
     const p = page.properties;
     return {
+      id: page.id,
       name: text(p.Name),
       website: p.Website?.url ?? "",
       category: names(p.Category),
