@@ -9,24 +9,24 @@ export const copy = {
     "A free directory of Northern Virginia groups that welcome new people.",
 
   nav: {
-    email: "Monthly email",
+    email: "Stay in the loop",
     organizers: "For organizers",
     about: "About",
   },
 
   hero: {
-    headline: "Groups in Northern Virginia that",
-    headlineItalic: "welcome new people.",
-    searchLabel: "Search the list",
+    headline: "New to Northern Virginia?",
+    headlineItalic: "Find your people.",
+    searchLabel: "Search community groups and organizations",
     searchPlaceholder: "Try pottery, hiking, Reston",
   },
 
   signup: {
-    heading: "What's on this month",
-    body: "One email a month with upcoming events from groups on the list.",
+    heading: "Stay in the loop",
+    body: "new to nova is just getting started. Leave your email and I'll let you know what's coming.",
     emailLabel: "Email address",
     emailPlaceholder: "you@example.com",
-    button: "Sign me up",
+    button: "Keep me posted",
   },
 
   filters: {
@@ -57,13 +57,13 @@ export const copy = {
     heading: "Hi, I'm",
     headingItalic: "Becca.",
     paragraphs: [
-      "I moved to Northern Virginia in 2022 and felt isolated for a while. Finding community here has taken a lot of trial and error, and I'm still working on it.",
-      "Along the way I met other people facing the same thing. I also met owners of small, community-minded businesses who had no consistent way to reach people new to the area. And I kept stumbling onto great groups I wished I'd known about sooner.",
+      "I moved to the suburbs of Northern Virginia in 2022 and wasn't sure how to make friends. Finding community here has taken a lot of trial and error (and I'm still working on it!)",
+      "As I've tried different hobbies and explored local groups, I've met others who feel similarly isolated. I've also connected with owners of small, community-minded businesses who had no consistent way to reach people new to the area. And I kept stumbling onto great groups and businesses I wished I'd known about sooner.",
     ],
     // Third paragraph is split around "new to nova" so "nova" can be italic.
     lastParagraphBefore: "So I started writing them down.",
     lastParagraphAfter:
-      "is that list: groups in Northern Virginia that welcome new people. It's a first step. At a time when it's easy to feel divided, I'm interested in the places where people still show up for each other, and in how technology can help us find them.",
+      "is that list: groups and businesses in Northern Virginia that welcome new people and foster community. It's a first step. At a time when it's easy to feel divided, I'm interested in the places where people still show up for each other, and in how technology can help us find them.",
 
     howHeading: "How the list works",
     howFree: "Free to browse.",
