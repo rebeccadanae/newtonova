@@ -32,6 +32,8 @@ export const copy = {
   filters: {
     label: "Filter by category",
     all: "All",
+    areaLabel: "Area",
+    allAreas: "All areas",
   },
 
   listing: {

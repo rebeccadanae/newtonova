@@ -2,6 +2,7 @@
 import Base from "../layouts/Base.astro";
 import { copy, TALLY_URL } from "../copy";
 import { categories, categoryColor } from "../categories";
+import { areas, wideAreas } from "../areas";
 import orgsData from "../data/orgs.json";
 
 type Org = {
@@ -27,6 +28,9 @@ const orgs = (orgsData as Org[])
 const usedCategories = categories.filter((c) =>
   orgs.some((o) => o.category.includes(c.name)),
 );
+
+// Same for areas.
+const usedAreas = areas.filter((a) => orgs.some((o) => o.area.includes(a)));
 ---
 
 <Base>
@@ -64,6 +68,13 @@ const usedCategories = categories.filter((c) =>
           </button>
         ))}
       </fieldset>
+      <div class="area-filter">
+        <label for="area">{copy.filters.areaLabel}</label>
+        <select id="area" data-wide={wideAreas.join("|")}>
+          <option value="">{copy.filters.allAreas}</option>
+          {usedAreas.map((a) => <option value={a}>{a}</option>)}
+        </select>
+      </div>
     </div>
 
     <ul class="listings" id="listings">
@@ -71,6 +82,7 @@ const usedCategories = categories.filter((c) =>
         <li
           class="org"
           data-categories={o.category.join("|")}
+          data-areas={o.area.join("|")}
           data-search={[o.name, o.blurb, ...o.category, ...o.area].join(" ").toLowerCase()}
         >
           <div>
@@ -119,6 +131,8 @@ const usedCategories = categories.filter((c) =>
 <script>
   const search = document.getElementById("search") as HTMLInputElement;
   const chips = document.querySelectorAll<HTMLButtonElement>(".chip");
+  const areaSelect = document.getElementById("area") as HTMLSelectElement;
+  const wide = areaSelect.dataset.wide!.split("|");
   const rows = document.querySelectorAll<HTMLElement>(".org");
   const empty = document.getElementById("empty")!;
   let active = "";
@@ -128,8 +142,13 @@ const usedCategories = categories.filter((c) =>
     let shown = 0;
     rows.forEach((row) => {
       const inCategory = !active || row.dataset.categories!.split("|").includes(active);
+      const rowAreas = row.dataset.areas!.split("|");
+      const area = areaSelect.value;
+      // Statewide and National groups also show under any town.
+      const inArea =
+        !area || rowAreas.includes(area) || (!wide.includes(area) && rowAreas.some((a) => wide.includes(a)));
       const matches = words.every((w) => row.dataset.search!.includes(w));
-      row.hidden = !(inCategory && matches);
+      row.hidden = !(inCategory && inArea && matches);
       if (!row.hidden) shown++;
     });
     empty.hidden = shown > 0;
@@ -142,6 +161,7 @@ const usedCategories = categories.filter((c) =>
       update();
     }),
   );
+  areaSelect.addEventListener("change", update);
   search.addEventListener("input", update);
 </script>
 </Base>
