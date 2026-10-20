@@ -41,6 +41,8 @@ export const copy = {
     claim: "Is this your group?",
     newTab: "(opens in a new tab)",
     empty: "No groups match that yet. Try another word or category.",
+    total: (n: number) => `${n} ${n === 1 ? "group" : "groups"}`,
+    showing: (shown: number, total: number) => `Showing ${shown} of ${total} groups`,
   },
 
   organizers: {

@@ -29,8 +29,13 @@ const usedCategories = categories.filter((c) =>
   orgs.some((o) => o.category.includes(c.name)),
 );
 
-// Same for areas.
-const usedAreas = areas.filter((a) => orgs.some((o) => o.area.includes(a)));
+// Same for areas, with how many groups each one shows. Statewide and National
+// groups also show under any town, so they count toward every town.
+const inArea = (o: Org, a: string) =>
+  o.area.includes(a) || (!wideAreas.includes(a) && o.area.some((x) => wideAreas.includes(x)));
+const usedAreas = areas
+  .filter((a) => orgs.some((o) => o.area.includes(a)))
+  .map((a) => ({ name: a, count: orgs.filter((o) => inArea(o, a)).length }));
 ---
 
 <Base>
@@ -70,12 +75,14 @@ const usedAreas = areas.filter((a) => orgs.some((o) => o.area.includes(a)));
       </fieldset>
       <div class="area-filter">
         <label for="area">{copy.filters.areaLabel}</label>
-        <select id="area" data-wide={wideAreas.join("|")}>
+        <select id="area">
           <option value="">{copy.filters.allAreas}</option>
-          {usedAreas.map((a) => <option value={a}>{a}</option>)}
+          {usedAreas.map((a) => <option value={a.name}>{a.name} ({a.count})</option>)}
         </select>
       </div>
     </div>
+
+    <p class="count" id="count" role="status">{copy.listing.total(orgs.length)}</p>
 
     <ul class="listings" id="listings">
       {orgs.map((o) => (
@@ -114,7 +121,7 @@ const usedAreas = areas.filter((a) => orgs.some((o) => o.area.includes(a)));
         </li>
       ))}
     </ul>
-    <p class="empty" id="empty" role="status" hidden={orgs.length > 0}>{copy.listing.empty}</p>
+    <p class="empty" id="empty" hidden={orgs.length > 0}>{copy.listing.empty}</p>
 
     <aside class="organizers" id="organizers">
       <div>
@@ -125,12 +132,15 @@ const usedAreas = areas.filter((a) => orgs.some((o) => o.area.includes(a)));
     </aside>
   </section>
 <script>
+  import { copy } from "../copy";
+  import { wideAreas as wide } from "../areas";
+
   const search = document.getElementById("search") as HTMLInputElement;
   const chips = document.querySelectorAll<HTMLButtonElement>(".chip");
   const areaSelect = document.getElementById("area") as HTMLSelectElement;
-  const wide = areaSelect.dataset.wide!.split("|");
   const rows = document.querySelectorAll<HTMLElement>(".org");
   const empty = document.getElementById("empty")!;
+  const count = document.getElementById("count")!;
   let active = "";
 
   function update() {
@@ -148,6 +158,10 @@ const usedAreas = areas.filter((a) => orgs.some((o) => o.area.includes(a)));
       if (!row.hidden) shown++;
     });
     empty.hidden = shown > 0;
+    const filtered = words.length > 0 || active !== "" || areaSelect.value !== "";
+    count.textContent = filtered
+      ? copy.listing.showing(shown, rows.length)
+      : copy.listing.total(rows.length);
   }
 
   chips.forEach((chip) =>

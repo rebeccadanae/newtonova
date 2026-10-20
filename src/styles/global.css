@@ -307,13 +307,19 @@ a:hover {
 }
 
 /* Listing cards */
+.count {
+  margin: 8px 0 12px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
 .listings {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   list-style: none;
   margin: 0;
-  padding: 16px 0 0;
+  padding: 0;
 }
 
 .org {
