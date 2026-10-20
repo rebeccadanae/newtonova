@@ -90,15 +90,22 @@ Quiet, white directory. The colored category pills are the only color on the pag
 2. **Hero, two columns** that stack on a phone:
    - Left, wider: H1 in Instrument Serif 64px, line-height 1.02, "Groups in Northern Virginia that *welcome new people.*" (second half italic). Below it, a search field: label "Search the list", 56px tall, 1.5px ink border, 12px radius, magnifier icon, placeholder "Try pottery, hiking, Reston".
    - Right: **signup box**, panel background, 16px radius, 28px padding. H2 "What's on this month" (Instrument Serif 30px). One line: "One email a month with upcoming events from groups on the list." Email field (48px) and a full-width ink button "Sign me up" with white text. This becomes the Kit form.
-3. **Filter row:** category chips on the left, List / Map toggle on the right.
-   - Chips are 44px tall, fully rounded, 15px. "All" is white with a light grey border. Each category chip is filled with its pill color. The active chip gets an ink border.
-   - The toggle is a two-segment control with an ink outline; the active segment is filled ink. **For launch, show List only.** Map comes later.
-4. **Listing rows**, separated by 1px rules, 24px vertical padding, two columns that wrap on a phone:
-   - Left (about 340px): the category pill (13px, 600 weight, small and rounded) **above** the org name (Instrument Serif 30px, linked to its site).
-   - Right: the blurb (16px, line-height 1.6), then one line holding a map-pin icon with the area in muted text, and a "Visit website" link (600 weight).
+3. **Filter row:** category chips on the left, Area dropdown on the right.
+   - Chips are 44px tall, fully rounded, 14px text, 14px side padding, 8px apart. "All" is white with a light grey border. Each category chip is filled with its pill color. The active chip gets an ink border. Only categories with at least one Live group get a chip. No counts on chips (they'd push the row to two lines).
+   - Area dropdown: a native `<select>` with a visible muted "Area" label, 44px tall, fully rounded, light grey border. Options are "All areas" plus each area with at least one Live group, with a count, e.g. "Reston (5)". **Statewide and National groups also show under every town**, and town counts include them. Area order lives in `src/areas.ts`.
+   - On a phone, the dropdown drops below the chips at full width.
+   - Area, category and search all combine (AND).
+   - A Gallery / Map toggle comes later with the map; there is no toggle now.
+4. **Group count line:** small muted text (14px) between the filters and the cards. "18 groups" with no filters, "Showing 5 of 18 groups" when any filter or search is active. It's a `role="status"` region so screen readers hear it change.
+5. **Gallery of cards** (replaced the earlier listing rows): a grid, 3 across on desktop, 2 at 1000px and below, 1 on a phone, 16px gaps. Each card is white with a 1px rule border, 14px radius, no shadow. Top to bottom:
+   - Category pill(s) (13px, 600 weight, small and rounded)
+   - Org name (Instrument Serif 24px, linked to its site)
+   - The full blurb (15px, line-height 1.6), not truncated, since there are no org pages yet
+   - Map-pin icon with the area in muted text, on its own line
+   - "Visit website" (600 weight) and "Is this your group?" (muted, links to Tally with the org prefilled), pinned to the bottom of the card so links line up across a row
    - Don't put the pill and the area side by side. They read as one thing when they're next to each other.
-5. **Organizers box:** dashed border, 14px radius. Left: "Run one of these groups?" (Instrument Serif 28px) with the line "Verify your listing to fix the details and show it's current. Free." Right: an outlined ink button "Verify your listing", which goes to Tally.
-6. **Footer:** "newtonova.org" on the left, "Suggest a group" on the right, muted 14px, rule above.
+6. **Organizers box:** dashed border, 14px radius. Left: "Run one of these groups?" (Instrument Serif 28px) with the line "Verify your listing to fix the details and show it's current. Free." Right: an outlined ink button "Verify your listing", which goes to Tally.
+7. **Footer:** "newtonova.org" on the left, "Suggest a group" on the right, muted 14px, rule above.
 
 **Accessibility:** use real `<button>`, `<a>`, `<label>` and `<input>` elements. Every touch target should be at least 44px, and body text should meet 4.5:1 contrast. Icon-only buttons get an `aria-label`. Below about 700px wide, everything stacks to one column and nothing scrolls sideways.
 
