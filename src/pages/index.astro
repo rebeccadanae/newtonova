@@ -85,35 +85,31 @@ const usedAreas = areas.filter((a) => orgs.some((o) => o.area.includes(a)));
           data-areas={o.area.join("|")}
           data-search={[o.name, o.blurb, ...o.category, ...o.area].join(" ").toLowerCase()}
         >
-          <div>
-            <div class="pills">
-              {o.category.map((c) => (
-                <span class="pill" style={`background:${categoryColor(c)}`}>{c}</span>
-              ))}
-            </div>
-            <h3>
-              {o.website
-                ? <a href={o.website} target="_blank" rel="noopener">{o.name}<span class="visually-hidden"> {copy.listing.newTab}</span></a>
-                : o.name}
-            </h3>
+          <div class="pills">
+            {o.category.map((c) => (
+              <span class="pill" style={`background:${categoryColor(c)}`}>{c}</span>
+            ))}
           </div>
-          <div>
-            <p class="blurb">{o.blurb}</p>
-            <div class="org-meta">
-              {o.area.length > 0 && <span class="area">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"></path>
-                  <circle cx="12" cy="9" r="2.5"></circle>
-                </svg>
-                {o.area.join(", ")}
-              </span>}
-              {o.website && <a class="visit" href={o.website} target="_blank" rel="noopener">
-                {copy.listing.visit}<span class="visually-hidden">: {o.name} {copy.listing.newTab}</span>
-              </a>}
-              <a class="claim" href={claimHref(o)} target="_blank" rel="noopener">
-                {copy.listing.claim}<span class="visually-hidden"> {o.name} {copy.listing.newTab}</span>
-              </a>
-            </div>
+          <h3>
+            {o.website
+              ? <a href={o.website} target="_blank" rel="noopener">{o.name}<span class="visually-hidden"> {copy.listing.newTab}</span></a>
+              : o.name}
+          </h3>
+          <p class="blurb">{o.blurb}</p>
+          {o.area.length > 0 && <p class="area">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"></path>
+              <circle cx="12" cy="9" r="2.5"></circle>
+            </svg>
+            {o.area.join(", ")}
+          </p>}
+          <div class="org-meta">
+            {o.website && <a class="visit" href={o.website} target="_blank" rel="noopener">
+              {copy.listing.visit}<span class="visually-hidden">: {o.name} {copy.listing.newTab}</span>
+            </a>}
+            <a class="claim" href={claimHref(o)} target="_blank" rel="noopener">
+              {copy.listing.claim}<span class="visually-hidden"> {o.name} {copy.listing.newTab}</span>
+            </a>
           </div>
         </li>
       ))}

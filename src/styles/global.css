@@ -306,23 +306,22 @@ a:hover {
   border-color: var(--ink);
 }
 
-/* Listing rows */
+/* Listing cards */
 .listings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 16px 0 0;
 }
 
 .org {
-  display: grid;
-  grid-template-columns: 340px minmax(0, 1fr);
-  gap: 12px 40px;
-  padding: 24px 0;
-  border-bottom: 1px solid var(--rule);
-}
-
-.org:first-child {
-  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 20px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 14px;
 }
 
 .pills {
@@ -342,8 +341,9 @@ a:hover {
 }
 
 .org h3 {
-  font-size: 30px;
-  line-height: 1.1;
+  font-size: 24px;
+  line-height: 1.15;
+  margin-bottom: 8px;
 }
 
 .org h3 a {
@@ -352,7 +352,7 @@ a:hover {
 
 .blurb {
   margin: 0 0 12px;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.6;
   color: var(--body);
 }
@@ -361,13 +361,15 @@ a:hover {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 24px;
+  gap: 0 20px;
+  margin-top: auto;
 }
 
 .area {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
+  margin: 0 0 4px;
   color: var(--muted);
   font-size: 15px;
 }
@@ -530,6 +532,13 @@ a:hover {
   min-height: 44px;
 }
 
+/* Narrow window or tablet */
+@media (max-width: 1000px) {
+  .listings {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* Phone */
 @media (max-width: 700px) {
   .hero {
@@ -551,7 +560,7 @@ a:hover {
     flex: 1;
   }
 
-  .org {
+  .listings {
     grid-template-columns: 1fr;
   }
 
