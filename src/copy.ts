@@ -58,7 +58,7 @@ export const copy = {
     headingItalic: "Becca.",
     paragraphs: [
       "I moved to the suburbs of Northern Virginia in 2022 and wasn't sure how to make friends. Finding community here has taken a lot of trial and error (and I'm still working on it!)",
-      "As I've tried different hobbies and explored local groups, I've met others who feel similarly isolated. I've also connected with owners of small, community-minded businesses who had no consistent way to reach people new to the area. And I kept stumbling onto great groups and businesses I wished I'd known about sooner.",
+      "As I've tried different hobbies and explored local groups, I've met others who felt similarly isolated. I've also connected with owners of small, community-minded businesses who had no consistent way to reach people new to the area. And I kept stumbling onto great groups and businesses I wished I'd known about sooner.",
     ],
     // Third paragraph is split around "new to nova" so "nova" can be italic.
     lastParagraphBefore: "So I started writing them down.",
