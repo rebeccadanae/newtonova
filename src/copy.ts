@@ -10,7 +10,6 @@ export const copy = {
 
   nav: {
     email: "Stay in the loop",
-    organizers: "For organizers",
     about: "About",
   },
 
@@ -82,12 +81,11 @@ export const copy = {
 
     howHeading: "How the list works",
     howFree: "Free to browse.",
-    howVerifyBefore: "I add groups from public information. If you run one, you can",
-    howVerifyLink: "verify your listing",
-    howVerifyAfter: "to fix the details and show it's current.",
-    howSuggestBefore: "Know a group that belongs here?",
-    howSuggestLink: "Suggest it",
-    howSuggestAfter: ".",
+    // Placeholder wording for the organizers bullet, until Becca rewrites it.
+    orgLead: "Run a group or business on the list?",
+    orgBefore: "I add groups from public information, so some details may be out of date. Use",
+    orgLink: "this form",
+    orgAfter: "to update your listing and mark it as current, ask me to take it down, or suggest a group that's missing.",
 
     hiHeading: "Say hi",
     hiIntro: "I'd love to hear from you if you:",

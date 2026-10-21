@@ -86,7 +86,7 @@ Quiet, white directory. The colored category pills are the only color on the pag
 
 **Page, top to bottom** (max width 1200px, 24px side padding):
 
-1. **Header:** logo "new to *nova*" (Instrument Serif 30px, "nova" in italic) on the left. Nav on the right: "Stay in the loop" (links to `/join`), "For organizers", "About". 1px rule underneath.
+1. **Header:** logo "new to *nova*" (Instrument Serif 30px, "nova" in italic) on the left. Nav on the right: "Stay in the loop" (links to `/join`), "About". (No organizers link in the nav; organizers are pointed to the form from the About page's "How the list works" section, anchor `/about/#organizers`.) 1px rule underneath.
 2. **Hero, two columns** that stack on a phone:
    - Left, wider: H1 in Instrument Serif 64px, line-height 1.02, "Groups in Northern Virginia that *welcome new people.*" (second half italic). Below it, a search field: label "Search the list", 56px tall, 1.5px ink border, 12px radius, magnifier icon, placeholder "Try pottery, hiking, Reston".
    - Right: **signup box**, panel background, 16px radius, 28px padding. H2 and one line from `copy.signup` (Instrument Serif 30px heading), then a full-width ink button that links to `/join`. No form on the homepage.
