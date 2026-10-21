@@ -25,7 +25,7 @@ A free directory of Northern Virginia groups that welcome new people: creative c
   - Three paths: **claim or update**, **suggest** a group, **remove** a listing.
   - A claim with no edits is still a submission; I check the person and tick Verified. A suggestion from someone who says they organize the group counts as a claim too.
   - Submissions are reviewed by hand and copied into Notion. Contact details stay in Tally. Tally's Notion integration stays **off**.
-- **Monthly email signup: Kit** (free plan). Embed Kit's form.
+- **Email signup: Kit** (free plan), on its own page at `/join` (`src/pages/join.astro`), using Kit's JavaScript embed (form `Mills form`, uid `9437739b4a`). The form asks for email plus two optional free-text questions saved as Kit custom fields: what they're looking for, and how they heard about the site. Answers stay in Kit, never in this repo or Notion. The homepage signup box is a pitch with a button to `/join`. Questions will become dropdowns once patterns show up in the answers. Page copy is in `copy.join` in `src/copy.ts`; the questions' wording is set in Kit.
 
 ## Hard rules
 
@@ -86,10 +86,10 @@ Quiet, white directory. The colored category pills are the only color on the pag
 
 **Page, top to bottom** (max width 1200px, 24px side padding):
 
-1. **Header:** logo "new to *nova*" (Instrument Serif 30px, "nova" in italic) on the left. Nav on the right: "Monthly email" (anchors to the signup form), "For organizers". 1px rule underneath.
+1. **Header:** logo "new to *nova*" (Instrument Serif 30px, "nova" in italic) on the left. Nav on the right: "Stay in the loop" (links to `/join`), "For organizers", "About". 1px rule underneath.
 2. **Hero, two columns** that stack on a phone:
    - Left, wider: H1 in Instrument Serif 64px, line-height 1.02, "Groups in Northern Virginia that *welcome new people.*" (second half italic). Below it, a search field: label "Search the list", 56px tall, 1.5px ink border, 12px radius, magnifier icon, placeholder "Try pottery, hiking, Reston".
-   - Right: **signup box**, panel background, 16px radius, 28px padding. H2 "What's on this month" (Instrument Serif 30px). One line: "One email a month with upcoming events from groups on the list." Email field (48px) and a full-width ink button "Sign me up" with white text. This becomes the Kit form.
+   - Right: **signup box**, panel background, 16px radius, 28px padding. H2 and one line from `copy.signup` (Instrument Serif 30px heading), then a full-width ink button that links to `/join`. No form on the homepage.
 3. **Filter row:** category chips on the left, Area dropdown on the right.
    - Chips are 44px tall, fully rounded, 14px text, 14px side padding, 8px apart. "All" is white with a light grey border. Each category chip is filled with its pill color. The active chip gets an ink border. Only categories with at least one Live group get a chip. No counts on chips (they'd push the row to two lines).
    - Area dropdown: a native `<select>` with a visible muted "Area" label, 44px tall, fully rounded, light grey border. Options are "All areas" plus each area with at least one Live group, with a count, e.g. "Reston (5)". **Statewide and National groups also show under every town**, and town counts include them. Area order lives in `src/areas.ts`.

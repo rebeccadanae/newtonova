@@ -516,6 +516,33 @@ a:hover {
   color: var(--ink);
 }
 
+/* Join page */
+.join {
+  max-width: 720px;
+  padding-top: 56px;
+  padding-bottom: 56px;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--body);
+}
+
+.join h1 {
+  font-size: 64px;
+  line-height: 1.02;
+  color: var(--ink);
+  margin-bottom: 24px;
+}
+
+.join p {
+  margin: 0 0 32px;
+}
+
+/* Kit's form heading and subheading are blank; the page has its own. */
+.join-form [data-element="header"],
+.join-form [data-element="subheader"] {
+  display: none;
+}
+
 /* Footer */
 .site-footer {
   border-top: 1px solid var(--rule);
@@ -580,8 +607,13 @@ a:hover {
     gap: 20px;
   }
 
-  .about h1 {
+  .about h1,
+  .join h1 {
     font-size: 44px;
+  }
+
+  .join {
+    padding-top: 32px;
   }
 
   .about-actions .btn-fit {

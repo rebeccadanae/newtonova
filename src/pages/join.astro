@@ -1,0 +1,20 @@
+---
+import Base from "../layouts/Base.astro";
+import { copy } from "../copy";
+
+const j = copy.join;
+---
+
+<Base title={j.title} description={j.metaDescription} current="join">
+  <div class="wrap">
+    <article class="join">
+      <h1>{j.heading} <em>{j.headingItalic}</em></h1>
+      <p>{j.intro}</p>
+
+      <!-- Kit form "Mills form": email plus two optional custom fields. Subscriber data stays in Kit. -->
+      <div class="join-form">
+        <script is:inline async data-uid="9437739b4a" src="https://new-to-nova.kit.com/9437739b4a/index.js"></script>
+      </div>
+    </article>
+  </div>
+</Base>

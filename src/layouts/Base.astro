@@ -5,7 +5,7 @@ import { copy } from "../copy";
 interface Props {
   title?: string;
   description?: string;
-  current?: "about";
+  current?: "about" | "join";
 }
 
 const { title = copy.siteTitle, description = copy.metaDescription, current } = Astro.props;
@@ -32,7 +32,7 @@ const { title = copy.siteTitle, description = copy.metaDescription, current } = 
       <div class="wrap">
         <a class="logo" href="/">new to <em>nova</em></a>
         <nav class="site-nav" aria-label="Main">
-          <a href="/#signup">{copy.nav.email}</a>
+          <a href="/join/" aria-current={current === "join" ? "page" : undefined}>{copy.nav.email}</a>
           <a href="/#organizers">{copy.nav.organizers}</a>
           <a href="/about/" aria-current={current === "about" ? "page" : undefined}>{copy.nav.about}</a>
         </nav>

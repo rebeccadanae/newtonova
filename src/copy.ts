@@ -21,12 +21,23 @@ export const copy = {
     searchPlaceholder: "Try pottery, hiking, Reston",
   },
 
+  // Homepage box: a pitch that links to the /join page, where the Kit form lives.
   signup: {
     heading: "Stay in the loop",
     body: "new to nova is just getting started. Leave your email and I'll let you know what's coming.",
-    emailLabel: "Email address",
-    emailPlaceholder: "you@example.com",
     button: "Keep me posted",
+    href: "/join/",
+  },
+
+  // /join page. The form itself is Kit's embed (see src/pages/join.astro).
+  join: {
+    title: "Stay in the loop · new to nova",
+    metaDescription:
+      "Get an email from new to nova, and tell us what kind of groups you're looking for in Northern Virginia.",
+    heading: "Stay in the",
+    headingItalic: "loop.",
+    intro:
+      "new to nova is just getting started. Leave your email and I'll let you know what's coming. Telling me what you're looking for, and how you found the site, helps me decide which groups to add first. Both are optional.",
   },
 
   filters: {

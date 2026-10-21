@@ -52,14 +52,11 @@ const usedAreas = areas
       </div>
     </div>
 
-    <!-- Placeholder: becomes the Kit form -->
-    <form class="signup" id="signup" onsubmit="return false">
+    <div class="signup" id="signup">
       <h2>{copy.signup.heading}</h2>
       <p>{copy.signup.body}</p>
-      <label class="visually-hidden" for="signup-email">{copy.signup.emailLabel}</label>
-      <input id="signup-email" type="email" autocomplete="email" placeholder={copy.signup.emailPlaceholder} />
-      <button class="btn btn-solid" type="submit">{copy.signup.button}</button>
-    </form>
+      <a class="btn btn-solid" href={copy.signup.href}>{copy.signup.button}</a>
+    </div>
   </section>
 
   <section class="wrap" aria-label="Groups">
