@@ -243,11 +243,20 @@ a:hover {
 
 /* Filter row */
 .filters {
+  padding-bottom: 8px;
+}
+
+/* Group count on the left, Area dropdown on the right */
+.results-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  padding-bottom: 8px;
+  margin: 8px 0 16px;
+}
+
+.results-bar .count {
+  order: -1;
 }
 
 .chips {
@@ -308,7 +317,7 @@ a:hover {
 
 /* Listing cards */
 .count {
-  margin: 8px 0 12px;
+  margin: 0;
   font-size: 14px;
   color: var(--muted);
 }
@@ -584,9 +593,13 @@ a:hover {
     font-size: 44px;
   }
 
-  .filters {
+  .results-bar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .results-bar .count {
+    order: 0;
   }
 
   .area-filter select {

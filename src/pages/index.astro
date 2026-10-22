@@ -70,6 +70,10 @@ const usedAreas = areas
           </button>
         ))}
       </fieldset>
+    </div>
+
+    <!-- Area comes first in the source so it tabs right after the chips; on desktop the count is moved to the left. -->
+    <div class="results-bar">
       <div class="area-filter">
         <label for="area">{copy.filters.areaLabel}</label>
         <select id="area">
@@ -77,9 +81,8 @@ const usedAreas = areas
           {usedAreas.map((a) => <option value={a.name}>{a.name} ({a.count})</option>)}
         </select>
       </div>
+      <p class="count" id="count" role="status">{copy.listing.total(orgs.length)}</p>
     </div>
-
-    <p class="count" id="count" role="status">{copy.listing.total(orgs.length)}</p>
 
     <ul class="listings" id="listings">
       {orgs.map((o) => (

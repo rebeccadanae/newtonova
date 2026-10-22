@@ -90,13 +90,13 @@ Quiet, white directory. The colored category pills are the only color on the pag
 2. **Hero, two columns** that stack on a phone:
    - Left, wider: H1 in Instrument Serif 64px, line-height 1.02, "Groups in Northern Virginia that *welcome new people.*" (second half italic). Below it, a search field: label "Search the list", 56px tall, 1.5px ink border, 12px radius, magnifier icon, placeholder "Try pottery, hiking, Reston".
    - Right: **signup box**, panel background, 16px radius, 28px padding. H2 and one line from `copy.signup` (Instrument Serif 30px heading), then a full-width ink button that links to `/join`. No form on the homepage.
-3. **Filter row:** category chips on the left, Area dropdown on the right.
+3. **Filter row:** category chips across the full width, with the Area dropdown on the count line below (moved there once 10 chips plus the dropdown no longer fit on one line).
    - Chips are 44px tall, fully rounded, 14px text, 14px side padding, 8px apart. "All" is white with a light grey border. Each category chip is filled with its pill color. The active chip gets an ink border. Only categories with at least one Live group get a chip. No counts on chips (they'd push the row to two lines).
    - Area dropdown: a native `<select>` with a visible muted "Area" label, 44px tall, fully rounded, light grey border. Options are "All areas" plus each area with at least one Live group, with a count, e.g. "Reston (5)". **Statewide and National groups also show under every town**, and town counts include them. Area order lives in `src/areas.ts`.
-   - On a phone, the dropdown drops below the chips at full width.
+   - On a phone, the dropdown sits below the chips at full width, with the count line under it.
    - Area, category and search all combine (AND).
    - A Gallery / Map toggle comes later with the map; there is no toggle now.
-4. **Group count line:** small muted text (14px) between the filters and the cards. "18 groups" with no filters, "Showing 5 of 18 groups" when any filter or search is active. It's a `role="status"` region so screen readers hear it change.
+4. **Group count line:** small muted text (14px) between the chips and the cards, with the Area dropdown at its right end. "18 groups" with no filters, "Showing 5 of 18 groups" when any filter or search is active. It's a `role="status"` region so screen readers hear it change.
 5. **Gallery of cards** (replaced the earlier listing rows): a grid, 3 across on desktop, 2 at 1000px and below, 1 on a phone, 16px gaps. Each card is white with a 1px rule border, 14px radius, no shadow. Top to bottom:
    - Category pill(s) (13px, 600 weight, small and rounded)
    - Org name (Instrument Serif 24px, linked to its site)
