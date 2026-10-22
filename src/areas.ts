@@ -1,11 +1,19 @@
 // Area order (for the area filter).
 export const areas = [
+  "Alexandria",
+  "Annandale",
   "Arlington",
+  "Ashburn",
+  "Centreville",
   "Chantilly",
   "Fairfax",
   "Falls Church",
+  "Herndon",
+  "Lorton",
   "Manassas",
+  "McLean",
   "Reston",
+  "Woodbridge",
   "Statewide",
   "National",
 ] as const;

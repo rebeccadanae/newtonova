@@ -6,7 +6,7 @@ export const categories = [
   { name: "Mutual aid", color: "#F5D0DC" },
   { name: "Learning", color: "#E2DAF2" },
   { name: "Social", color: "#F3E3A6" },
-  { name: "Kids", color: "#BFE3EA" },
+  { name: "Families", color: "#BFE3EA" },
   { name: "Religious", color: "#EFE6DA" },
   { name: "Volunteering", color: "#E5EDB8" },
 ] as const;

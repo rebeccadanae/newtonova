@@ -49,8 +49,8 @@ A free directory of Northern Virginia groups that welcome new people: creative c
 | Where | text | Not used until the map |
 | No fixed place | checkbox | Not used until the map |
 
-Category options: Creative, Sports & movement, Activism, Mutual aid, Learning, Social, Kids, Religious, Volunteering.
-Area options: Arlington, Chantilly, Fairfax, Falls Church, Manassas, Reston, Statewide, National.
+Category options: Creative, Sports & movement, Activism, Mutual aid, Learning, Social, Families, Religious, Volunteering.
+Area options: Alexandria, Annandale, Arlington, Ashburn, Centreville, Chantilly, Fairfax, Falls Church, Herndon, Lorton, Manassas, McLean, Reston, Woodbridge, Statewide, National.
 
 ## Design: homepage layout "C1"
 
@@ -82,7 +82,7 @@ Quiet, white directory. The colored category pills are the only color on the pag
 | Social | `#F3E3A6` |
 | Learning | `#E2DAF2` |
 | Mutual aid | `#F5D0DC` |
-| Kids, Religious, Volunteering | pick three more in the same soft range, distinguishable by lightness as well as hue |
+| Families, Religious, Volunteering | pick three more in the same soft range, distinguishable by lightness as well as hue |
 
 **Page, top to bottom** (max width 1200px, 24px side padding):
 
