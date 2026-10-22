@@ -27,6 +27,8 @@ A free directory of Northern Virginia groups that welcome new people: creative c
   - Submissions are reviewed by hand and copied into Notion. Contact details stay in Tally. Tally's Notion integration stays **off**.
 - **Email signup: Kit** (free plan), on its own page at `/join` (`src/pages/join.astro`), using Kit's JavaScript embed (form `Mills form`, uid `9437739b4a`). The form asks for email plus two optional free-text questions saved as Kit custom fields: what they're looking for, and how they heard about the site. Answers stay in Kit, never in this repo or Notion. The homepage signup box is a pitch with a button to `/join`. Questions will become dropdowns once patterns show up in the answers. Page copy is in `copy.join` in `src/copy.ts`; the questions' wording is set in Kit.
 
+- **Analytics: Umami Cloud** (free Hobby plan), cookieless, so no banner. One script tag in `src/layouts/Base.astro` with `data-domains="newtonova.org"`, so local and workers.dev visits aren't counted.
+
 ## Hard rules
 
 - **No contact details anywhere in this repo or in Notion.** Org and subscriber contact info stays in Tally and Kit. Don't add email or phone fields to the data, the JSON or the pages. The one exception is my own public site address, hello@newtonova.org, on the About page.
