@@ -1,0 +1,18 @@
+---
+import Base from "../../layouts/Base.astro";
+import { copy } from "../../copy";
+import "../../styles/pages.css";
+
+const t = copy.joinThanks;
+---
+
+<Base title={t.title} current="join">
+  <div class="wrap join">
+    <h1>{t.heading} <span class="hl">{t.headingHighlight}</span>.</h1>
+    <section class="sheet join-sheet" style="--tilt:0.5deg">
+      <span class="pin" style="--pin:#1E9E57" aria-hidden="true"></span>
+      <p>{t.body}</p>
+      <a class="ink-btn" href="/">{t.back}</a>
+    </section>
+  </div>
+</Base>

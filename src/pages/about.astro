@@ -3,50 +3,51 @@ import { Image } from "astro:assets";
 import Base from "../layouts/Base.astro";
 import { copy, TALLY_URL } from "../copy";
 import photo from "../assets/becca.jpg";
+import "../styles/pages.css";
 
 const a = copy.about;
 ---
 
 <Base title={a.title} description={a.metaDescription} current="about">
-  <div class="wrap">
-    <article class="about">
-      <div class="about-intro">
-        <Image
-          class="about-photo"
-          src={photo}
-          alt={a.photoAlt}
-          width={160}
-          height={160}
-          densities={[1, 2]}
-          loading="eager"
-        />
-        <h1>{a.heading} <em>{a.headingItalic}</em></h1>
-      </div>
+  <div class="wrap about">
+    <header class="about-head">
+      <figure class="snapshot" style="--tilt:-3deg">
+        <span class="pin" style="--pin:#E2402F" aria-hidden="true"></span>
+        <Image src={photo} alt={a.photoAlt} width={220} height={220} densities={[1, 2]} loading="eager" />
+      </figure>
+      <h1>{a.heading} <span class="hl">{a.headingHighlight}</span>.</h1>
+    </header>
 
+    <article class="sheet letter" style="--tilt:0.4deg">
+      <span class="tape" aria-hidden="true"></span>
       {a.paragraphs.map((p) => <p>{p}</p>)}
-      <p>{a.lastParagraphBefore} new to nova {a.lastParagraphAfter}</p>
+      <p>{a.lastParagraph}</p>
+    </article>
 
-      <hr />
+    <div class="about-sheets">
+      <section class="sheet" id="organizers" style="--tilt:-0.8deg" aria-labelledby="how">
+        <span class="pin" style="--pin:#1F6FD1" aria-hidden="true"></span>
+        <h2 id="how">{a.howHeading}</h2>
+        <ul>
+          <li>{a.howFree}</li>
+          <li><strong>{a.orgLead}</strong> {a.orgBefore} <a href={TALLY_URL}>{a.orgLink}</a> {a.orgAfter}</li>
+        </ul>
+      </section>
 
-      <h2>{a.howHeading}</h2>
-      <ul>
-        <li>{a.howFree}</li>
-        <li id="organizers"><strong>{a.orgLead}</strong> {a.orgBefore} <a href={TALLY_URL}>{a.orgLink}</a> {a.orgAfter}</li>
-      </ul>
-
-      <section class="signup about-hi" aria-labelledby="say-hi">
+      <section class="sheet" style="--tilt:0.7deg" aria-labelledby="say-hi">
+        <span class="pin" style="--pin:#1E9E57" aria-hidden="true"></span>
         <h2 id="say-hi">{a.hiHeading}</h2>
         <p>{a.hiIntro}</p>
         <ul>
           {a.hiReasons.map((r) => <li>{r}</li>)}
         </ul>
         <div class="about-actions">
-          <a class="btn btn-solid btn-fit" href={`mailto:${a.email}`}>{a.emailButton}</a>
+          <a class="ink-btn" href={`mailto:${a.email}`}>{a.emailButton}</a>
           <a class="about-linkedin" href={a.linkedinHref} target="_blank" rel="noopener">
             {a.linkedin}<span class="visually-hidden"> {copy.listing.newTab}</span>
           </a>
         </div>
       </section>
-    </article>
+    </div>
   </div>
 </Base>

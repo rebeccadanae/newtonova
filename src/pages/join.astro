@@ -1,20 +1,39 @@
 ---
 import Base from "../layouts/Base.astro";
 import { copy } from "../copy";
+import "../styles/pages.css";
 
 const j = copy.join;
 ---
 
 <Base title={j.title} description={j.metaDescription} current="join">
-  <div class="wrap">
-    <article class="join">
-      <h1>{j.heading} <em>{j.headingItalic}</em></h1>
-      <p>{j.intro}</p>
+  <div class="wrap join">
+    <h1>{j.heading} <span class="hl">{j.headingHighlight}</span>.</h1>
 
-      <!-- Kit form "Mills form": email plus two optional custom fields. Subscriber data stays in Kit. -->
-      <div class="join-form">
-        <script is:inline async data-uid="9437739b4a" src="https://new-to-nova.kit.com/9437739b4a/index.js"></script>
-      </div>
-    </article>
+    <section class="sheet join-sheet" style="--tilt:-0.5deg" aria-labelledby="join-intro">
+      <span class="pin" style="--pin:#E2402F" aria-hidden="true"></span>
+      <p id="join-intro">{j.intro}</p>
+
+      <!-- Sends to Kit form 10076200 ("Mills form"): email plus two optional custom fields.
+           Subscriber details are stored in Kit, never in this repo or Notion. -->
+      <form class="join-form" action="https://app.kit.com/forms/10076200/subscriptions" method="post">
+        <div class="field">
+          <label for="email">{j.emailLabel}</label>
+          <input id="email" name="email_address" type="email" autocomplete="email" required />
+        </div>
+        <div class="field">
+          <label for="looking">{j.lookingLabel}</label>
+          <p class="hint" id="looking-hint">{j.lookingHint}</p>
+          <textarea id="looking" name="fields[interests]" rows="3" aria-describedby="looking-hint"></textarea>
+        </div>
+        <div class="field">
+          <label for="source">{j.sourceLabel}</label>
+          <p class="hint" id="source-hint">{j.sourceHint}</p>
+          <input id="source" name="fields[source]" type="text" aria-describedby="source-hint" />
+        </div>
+        <button class="ink-btn" type="submit">{j.button}</button>
+        <p class="join-note">{j.note}</p>
+      </form>
+    </section>
   </div>
 </Base>

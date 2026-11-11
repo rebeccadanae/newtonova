@@ -1,0 +1,237 @@
+/* About and Join: pinned sheets on the fabric board, same pieces as Groups and Events. */
+
+/* About */
+.about {
+  padding-top: 40px;
+  padding-bottom: 72px;
+}
+
+.about-head {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  margin-bottom: 44px;
+}
+
+/* Becca's photo, pinned up like a snapshot */
+.snapshot {
+  position: relative;
+  flex: none;
+  margin: 0;
+  padding: 10px 10px 30px;
+  background: #fff;
+  transform: rotate(var(--tilt));
+  box-shadow: var(--lift);
+}
+
+.snapshot img {
+  display: block;
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+}
+
+.about-head h1 {
+  font-size: clamp(44px, 6vw, 72px);
+  line-height: 1.02;
+}
+
+.about .sheet p,
+.about .sheet li {
+  color: var(--ink);
+  max-width: none;
+}
+
+/* The story: a letter, at a comfortable reading width */
+.letter {
+  max-width: 760px;
+  padding: 40px 44px 24px;
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+.letter p {
+  margin: 0 0 20px;
+}
+
+.about-sheets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 36px;
+  align-items: start;
+  margin-top: 56px;
+}
+
+.about-sheets .sheet {
+  font-size: 17px;
+  line-height: 1.55;
+  scroll-margin-top: 24px;
+}
+
+.about-sheets h2 {
+  margin-bottom: 12px;
+}
+
+.about-sheets ul {
+  margin: 0 0 8px;
+  padding-left: 1.2em;
+}
+
+.about-sheets li + li {
+  margin-top: 8px;
+}
+
+.about-sheets .sheet p {
+  margin: 0 0 10px;
+}
+
+#organizers:target {
+  outline: 3px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.about-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  margin-top: 22px;
+}
+
+.about-linkedin {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 700;
+}
+
+/* Join */
+.join {
+  padding-top: 40px;
+  padding-bottom: 72px;
+}
+
+.join h1 {
+  font-size: clamp(44px, 6vw, 72px);
+  line-height: 1.02;
+  margin-bottom: 40px;
+}
+
+.join-sheet {
+  max-width: 680px;
+  padding: 38px 40px 32px;
+}
+
+.join .sheet p {
+  max-width: none;
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.join-sheet > p {
+  margin: 0 0 26px;
+}
+
+.join-form {
+  display: grid;
+  gap: 22px;
+  justify-items: start;
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+}
+
+.field label {
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.join .sheet .hint {
+  margin: 0 0 4px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 14px;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: 400 17px/1.4 var(--sans);
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.field input:focus-visible,
+.field textarea:focus-visible {
+  outline: 3px solid #f6d44a;
+  outline-offset: 1px;
+}
+
+.join .sheet .join-note {
+  margin: -8px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.join-sheet > .ink-btn {
+  margin-top: 4px;
+}
+
+@media (max-width: 760px) {
+  .about {
+    padding-top: 24px;
+  }
+
+  .about-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 26px;
+    margin-bottom: 36px;
+  }
+
+  .snapshot img {
+    width: 150px;
+    height: 150px;
+  }
+
+  .about-head h1,
+  .join h1 {
+    font-size: 40px;
+  }
+
+  .letter {
+    padding: 32px 22px 14px;
+    font-size: 17px;
+  }
+
+  .about-sheets {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+    margin-top: 44px;
+  }
+
+  .about-sheets .sheet,
+  .join-sheet {
+    padding: 30px 22px 26px;
+  }
+
+  .join {
+    padding-top: 24px;
+  }
+
+  .join h1 {
+    margin-bottom: 30px;
+  }
+}

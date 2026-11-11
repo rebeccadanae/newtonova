@@ -60,10 +60,28 @@ export const copy = {
     title: "Stay in the loop · new to nova",
     metaDescription:
       "Get an email from new to nova, and tell us what kind of groups you're looking for in Northern Virginia.",
+    // "loop" gets the white marker stripe.
     heading: "Stay in the",
-    headingItalic: "loop.",
+    headingHighlight: "loop",
     intro:
       "new to nova is just getting started. Leave your email and I'll let you know what's coming. Telling me what you're looking for, and how you found the site, helps me decide which groups to add first. Both are optional.",
+    // Our own form, sent to Kit form 10076200 ("Mills form"). Answers are saved in Kit only.
+    emailLabel: "Your email",
+    lookingLabel: "What are you looking for?",
+    lookingHint: "Optional. For example: pottery, a running group, people to try new restaurants with",
+    sourceLabel: "How did you hear about the site?",
+    sourceHint: "Optional",
+    button: "Keep me posted",
+    note: "No spam. Unsubscribe any time.",
+  },
+
+  // /join/thanks/: where Kit sends people after they sign up (set as the form's redirect in Kit).
+  joinThanks: {
+    title: "Thanks · new to nova",
+    heading: "You're on the",
+    headingHighlight: "list",
+    body: "Thanks for signing up. If an email asks you to confirm, click the link in it so my emails reach you.",
+    back: "Back to the groups",
   },
 
   filters: {
@@ -162,16 +180,15 @@ export const copy = {
     metaDescription:
       "Why new to nova exists and how the list of Northern Virginia groups works.",
     photoAlt: "Becca Portman",
+    // "Becca" gets the white marker stripe.
     heading: "Hi, I'm",
-    headingItalic: "Becca.",
+    headingHighlight: "Becca",
     paragraphs: [
       "I moved to the suburbs of Northern Virginia in 2022 and wasn't sure how to make friends. Finding community here has taken a lot of trial and error (and I'm still working on it!)",
       "As I've tried different hobbies and explored local groups, I've met others who felt similarly isolated. I've also connected with owners of small, community-minded businesses who had no consistent way to reach people new to the area. And I kept stumbling onto great groups and businesses I wished I'd known about sooner.",
     ],
-    // Third paragraph is split around "new to nova" so "nova" can be italic.
-    lastParagraphBefore: "So I started writing them down.",
-    lastParagraphAfter:
-      "is that list: groups and businesses in Northern Virginia that welcome new people and foster community. It's a first step. At a time when it's easy to feel divided, I'm interested in the places where people still show up for each other, and in how technology can help us find them.",
+    lastParagraph:
+      "So I started writing them down. new to nova is that list: groups and businesses in Northern Virginia that welcome new people and foster community. It's a first step. At a time when it's easy to feel divided, I'm interested in the places where people still show up for each other, and in how technology can help us find them.",
 
     howHeading: "How the list works",
     howFree: "Free to browse.",

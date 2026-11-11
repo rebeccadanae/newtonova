@@ -26,7 +26,7 @@ A free directory of Northern Virginia groups that welcome new people: creative c
   - Three paths: **claim or update**, **suggest** a group, **remove** a listing.
   - A claim with no edits is still a submission; I check the person and tick Verified. A suggestion from someone who says they organize the group counts as a claim too.
   - Submissions are reviewed by hand and copied into Notion. Contact details stay in Tally. Tally's Notion integration stays **off**.
-- **Email signup: Kit** (free plan), on its own page at `/join` (`src/pages/join.astro`), using Kit's JavaScript embed (form `Mills form`, uid `9437739b4a`). The form asks for email plus two optional free-text questions saved as Kit custom fields: what they're looking for, and how they heard about the site. Answers stay in Kit, never in this repo or Notion. The homepage signup box is a pitch with a button to `/join`. Questions will become dropdowns once patterns show up in the answers. Page copy is in `copy.join` in `src/copy.ts`; the questions' wording is set in Kit.
+- **Email signup: Kit** (free plan), on its own page at `/join` (`src/pages/join.astro`). The form is our own HTML form posting to Kit form 10076200 ("Mills form", `https://app.kit.com/forms/10076200/subscriptions`), not Kit's JavaScript embed, so it has visible labels and the site's look. Fields: `email_address` (required), `fields[interests]` (what they're looking for) and `fields[source]` (how they heard about the site), both optional free text saved as Kit custom fields. Answers stay in Kit, never in this repo or Notion. After signing up, Kit redirects to `/join/thanks/` (set in the form's settings in Kit). The homepage signup sheet links to `/join`. Questions will become dropdowns once patterns show up in the answers. Labels and page copy are in `copy.join` and `copy.joinThanks` in `src/copy.ts`.
 
 - **Analytics: Umami Cloud** (free Hobby plan), cookieless, so no banner. One script tag in `src/layouts/Base.astro` with `data-domains="newtonova.org"`, so local and workers.dev visits aren't counted.
 
@@ -66,7 +66,8 @@ Chosen 2026-11-11 after an Impeccable critique and three drafts. Pinned paper fl
 - Events part 2: event rows replaced by place-coloured ticket stubs (chosen 2026-11-11 from three drafts, over a tidy list and a planner page).
 - Month view done (taped sheet, dots on phones).
 - Phone filters done (tags swipe in one row, count under the week title). Homepage and Events pushed together.
-- Next: About and Join (restyle the Kit form), then DESIGN.md, delete `src/pages/drafts/`, and rewrite this section. The C1 notes below describe the old design and only still apply to pages not yet converted.
+- About and Join done: pinned sheets (About: snapshot photo, letter, How the list works, Say hi; Join: our own form on one sheet, plus `/join/thanks/`). Styles in `src/styles/pages.css`.
+- Next: DESIGN.md, delete `src/pages/drafts/`, and rewrite this section. The C1 notes below describe the old design and only still apply to pages not yet converted.
 - Never commit `src/pages/drafts/` (the direction drafts). Astro builds them, so they would go live at `/drafts/...`. Block 3 deletes the folder.
 - Optional ideas from Impeccable's finish review, not yet decided: tear-off tabs that look actually torn, pins in varied spots, Becca's handwriting font for small asides, a distinct look for the organizer and signup sheets.
 - Screenshots: headless Chrome draws the system font instead of Overpass at phone width. Check phone layouts in the real browser tab instead.
