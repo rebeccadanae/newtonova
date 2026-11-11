@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "src/pages/drafts/combined.astro"
+        ],
+        "createdAt": "2026-11-11T14:47:30.421Z",
+        "reason": "Claude triage: flagged shadow is var(--lift), a 10px-offset soft blue-grey elevation shadow on a light ground, not a zero-offset glow; temporary draft page"
+      }
+    ]
+  }
+}

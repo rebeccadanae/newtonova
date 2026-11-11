@@ -18,10 +18,33 @@ export const copy = {
   },
 
   hero: {
-    headline: "New to Northern Virginia?",
-    headlineItalic: "Find your people.",
-    searchLabel: "Search community groups and organizations",
-    searchPlaceholder: "Try pottery, hiking, Reston",
+    // The highlighted words get a white marker stripe.
+    headline: "Groups in Northern Virginia that welcome",
+    headlineHighlight: "new people",
+    searchLabel: "Search the board",
+    searchPlaceholder: "Try pottery, hiking, choir",
+  },
+
+  // Becca's note under the homepage headline (her words).
+  note: {
+    photoAlt: "Becca Portman",
+    hello: "Hi, I'm Becca!",
+    body: "I wasn't sure how to make friends when I first moved to Northern Virginia, but I've discovered so many great community groups along the way! I made this page to make it easier for you to get started.",
+  },
+
+  // Homepage "Coming up" sheet: the next few events from Live groups.
+  coming: {
+    heading: "Coming up",
+    more: "All events",
+  },
+
+  // Homepage "Where are you headed?" route groups (data in src/routes.ts).
+  routes: {
+    heading: "Where are you headed?",
+    all: "All of NoVA",
+    note: "Numbers are how many groups. Statewide and national groups count everywhere.",
+    anywhere: "Lilac: statewide, national, or in lots of places.",
+    showTowns: "Towns",
   },
 
   // Homepage box: a pitch that links to the /join page, where the Kit form lives.
@@ -45,7 +68,7 @@ export const copy = {
 
   filters: {
     label: "Filter by category",
-    all: "All",
+    all: "Everything",
     areaLabel: "Area",
     allAreas: "All areas",
   },
@@ -54,7 +77,14 @@ export const copy = {
     visit: "Visit website",
     claim: "Is this your group?",
     newTab: "(opens in a new tab)",
-    empty: "No groups match that yet. Try another word or category.",
+    empty: "Nothing on the board for that yet.",
+    clear: "Clear filters",
+    suggest: "Suggest a group",
+    // Tear-off tabs at the bottom of each flyer: [small label, line].
+    nextLabel: "Next",
+    nextNone: "Nothing listed yet",
+    visitTab: ["Visit", "their site"],
+    claimTab: ["Yours?", "Check it"],
     total: (n: number) => `${n} ${n === 1 ? "group" : "groups"}`,
     showing: (shown: number, total: number) => `Showing ${shown} of ${total} groups`,
   },
@@ -111,9 +141,9 @@ export const copy = {
   },
 
   organizers: {
-    heading: "Run one of these groups?",
-    body: "Verify your listing to fix the details and show it's current. Free.",
-    button: "Verify your listing",
+    heading: "Run a group that welcomes new people?",
+    body: "Check your listing, keep it current and send me your events. I review each one by hand. Free.",
+    button: "Check your listing",
     href: TALLY_URL,
   },
 

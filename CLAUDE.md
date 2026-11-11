@@ -55,7 +55,14 @@ A free directory of Northern Virginia groups that welcome new people: creative c
 Category options: Creative, Sports & movement, Activism, Mutual aid, Learning, Social, Families, Religious, Volunteering.
 Area options: Alexandria, Annandale, Arlington, Ashburn, Centreville, Chantilly, Fairfax, Falls Church, Herndon, Lorton, Manassas, McLean, Reston, Woodbridge, Statewide, National.
 
-## Design: homepage layout "C1"
+## Design: being replaced by the "pinboard" direction (in progress)
+
+Chosen 2026-11-11 after an Impeccable critique and three drafts. Pinned paper flyers on a pale blue fabric board; colour means place (each route group has a colour, set in `src/routes.ts`); "Where are you headed?" picks Inside the Beltway / I-66 West / Dulles Toll Road / I-95 South or a town; "Coming up" pinned sheet; Becca's note (photo + her words) under the headline; Overpass everywhere, sentence case, no all caps. The direction contract lives in `.impeccable/surfaces/src-pages-index-astro.md`; product goals in `PRODUCT.md`.
+
+- Done: homepage (`src/pages/index.astro`, `src/styles/home.css`) and the site-wide font, colours and header.
+- Next: Events page in the new look (plus hide an empty today, start the month grid at this week, label what the count covers), then About and Join (restyle the Kit form), then DESIGN.md, delete `src/pages/drafts/`, and rewrite this section. The C1 notes below describe the old design and only still apply to pages not yet converted.
+
+## Old design: homepage layout "C1"
 
 Quiet, white directory. The colored category pills are the only color on the page. No blue.
 

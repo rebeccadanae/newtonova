@@ -1,0 +1,731 @@
+/* Homepage: pinned papers on the blue fabric board.
+   Colour means place: each flyer and dot takes its route group's colour (src/routes.ts). */
+
+/* Pushpin, shared by every pinned sheet */
+.pin {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin-left: -10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.7) 0 18%, transparent 20%), var(--pin, #e2402f);
+  box-shadow: 1px 4px 4px rgb(20 40 50 / 0.4);
+  z-index: 2;
+}
+
+.ink-btn,
+.paper-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 4px;
+  font: 700 15px/1 var(--sans);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ink-btn {
+  background: var(--ink);
+  color: #fff;
+}
+
+.ink-btn:hover {
+  background: #2f4249;
+}
+
+.paper-btn {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.paper-btn:hover {
+  background: var(--fabric);
+}
+
+/* Hero: headline, Becca's note and search on the left; Coming up pinned on the right */
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+  padding-top: 40px;
+  padding-bottom: 36px;
+}
+
+.home-hero h1 {
+  font-size: clamp(40px, 4.8vw, 64px);
+  line-height: 1.04;
+}
+
+.hl {
+  background: linear-gradient(transparent 55%, #fff 55%, #fff 92%, transparent 92%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.home-note {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  max-width: 600px;
+  margin: 26px 0 28px;
+}
+
+.home-note-photo {
+  flex-shrink: 0;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 3px #fff;
+}
+
+.home-note figcaption {
+  font-size: 16.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+
+.home-note strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.home-hero .search-label {
+  color: var(--ink);
+}
+
+.home-hero .search-field {
+  max-width: 600px;
+}
+
+.home-hero .search-field input {
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+}
+
+/* Coming up: a taped white sheet */
+.coming {
+  position: relative;
+  margin-top: 8px;
+  padding: 28px 22px 12px;
+  background: #fff;
+  transform: rotate(1.2deg);
+  box-shadow: var(--lift);
+}
+
+.tape {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  width: 96px;
+  height: 26px;
+  margin-left: -48px;
+  background: rgb(255 255 255 / 0.6);
+  border: 1px solid rgb(0 0 0 / 0.05);
+  transform: rotate(-3deg);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+}
+
+.coming h2 {
+  font-size: 28px;
+}
+
+.coming ul {
+  list-style: none;
+  margin: 12px 0 6px;
+  padding: 0;
+}
+
+.coming li {
+  border-top: 1.5px dashed rgb(29 42 47 / 0.3);
+}
+
+.coming li a {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  column-gap: 10px;
+  padding: 10px 0;
+  text-decoration: none;
+}
+
+.coming li a::before {
+  content: "";
+  grid-row: 1 / 4;
+  width: 12px;
+  height: 12px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--where);
+  box-shadow: inset 0 0 0 1.5px rgb(29 42 47 / 0.35);
+}
+
+.coming li a:hover .what {
+  text-decoration: underline;
+}
+
+.coming .when {
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.coming .what {
+  font-size: 15.5px;
+  line-height: 1.3;
+}
+
+.coming .who {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.coming .more {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 700;
+}
+
+/* Where are you headed? Four pinned route cards */
+.routes {
+  padding-bottom: 34px;
+}
+
+.routes-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.routes-head h2 {
+  font-size: 32px;
+}
+
+.route-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+
+.route-card {
+  position: relative;
+  padding: 18px 14px 10px;
+  background: var(--paper);
+  transform: rotate(var(--tilt));
+  box-shadow: var(--lift);
+}
+
+.route-top {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.route-name {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink);
+  font: 800 19px/1.08 var(--sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+.route-name:hover,
+.town:hover,
+.towns-toggle:hover {
+  background: rgb(255 255 255 / 0.4);
+}
+
+.route-name[aria-pressed="true"] {
+  background: var(--ink);
+  color: #fff;
+}
+
+.shield {
+  width: 40px;
+  height: 40px;
+}
+
+.shield text {
+  font-family: var(--sans);
+}
+
+.route-n {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* The towns arrow only shows on phones, where towns start folded away. */
+.towns-toggle {
+  display: none;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.towns-toggle svg {
+  transition: transform 0.2s ease-out;
+}
+
+.towns-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.towns {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 6px 0 0;
+  border-top: 2px dashed rgb(29 42 47 / 0.35);
+}
+
+.town {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink);
+  font: 700 16px var(--sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+.town span {
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.town[aria-pressed="true"] {
+  background: #fff;
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.routes-note {
+  margin: 18px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  vertical-align: -1px;
+  border-radius: 50%;
+  background: var(--where);
+  box-shadow: inset 0 0 0 1.5px rgb(29 42 47 / 0.35);
+}
+
+/* Kind of group: plain white tags, since colour means place */
+.kind-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.kind-tag {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 3px;
+  background: #fff;
+  color: var(--ink);
+  font: 700 14px var(--sans);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgb(29 54 66 / 0.22);
+}
+
+.kind-tag:hover {
+  background: var(--fabric);
+}
+
+.kind-tag[aria-pressed="true"] {
+  background: var(--ink);
+  color: #fff;
+}
+
+.board-count {
+  margin: 16px 0 28px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+/* The board of flyers */
+.board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 34px 26px;
+  align-items: start;
+}
+
+.flyer {
+  position: relative;
+  padding: 24px 22px 0;
+  background: var(--paper);
+  transform: rotate(var(--tilt));
+  box-shadow: var(--lift);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  scroll-margin-top: 24px;
+}
+
+.flyer:hover,
+.flyer:focus-within,
+.flyer:target {
+  transform: rotate(0deg) translateY(-3px);
+}
+
+.flyer:target {
+  outline: 3px solid var(--ink);
+  outline-offset: 4px;
+}
+
+/* Under each name: where (bold) and what kind. Ink, not grey: these sit on colour. */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  margin: 8px 0 12px;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.place {
+  display: inline-flex;
+  gap: 5px;
+  align-items: flex-start;
+  font-weight: 800;
+}
+
+.place svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.flyer h3 {
+  font-size: 28px;
+  line-height: 1.06;
+}
+
+.flyer h3 a {
+  text-decoration: none;
+}
+
+.flyer h3 a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--ink);
+  text-decoration-thickness: 2px;
+}
+
+.kinds {
+  font-weight: 400;
+}
+
+.flyer .blurb {
+  margin: 0 0 16px;
+  font-size: 15.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+/* Tear-off tabs: the flyer's links */
+.tabs {
+  display: flex;
+  margin: 0 -22px;
+  border-top: 2px dashed rgb(29 42 47 / 0.5);
+}
+
+.tab {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  min-height: 58px;
+  padding: 8px 10px;
+  font-size: 13.5px;
+  line-height: 1.2;
+  text-decoration: none;
+  border-left: 2px dashed rgb(29 42 47 / 0.5);
+  transform-origin: top center;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s;
+}
+
+/* The Next tab (or its "See their site" stand-in) always comes first. */
+.tab-next,
+.tab-quiet {
+  flex-grow: 1.3;
+  border-left: 0;
+}
+
+.tab-next {
+  background: rgb(255 255 255 / 0.5);
+}
+
+.tab-quiet {
+  color: var(--ink);
+}
+
+.tab-k {
+  font-weight: 800;
+  font-size: 13px;
+}
+
+a.tab:hover,
+a.tab:focus-visible {
+  transform: rotate(-4deg) translateY(3px);
+  background: rgb(255 255 255 / 0.55);
+}
+
+.board-empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  background: #fff;
+  box-shadow: var(--lift);
+}
+
+.board-empty p {
+  margin: 0 12px 0 0;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* Organizers and email: two pinned sheets */
+.pinned-sheets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+  padding-top: 72px;
+  padding-bottom: 64px;
+}
+
+.sheet {
+  position: relative;
+  padding: 34px 34px 32px;
+  background: #fff;
+  transform: rotate(var(--tilt));
+  box-shadow: var(--lift);
+}
+
+.sheet h2 {
+  font-size: 28px;
+}
+
+.sheet p {
+  margin: 10px 0 20px;
+  color: var(--muted);
+  max-width: 460px;
+}
+
+@media (max-width: 1000px) {
+  .route-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .home-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding-top: 24px;
+    padding-bottom: 28px;
+  }
+
+  .home-hero h1 {
+    font-size: 38px;
+  }
+
+  .home-note {
+    align-items: flex-start;
+    gap: 14px;
+    margin: 18px 0 22px;
+  }
+
+  .home-note-photo {
+    width: 68px;
+    height: 68px;
+  }
+
+  .home-note figcaption {
+    font-size: 16px;
+  }
+
+  /* Coming up becomes a short strip you swipe */
+  .coming {
+    margin: 0;
+    padding: 22px 16px 6px;
+    transform: none;
+  }
+
+  .coming h2 {
+    font-size: 24px;
+  }
+
+  .coming ul {
+    position: relative; /* keeps the hidden screen-reader text inside the strip */
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 10px -16px 2px;
+    padding: 0 16px;
+  }
+
+  .coming ul::-webkit-scrollbar {
+    display: none;
+  }
+
+  .coming li {
+    flex: 0 0 72%;
+    border-top: 0;
+    border-left: 1.5px dashed rgb(29 42 47 / 0.3);
+    padding-left: 12px;
+    margin-left: 12px;
+  }
+
+  .coming li:not([hidden]):first-child,
+  .coming li[hidden] + li:not([hidden]) {
+    border-left: 0;
+    padding-left: 0;
+    margin-left: 0;
+  }
+
+  .routes {
+    padding-bottom: 24px;
+  }
+
+  .routes-head {
+    margin-bottom: 20px;
+  }
+
+  .routes-head h2 {
+    font-size: 24px;
+  }
+
+  .route-cards {
+    gap: 16px 12px;
+  }
+
+  .route-card {
+    padding: 14px 6px 6px;
+  }
+
+  .route-name {
+    grid-template-columns: 30px 1fr;
+    gap: 6px;
+    min-height: 48px;
+    padding: 2px 4px;
+    font-size: 15px;
+  }
+
+  .route-n {
+    display: none;
+  }
+
+  .shield {
+    width: 30px;
+    height: 30px;
+  }
+
+  .towns-toggle {
+    display: inline-flex;
+    width: 40px;
+  }
+
+  .route-card:not(.is-open) .towns {
+    display: none;
+  }
+
+  .town {
+    font-size: 14.5px;
+    padding: 0 6px;
+  }
+
+  .routes-note {
+    margin-top: 14px;
+  }
+
+  /* One row that swipes, fading at the right edge to show there are more */
+  .kind-tags {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -16px;
+    padding: 4px 48px 8px 16px;
+    scroll-padding: 0 48px 0 16px;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
+  }
+
+  .kind-tags::-webkit-scrollbar {
+    display: none;
+  }
+
+  .kind-tag {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .board {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 30px;
+  }
+
+  .pinned-sheets {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 56px;
+    gap: 36px;
+  }
+
+  .sheet {
+    padding: 30px 22px 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flyer,
+  .tab,
+  .towns-toggle svg {
+    transition: none;
+  }
+}

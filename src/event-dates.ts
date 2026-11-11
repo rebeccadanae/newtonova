@@ -70,3 +70,20 @@ const timeFmt =new Intl.DateTimeFormat("en-US", { timeZone: TZ, hour: "numeric",
 
 // "7:00 pm"
 export const timeLabel = (iso: string) => timeFmt.format(new Date(iso)).replace(/\s?([AP])M$/, (_, m) => ` ${m.toLowerCase()}m`);
+
+// Short labels for the homepage: "Thu 12 Nov", and "Thu 12 Nov · 6pm" with a time.
+const shortDayFmt = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: TZ });
+export const shortDay = (iso: string) => shortDayFmt.format(new Date(iso)).replace(",", "");
+const shortKeyFmt = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+// All-day events store a bare date, so read it as a calendar day, not a moment.
+export const whenShort = (e: { start: string; allDay: boolean }) =>
+  e.allDay
+    ? shortKeyFmt.format(toUTC(e.start.slice(0, 10))).replace(",", "")
+    : `${shortDay(e.start)} · ${shortTime(e.start)}`;
+
+// Still worth showing: hasn't finished yet (all-day events count until the day is over).
+export function isUpcoming(e: { start: string; end: string | null; allDay: boolean }, now = new Date()) {
+  const last = e.end ?? e.start;
+  if (e.allDay) return last.slice(0, 10) >= nyParts(now).day;
+  return new Date(last).getTime() >= now.getTime();
+}
