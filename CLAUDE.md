@@ -7,7 +7,7 @@ A free directory of Northern Virginia groups that welcome new people: creative c
 - I build in 45-minute weekday morning blocks, sometimes a 2-hour weekend block. Size work to fit one block and say when something won't.
 - Propose the approach before writing code, then wait for my yes.
 - At the end of a block, write a few lines on what got done as a draft for me to correct, and note where the next block should pick up.
-- Zero cost beyond the domain. If something would cost money, name the cost before suggesting it.
+- Free by default, but spending is OK when it helps reach more people (no fixed budget yet). If something would cost money, name the cost and what it buys before suggesting it.
 
 ## Stack (decided)
 
