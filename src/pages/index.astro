@@ -38,7 +38,7 @@ const usedAreas = areas
   .map((a) => ({ name: a, count: orgs.filter((o) => inArea(o, a)).length }));
 ---
 
-<Base>
+<Base current="groups">
   <section class="wrap hero">
     <div>
       <h1>{copy.hero.headline} <em>{copy.hero.headlineItalic}</em></h1>
@@ -88,6 +88,7 @@ const usedAreas = areas
       {orgs.map((o) => (
         <li
           class="org"
+          id={`org-${o.id}`}
           data-categories={o.category.join("|")}
           data-areas={o.area.join("|")}
           data-search={[o.name, o.blurb, ...o.category, ...o.area].join(" ").toLowerCase()}

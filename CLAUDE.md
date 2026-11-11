@@ -16,10 +16,11 @@ A free directory of Northern Virginia groups that welcome new people: creative c
   - Database ID: `7261965ae9c947d68bfc57dd9fdb7a82`
   - Data source ID: `db1b67aa-be6e-453c-9481-4e2c9549f87a` (newer Notion API versions query data sources rather than databases; check the current SDK docs for which to use)
   - Only rows with **Status = Live** are published.
-  - Token in `NOTION_TOKEN`, from an integration shared with this one database only. Never commit it: `.env` locally, an environment variable on the host.
+- **Events: a second Notion database, "newtonova Events"** (data source `423e16f9-1f99-434c-a8c7-18853486c103`), read by `scripts/fetch-events.mjs` into `src/data/events.json`. Only Status = Live, and past events are dropped at build time and again in the browser. Summary is newsletter-only and never written to the JSON. Each event's categories come from its related org; the event's own Category is used only when it has no Live org. Dates are shown in America/New_York (helpers in `src/event-dates.ts`). What "This weekend" means lives in `src/weekend.ts` (Friday from 5pm through Sunday).
+  - Token in `NOTION_TOKEN`, from an integration shared with these two databases only. Never commit it: `.env` locally, an environment variable on the host.
 - **Hosting: Cloudflare Workers** (static assets), deployed from GitHub via Workers Builds on every push to `main`. Free tier. Project name `newtonova`, live at https://newtonova.org (also https://newtonova.rebeccadportman.workers.dev/). No wrangler config in the repo; Cloudflare detected Astro on its own.
 - **Domain:** newtonova.org is registered at **GoDaddy**, with nameservers pointed at Cloudflare. `newtonova.org` is a custom domain on the Worker. `www` is a proxied placeholder A record (192.0.2.1) plus a Cloudflare Redirect Rule ("Redirect from WWW to root") that sends it to newtonova.org; adding www as a Worker custom domain failed with "No zones match". Cloudflare Email Routing forwards hello@newtonova.org; leave its MX and TXT records alone.
-- **Rebuilds:** nightly, so Notion edits show up by morning. Deploy hooks are a Pages feature, so check how to trigger a Workers Builds rebuild on a schedule (e.g. a free GitHub Action) before building this.
+- **Rebuilds:** manual for now (a push or a manual rebuild in Cloudflare). A nightly rebuild is still wanted later; deploy hooks are a Pages feature, so check how to trigger a Workers Builds rebuild on a schedule (e.g. a free GitHub Action) before building it.
 - **Organizer form: Tally, "Your group on newtonova"** at https://tally.so/r/RWK9Pd (stored once as `TALLY_URL` in `src/copy.ts`).
   - Hidden fields `org` and `org_id`, prefilled from URL query params. Each listing's "Is this your group?" link passes the org's name and Notion page ID; the organizers box, footer and About page link to the form with no params.
   - Three paths: **claim or update**, **suggest** a group, **remove** a listing.
@@ -88,7 +89,7 @@ Quiet, white directory. The colored category pills are the only color on the pag
 
 **Page, top to bottom** (max width 1200px, 24px side padding):
 
-1. **Header:** logo "new to *nova*" (Instrument Serif 30px, "nova" in italic) on the left. Nav on the right: "Stay in the loop" (links to `/join`), "About". (No organizers link in the nav; organizers are pointed to the form from the About page's "How the list works" section, anchor `/about/#organizers`.) 1px rule underneath.
+1. **Header (all pages, in `src/layouts/Base.astro`):** logo "new to *nova*" (Instrument Serif 30px, "nova" in italic) on the left. On the right: Groups (`/`) · Events (`/events`) · About as plain links, the current page underlined (`aria-current="page"`, set with the layout's `current` prop), then "Stay in the loop" as the one filled ink button (to `/join`). Below 700px it collapses to the logo plus a "Menu" button that opens the links stacked, with the button full width at the bottom. (No organizers link in the nav; organizers are pointed to the form from the About page's "How the list works" section, anchor `/about/#organizers`.) 1px rule underneath.
 2. **Hero, two columns** that stack on a phone:
    - Left, wider: H1 in Instrument Serif 64px, line-height 1.02, "Groups in Northern Virginia that *welcome new people.*" (second half italic). Below it, a search field: label "Search the list", 56px tall, 1.5px ink border, 12px radius, magnifier icon, placeholder "Try pottery, hiking, Reston".
    - Right: **signup box**, panel background, 16px radius, 28px padding. H2 and one line from `copy.signup` (Instrument Serif 30px heading), then a full-width ink button that links to `/join`. No form on the homepage.
@@ -110,6 +111,17 @@ Quiet, white directory. The colored category pills are the only color on the pag
 7. **Footer:** "newtonova.org" on the left, "Suggest a group" on the right, muted 14px, rule above.
 
 **Accessibility:** use real `<button>`, `<a>`, `<label>` and `<input>` elements. Every touch target should be at least 44px, and body text should meet 4.5:1 contrast. Icon-only buttons get an `aria-label`. Below about 700px wide, everything stacks to one column and nothing scrolls sideways.
+
+## /events page
+
+`src/pages/events.astro`; copy in `copy.events`. Everything after the build is client-side, from the event list embedded in the page as JSON.
+
+- Heading, subline, then controls: Week | Month segmented toggle (Week is the default), "This weekend" pill toggle (switches to week view), Area select (areas with upcoming events; Statewide and National show under every town, as on Groups), category chips (same chips and tints as Groups), a count and a "Show all events" button when any filter is on.
+- **Week view:** Monday to Sunday, prev/next arrows (no paging before this week, or past the week of the last event), days already past hidden. Title "This week, 11 to 15 November" / "Next week, …" / a plain date range. Day headings with a "Today" badge; empty days say "Nothing listed yet."; a filter with no matches that week shows the warm grey panel instead. Multi-day events show on each day they cover.
+- **Event row**, three columns on desktop (stacked on phones): time (or "All day" / "Continues") | category pills, name linking to the event's Link, org line (org name linking to its card on Groups, `/#org-<page id>`; no org: Where, if set) with area | "Add to calendar" and "Details on their site ↗".
+- **Month view:** Mon–Sun grid with hairline borders, days outside the month and past days muted, today's number in a black circle. Up to 2 tinted chips per day ("6pm Open Studio", Name truncated with an ellipsis), then "+N more". Clicking a day (today or later) opens week view for that week, scrolled to the day. On phones the grid scrolls sideways inside its box.
+- **Add to calendar** (`src/calendar.ts`): a menu with Google Calendar (a link made in the browser) and Apple Calendar / Outlook, which download a .ics file built at build time by `src/pages/events/[id].ics.ts` (served at `/events/<page id>.ics`). Location is Where, else Area; details are just the Link. No end time means start + 2 hours; all-day events become all-day entries.
+- Dashed organizer callout at the bottom, same Tally link.
 
 ## Later (not now)
 

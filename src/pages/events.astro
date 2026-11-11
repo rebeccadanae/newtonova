@@ -1,0 +1,458 @@
+---
+import Base from "../layouts/Base.astro";
+import { copy } from "../copy";
+import { categories } from "../categories";
+import { areas } from "../areas";
+import orgsData from "../data/orgs.json";
+import eventsData from "../data/events.json";
+
+type Org = { id: string; name: string; category: string[] };
+type RawEvent = {
+  id: string;
+  name: string;
+  start: string;
+  end: string | null;
+  allDay: boolean;
+  link: string;
+  orgId: string | null;
+  area: string[];
+  where: string;
+  category: string | null;
+};
+
+const c = copy.events;
+const orgs = new Map((orgsData as Org[]).map((o) => [o.id, o]));
+
+// Join each event to its org. Only Live orgs are in orgs.json; an event whose org
+// isn't Live is treated as having no org.
+const events = (eventsData as RawEvent[]).map((e) => {
+  const org = e.orgId ? orgs.get(e.orgId) : undefined;
+  return {
+    id: e.id,
+    name: e.name,
+    start: e.start,
+    end: e.end,
+    allDay: e.allDay,
+    link: e.link,
+    area: e.area,
+    org: org ? { name: org.name, href: `/#org-${org.id}` } : null,
+    where: org ? "" : e.where,
+    // For "Add to calendar": Where, else Area.
+    location: e.where || e.area.join(", "),
+    categories: org ? org.category : e.category ? [e.category] : [],
+  };
+});
+
+// Chips and areas only for what upcoming events actually use.
+const usedCategories = categories.filter((cat) => events.some((e) => e.categories.includes(cat.name)));
+const usedAreas = areas.filter((a) => events.some((e) => e.area.includes(a)));
+
+// Safe to put inside a <script> tag.
+const json = JSON.stringify(events).replace(/</g, "\\u003c");
+---
+
+<Base title={c.title} description={c.metaDescription} current="events">
+  <section class="wrap events-hero">
+    <h1>{c.heading} <em>{c.headingItalic}</em></h1>
+    <p>{c.subline}</p>
+  </section>
+
+  <section class="wrap events" aria-label={c.filtersLabel}>
+    <div class="event-controls">
+      <div class="control-group">
+        <div class="segmented" role="group" aria-label={c.viewLabel}>
+          <button type="button" id="view-week" aria-pressed="true">{c.week}</button>
+          <button type="button" id="view-month" aria-pressed="false">{c.month}</button>
+        </div>
+        <button class="chip chip-all weekend-toggle" id="weekend" type="button" aria-pressed="false">{c.weekend}</button>
+      </div>
+      <div class="area-filter">
+        <label for="area">{c.areaLabel}</label>
+        <select id="area">
+          <option value="">{c.allAreas}</option>
+          {usedAreas.map((a) => <option value={a}>{a}</option>)}
+        </select>
+      </div>
+    </div>
+
+    <fieldset class="chips">
+      <legend class="visually-hidden">{c.categoryLabel}</legend>
+      <button class="chip chip-all" type="button" data-category="" aria-pressed="true">{c.all}</button>
+      {usedCategories.map((cat) => (
+        <button class="chip" type="button" data-category={cat.name} aria-pressed="false" style={`background:${cat.color}`}>
+          {cat.name}
+        </button>
+      ))}
+    </fieldset>
+
+    <div class="results-bar events-results">
+      <p class="count" id="count" role="status"></p>
+      <button class="btn btn-outline btn-small" id="show-all" type="button" hidden>{c.showAll}</button>
+    </div>
+
+    <div class="week-nav">
+      <button class="arrow" id="prev" type="button" aria-label={c.prev}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+      </button>
+      <h2 id="week-title" aria-live="polite"></h2>
+      <button class="arrow" id="next" type="button" aria-label={c.next}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+      </button>
+    </div>
+
+    <div id="days"></div>
+    <div class="month-scroll" id="month" hidden></div>
+    <p class="no-match" id="no-match" hidden>{c.noMatch}</p>
+
+    <aside class="organizers">
+      <div>
+        <h2>{c.organizers.heading}</h2>
+        <p>{c.organizers.body}</p>
+      </div>
+      <a class="btn btn-outline" href={c.organizers.href}>{c.organizers.button}</a>
+    </aside>
+  </section>
+
+  <script type="application/json" id="events-data" set:html={json}></script>
+</Base>
+
+<script>
+  import { copy } from "../copy";
+  import { categoryColor } from "../categories";
+  import { wideAreas } from "../areas";
+  import { WEEKEND } from "../weekend";
+  import { googleUrl, icsPath, icsFileName } from "../calendar";
+  import {
+    nyParts,
+    todayKey,
+    addDays,
+    weekday,
+    mondayOf,
+    dayLabel,
+    rangeLabel,
+    timeLabel,
+    shortTime,
+    monthTitle,
+    monthStart,
+  } from "../event-dates";
+
+  type Ev = {
+    id: string;
+    name: string;
+    start: string;
+    end: string | null;
+    allDay: boolean;
+    link: string;
+    area: string[];
+    org: { name: string; href: string } | null;
+    where: string;
+    location: string;
+    categories: string[];
+  };
+
+  const c = copy.events;
+  const TWO_HOURS = 2 * 60 * 60 * 1000;
+  const DAY_MS = 864e5;
+
+  // First and last New York day each event covers, and when it's over.
+  const events = (JSON.parse(document.getElementById("events-data")!.textContent!) as Ev[]).map((e) => {
+    const first = e.allDay ? e.start : nyParts(new Date(e.start)).day;
+    const last = e.allDay ? (e.end ?? e.start) : nyParts(new Date(e.end ?? e.start)).day;
+    const endsAt = e.allDay ? null : e.end ? Date.parse(e.end) : Date.parse(e.start) + TWO_HOURS;
+    return { ...e, first, last, endsAt };
+  });
+  type Row = (typeof events)[number];
+
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const weekBtn = $<HTMLButtonElement>("view-week");
+  const monthBtn = $<HTMLButtonElement>("view-month");
+  const weekendBtn = $<HTMLButtonElement>("weekend");
+  const areaSelect = $<HTMLSelectElement>("area");
+  const chips = document.querySelectorAll<HTMLButtonElement>(".chips .chip");
+  const count = $("count");
+  const showAll = $<HTMLButtonElement>("show-all");
+  const prev = $<HTMLButtonElement>("prev");
+  const next = $<HTMLButtonElement>("next");
+  const title = $("week-title");
+  const daysEl = $("days");
+  const monthEl = $("month");
+  const noMatch = $("no-match");
+
+  let view: "week" | "month" = "week";
+  let week = 0; // 0 = this week
+  let month = 0; // 0 = this month
+  let weekendOnly = false;
+  let category = "";
+
+  const today = todayKey();
+  const thisMonday = mondayOf(today);
+  const thisMonth = monthStart(today);
+
+  // Don't page past the week or month of the last event (but always allow one step on).
+  const lastDay = events.reduce((m, e) => (e.last > m ? e.last : m), today);
+  const maxWeek = Math.max(1, Math.round((Date.parse(mondayOf(lastDay)) - Date.parse(thisMonday)) / (7 * DAY_MS)));
+  const monthsBetween = (a: string, b: string) =>
+    (Number(b.slice(0, 4)) - Number(a.slice(0, 4))) * 12 + Number(b.slice(5, 7)) - Number(a.slice(5, 7));
+  const maxMonth = Math.max(1, monthsBetween(thisMonth, monthStart(lastDay)));
+
+  const isOver = (e: Row, now: number) => (e.endsAt === null ? e.last < today : e.endsAt < now);
+
+  const inArea = (e: Row, a: string) =>
+    !a || e.area.includes(a) || (!wideAreas.includes(a) && e.area.some((x) => wideAreas.includes(x)));
+
+  // On a weekend day with a start time (Friday from 5pm), does the event reach it?
+  function reachesWeekend(e: Row, day: string) {
+    const rule = WEEKEND.find((w) => w.day === weekday(day));
+    if (!rule) return false;
+    if (rule.from === "00:00" || e.allDay || e.first < day) return true;
+    if (e.end) {
+      const end = nyParts(new Date(e.end));
+      return end.day > day || end.time > rule.from;
+    }
+    return nyParts(new Date(e.start)).time >= rule.from;
+  }
+
+  // Sort a day: all-day and continuing events first, then by start time.
+  const sortKey = (e: Row, day: string) => (e.allDay || e.first < day ? "" : e.start);
+
+  // Events on a day that pass every filter, in order.
+  function eventsOn(day: string, now: number) {
+    const area = areaSelect.value;
+    return events
+      .filter(
+        (e) =>
+          e.first <= day &&
+          e.last >= day &&
+          !isOver(e, now) &&
+          inArea(e, area) &&
+          (!category || e.categories.includes(category)) &&
+          (!weekendOnly || reachesWeekend(e, day)),
+      )
+      .sort((a, b) => sortKey(a, day).localeCompare(sortKey(b, day)));
+  }
+
+  const esc = (s: string) =>
+    s.replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]!);
+
+  const pin = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>`;
+  const calIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18M12 14v4M10 16h4"></path></svg>`;
+
+  function calendarMenu(e: Row, day: string) {
+    const id = `cal-${e.id}-${day}`;
+    const ics = `href="${icsPath(e)}" download="${esc(icsFileName(e))}"`;
+    return `<div class="cal">
+      <button class="btn btn-outline btn-small cal-toggle" type="button" aria-expanded="false" aria-controls="${id}">
+        ${calIcon}${c.addToCalendar}<span class="visually-hidden">: ${esc(e.name)}</span>
+      </button>
+      <div class="cal-menu" id="${id}" hidden>
+        <a href="${esc(googleUrl(e))}" target="_blank" rel="noopener">${c.google}<span class="visually-hidden"> ${c.newTab}</span></a>
+        <a ${ics}>${c.apple}</a>
+        <a ${ics}>${c.outlook}</a>
+        <p class="cal-note">${c.icsNote}</p>
+      </div>
+    </div>`;
+  }
+
+  function eventRow(e: Row, day: string) {
+    const time = e.allDay ? c.allDay : e.first < day ? c.continues : timeLabel(e.start);
+    const pills = e.categories
+      .map((cat) => `<span class="pill" style="background:${categoryColor(cat)}">${esc(cat)}</span>`)
+      .join("");
+    const who = e.org
+      ? `<a href="${esc(e.org.href)}">${esc(e.org.name)}</a>`
+      : e.where
+        ? `<span>${esc(e.where)}</span>`
+        : "";
+    const area = e.area.length ? `<span class="event-area">${pin}${esc(e.area.join(", "))}</span>` : "";
+    const name = e.link
+      ? `<a href="${esc(e.link)}" target="_blank" rel="noopener">${esc(e.name)}<span class="visually-hidden"> ${c.newTab}</span></a>`
+      : esc(e.name);
+    return `<li class="event">
+      <p class="event-time">${time}</p>
+      <div class="event-body">
+        ${pills ? `<div class="pills">${pills}</div>` : ""}
+        <h4 class="event-name">${name}</h4>
+        ${who || area ? `<p class="event-meta">${who}${area}</p>` : ""}
+      </div>
+      <div class="event-actions">
+        ${calendarMenu(e, day)}
+        ${e.link ? `<a class="visit" href="${esc(e.link)}" target="_blank" rel="noopener">${c.details}<span class="visually-hidden">: ${esc(e.name)} ${c.newTab}</span></a>` : ""}
+      </div>
+    </li>`;
+  }
+
+  function renderWeek(now: number, shown: Set<string>) {
+    const monday = addDays(thisMonday, week * 7);
+    const days = Array.from({ length: 7 }, (_, i) => addDays(monday, i)).filter(
+      (d) => d >= today && (!weekendOnly || WEEKEND.some((w) => w.day === weekday(d))),
+    );
+
+    const html = days.map((day) => {
+      const list = eventsOn(day, now);
+      list.forEach((e) => shown.add(e.id));
+      const badge = day === today ? ` <span class="today-badge">${c.today}</span>` : "";
+      return `<section class="day" id="day-${day}">
+        <h3>${dayLabel(day)}${badge}</h3>
+        ${list.length ? `<ul class="event-list">${list.map((e) => eventRow(e, day)).join("")}</ul>` : `<p class="nothing">${c.nothingDay}</p>`}
+      </section>`;
+    });
+
+    const empty = isFiltered() && shown.size === 0;
+    daysEl.innerHTML = empty ? "" : html.join("");
+    noMatch.hidden = !empty;
+
+    const label = weekendOnly ? [c.thisWeekend, c.nextWeekend][week] : [c.thisWeek, c.nextWeek][week];
+    const range = days.length ? rangeLabel(days[0], days[days.length - 1]) : "";
+    title.textContent = label ? `${label}, ${range}` : range;
+    prev.disabled = week === 0;
+    next.disabled = week >= maxWeek;
+  }
+
+  function renderMonth(now: number, shown: Set<string>) {
+    const first = monthStart(thisMonth, month);
+    const lastOfMonth = addDays(monthStart(first, 1), -1);
+    const start = mondayOf(first);
+    const end = addDays(mondayOf(lastOfMonth), 6);
+
+    const cells: string[] = c.weekdays.map((d) => `<div class="mhead" aria-hidden="true">${d}</div>`);
+    for (let day = start; day <= end; day = addDays(day, 1)) {
+      const outside = day < first || day > lastOfMonth;
+      const past = day < today;
+      const list = past ? [] : eventsOn(day, now);
+      if (!outside) list.forEach((e) => shown.add(e.id));
+      const num = Number(day.slice(8));
+      const classes = ["mday", outside && "is-outside", past && "is-past", day === today && "is-today"]
+        .filter(Boolean)
+        .join(" ");
+      const chipsHtml = list
+        .slice(0, 2)
+        .map((e) => {
+          const time = e.allDay || e.first < day ? "" : `${shortTime(e.start)} `;
+          const bg = e.categories.length ? categoryColor(e.categories[0]) : "var(--panel)";
+          return `<span class="mchip" style="background:${bg}">${esc(time + e.name)}</span>`;
+        })
+        .join("");
+      const more = list.length > 2 ? `<span class="mmore">${c.more(list.length - 2)}</span>` : "";
+      const inner = `<span class="mnum">${num}</span>${chipsHtml}${more}`;
+      cells.push(
+        past
+          ? `<div class="${classes}">${inner}</div>`
+          : `<button type="button" class="${classes}" data-day="${day}" aria-label="${esc(c.dayButton(dayLabel(day), list.length))}">${inner}</button>`,
+      );
+    }
+    monthEl.innerHTML = `<div class="month-grid">${cells.join("")}</div>`;
+    noMatch.hidden = true;
+
+    title.textContent = monthTitle(first);
+    prev.disabled = month === 0;
+    next.disabled = month >= maxMonth;
+  }
+
+  const isFiltered = () => weekendOnly || areaSelect.value !== "" || category !== "";
+
+  function render() {
+    const now = Date.now();
+    const shown = new Set<string>();
+    daysEl.hidden = view !== "week";
+    monthEl.hidden = view !== "month";
+    if (view === "week") renderWeek(now, shown);
+    else renderMonth(now, shown);
+
+    weekBtn.setAttribute("aria-pressed", String(view === "week"));
+    monthBtn.setAttribute("aria-pressed", String(view === "month"));
+    weekendBtn.setAttribute("aria-pressed", String(weekendOnly));
+    prev.setAttribute("aria-label", view === "week" ? c.prev : c.prevMonth);
+    next.setAttribute("aria-label", view === "week" ? c.next : c.nextMonth);
+    count.textContent = c.count(shown.size);
+    showAll.hidden = !isFiltered();
+  }
+
+  weekBtn.addEventListener("click", () => {
+    view = "week";
+    render();
+  });
+  monthBtn.addEventListener("click", () => {
+    view = "month";
+    weekendOnly = false; // weekend is a week-view filter
+    render();
+  });
+  weekendBtn.addEventListener("click", () => {
+    weekendOnly = !weekendOnly;
+    if (weekendOnly) {
+      view = "week";
+      week = 0; // "This weekend" means this week's weekend
+    }
+    render();
+  });
+  areaSelect.addEventListener("change", render);
+  chips.forEach((chip) =>
+    chip.addEventListener("click", () => {
+      category = chip.dataset.category ?? "";
+      chips.forEach((x) => x.setAttribute("aria-pressed", String(x === chip)));
+      render();
+    }),
+  );
+  showAll.addEventListener("click", () => {
+    weekendOnly = false;
+    areaSelect.value = "";
+    category = "";
+    chips.forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.category === "")));
+    render();
+  });
+  prev.addEventListener("click", () => {
+    if (view === "week") week = Math.max(0, week - 1);
+    else month = Math.max(0, month - 1);
+    render();
+  });
+  next.addEventListener("click", () => {
+    if (view === "week") week = Math.min(maxWeek, week + 1);
+    else month = Math.min(maxMonth, month + 1);
+    render();
+  });
+
+  // Month grid: clicking a day shows that week, scrolled to the day.
+  monthEl.addEventListener("click", (ev) => {
+    const cell = (ev.target as HTMLElement).closest<HTMLButtonElement>("button[data-day]");
+    if (!cell) return;
+    const day = cell.dataset.day!;
+    view = "week";
+    week = Math.round((Date.parse(mondayOf(day)) - Date.parse(thisMonday)) / (7 * DAY_MS));
+    render();
+    const heading = document.querySelector<HTMLElement>(`#day-${day} h3`);
+    if (heading) {
+      heading.tabIndex = -1;
+      heading.scrollIntoView({ block: "start" });
+      heading.focus({ preventScroll: true });
+    }
+  });
+
+  // "Add to calendar" menus: one open at a time; close on outside click or Escape.
+  function closeMenus(except?: HTMLButtonElement) {
+    document.querySelectorAll<HTMLButtonElement>(".cal-toggle[aria-expanded='true']").forEach((b) => {
+      if (b === except) return;
+      b.setAttribute("aria-expanded", "false");
+      document.getElementById(b.getAttribute("aria-controls")!)!.hidden = true;
+    });
+  }
+  document.addEventListener("click", (ev) => {
+    const target = ev.target as HTMLElement;
+    const toggle = target.closest<HTMLButtonElement>(".cal-toggle");
+    if (toggle) {
+      const open = toggle.getAttribute("aria-expanded") !== "true";
+      closeMenus(toggle);
+      toggle.setAttribute("aria-expanded", String(open));
+      document.getElementById(toggle.getAttribute("aria-controls")!)!.hidden = !open;
+      return;
+    }
+    if (!target.closest(".cal-menu") || target.closest("a")) closeMenus();
+  });
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key !== "Escape") return;
+    const open = document.querySelector<HTMLButtonElement>(".cal-toggle[aria-expanded='true']");
+    if (!open) return;
+    closeMenus();
+    open.focus();
+  });
+
+  render();
+</script>

@@ -9,8 +9,12 @@ export const copy = {
     "A free directory of Northern Virginia groups that welcome new people.",
 
   nav: {
-    email: "Stay in the loop",
+    label: "Main",
+    groups: "Groups",
+    events: "Events",
     about: "About",
+    email: "Stay in the loop",
+    menu: "Menu",
   },
 
   hero: {
@@ -53,6 +57,57 @@ export const copy = {
     empty: "No groups match that yet. Try another word or category.",
     total: (n: number) => `${n} ${n === 1 ? "group" : "groups"}`,
     showing: (shown: number, total: number) => `Showing ${shown} of ${total} groups`,
+  },
+
+  // /events page
+  events: {
+    title: "Events · new to nova",
+    metaDescription:
+      "Things to do this week in Northern Virginia, with groups that welcome new people.",
+    heading: "Things to do this week,",
+    headingItalic: "with groups that welcome new people.",
+    subline: "Each event links to the group's own page, where the current details live.",
+    filtersLabel: "Filter events",
+    viewLabel: "View",
+    week: "Week",
+    month: "Month",
+    weekend: "This weekend",
+    categoryLabel: "Filter by category",
+    all: "All",
+    areaLabel: "Area",
+    allAreas: "All areas",
+    count: (n: number) => `${n} ${n === 1 ? "event" : "events"}`,
+    showAll: "Show all events",
+    thisWeek: "This week",
+    nextWeek: "Next week",
+    thisWeekend: "This weekend",
+    nextWeekend: "Next weekend",
+    prev: "Previous week",
+    next: "Next week",
+    prevMonth: "Previous month",
+    nextMonth: "Next month",
+    weekdays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    more: (n: number) => `+${n} more`,
+    // Screen-reader label for a day in the month grid.
+    dayButton: (day: string, n: number) => `${day}, ${n} ${n === 1 ? "event" : "events"}. Show this week.`,
+    addToCalendar: "Add to calendar",
+    google: "Google Calendar",
+    apple: "Apple Calendar",
+    outlook: "Outlook",
+    icsNote: "Apple Calendar and Outlook download an .ics file.",
+    today: "Today",
+    allDay: "All day",
+    continues: "Continues",
+    nothingDay: "Nothing listed yet.",
+    noMatch: "Nothing matches that yet. Try another area, or look at next week.",
+    details: "Details on their site ↗",
+    newTab: "(opens in a new tab)",
+    organizers: {
+      heading: "Running something open to newcomers?",
+      body: "Verified groups can send their events to be listed here. Free.",
+      button: "Verify your listing",
+      href: TALLY_URL,
+    },
   },
 
   organizers: {
