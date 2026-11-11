@@ -1,53 +1,6 @@
 /* Homepage: pinned papers on the blue fabric board.
    Colour means place: each flyer and dot takes its route group's colour (src/routes.ts). */
 
-/* Pushpin, shared by every pinned sheet */
-.pin {
-  position: absolute;
-  top: -9px;
-  left: 50%;
-  width: 20px;
-  height: 20px;
-  margin-left: -10px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.7) 0 18%, transparent 20%), var(--pin, #e2402f);
-  box-shadow: 1px 4px 4px rgb(20 40 50 / 0.4);
-  z-index: 2;
-}
-
-.ink-btn,
-.paper-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 46px;
-  padding: 0 18px;
-  border: 0;
-  border-radius: 4px;
-  font: 700 15px/1 var(--sans);
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.ink-btn {
-  background: var(--ink);
-  color: #fff;
-}
-
-.ink-btn:hover {
-  background: #2f4249;
-}
-
-.paper-btn {
-  background: #fff;
-  color: var(--ink);
-  box-shadow: inset 0 0 0 2px var(--ink);
-}
-
-.paper-btn:hover {
-  background: var(--fabric);
-}
-
 /* Hero: headline, Becca's note and search on the left; Coming up pinned on the right */
 .home-hero {
   display: grid;
@@ -61,12 +14,6 @@
 .home-hero h1 {
   font-size: clamp(40px, 4.8vw, 64px);
   line-height: 1.04;
-}
-
-.hl {
-  background: linear-gradient(transparent 55%, #fff 55%, #fff 92%, transparent 92%);
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
 }
 
 .home-note {
@@ -119,19 +66,6 @@
   background: #fff;
   transform: rotate(1.2deg);
   box-shadow: var(--lift);
-}
-
-.tape {
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  width: 96px;
-  height: 26px;
-  margin-left: -48px;
-  background: rgb(255 255 255 / 0.6);
-  border: 1px solid rgb(0 0 0 / 0.05);
-  transform: rotate(-3deg);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
 }
 
 .coming h2 {
@@ -335,49 +269,6 @@
   color: var(--muted);
 }
 
-.swatch {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  margin-right: 6px;
-  vertical-align: -1px;
-  border-radius: 50%;
-  background: var(--where);
-  box-shadow: inset 0 0 0 1.5px rgb(29 42 47 / 0.35);
-}
-
-/* Kind of group: plain white tags, since colour means place */
-.kind-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  min-width: 0;
-}
-
-.kind-tag {
-  min-height: 44px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 3px;
-  background: #fff;
-  color: var(--ink);
-  font: 700 14px var(--sans);
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgb(29 54 66 / 0.22);
-}
-
-.kind-tag:hover {
-  background: var(--fabric);
-}
-
-.kind-tag[aria-pressed="true"] {
-  background: var(--ink);
-  color: #fff;
-}
-
 .board-count {
   margin: 16px 0 28px;
   font-weight: 700;
@@ -538,24 +429,6 @@ a.tab:focus-visible {
   gap: 32px;
   padding-top: 72px;
   padding-bottom: 64px;
-}
-
-.sheet {
-  position: relative;
-  padding: 34px 34px 32px;
-  background: #fff;
-  transform: rotate(var(--tilt));
-  box-shadow: var(--lift);
-}
-
-.sheet h2 {
-  font-size: 28px;
-}
-
-.sheet p {
-  margin: 10px 0 20px;
-  color: var(--muted);
-  max-width: 460px;
 }
 
 @media (max-width: 1000px) {

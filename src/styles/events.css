@@ -1,0 +1,543 @@
+/* Events page: each day is a pinned paper sheet on the fabric board.
+   Colour means place, as on the homepage: each event's dot takes its route group's colour. */
+
+.events-hero {
+  padding-top: 40px;
+  padding-bottom: 28px;
+}
+
+.events-hero h1 {
+  font-size: clamp(40px, 4.8vw, 64px);
+  line-height: 1.04;
+  max-width: 980px;
+  margin-bottom: 16px;
+}
+
+.events-hero p {
+  margin: 0;
+  max-width: 640px;
+  font-size: 17px;
+  color: var(--muted);
+}
+
+/* Controls */
+.event-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px 16px;
+  margin-bottom: 14px;
+}
+
+.control-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Week | Month: a white strip with the chosen half in ink */
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgb(29 54 66 / 0.22);
+}
+
+.segmented button {
+  min-height: 40px;
+  min-width: 72px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ink);
+  font: 700 14px var(--sans);
+  cursor: pointer;
+}
+
+.segmented button:hover {
+  background: var(--fabric);
+}
+
+.segmented button[aria-pressed="true"] {
+  background: var(--ink);
+  color: #fff;
+}
+
+.area-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.area-filter select {
+  min-height: 44px;
+  padding: 0 40px 0 14px;
+  border: 0;
+  border-radius: 4px;
+  font: 700 15px var(--sans);
+  color: var(--ink);
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231d2a2f' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 14px center;
+  box-shadow: 0 2px 4px rgb(29 54 66 / 0.22);
+  appearance: none;
+  cursor: pointer;
+}
+
+.area-filter select:hover {
+  background-color: var(--fabric);
+}
+
+.events-results {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 46px;
+  margin: 14px 0 8px;
+}
+
+.events-count {
+  margin: 0;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.btn-small {
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+
+/* Week title with the arrows beside it */
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 0 30px;
+}
+
+.week-nav h2 {
+  flex: 1;
+  font-size: 32px;
+}
+
+.arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  box-shadow: 0 2px 4px rgb(29 54 66 / 0.22);
+  cursor: pointer;
+}
+
+.arrow:hover {
+  background: var(--fabric);
+}
+
+.arrow:disabled {
+  background: rgb(255 255 255 / 0.4);
+  color: rgb(29 42 47 / 0.35);
+  box-shadow: none;
+  cursor: default;
+}
+
+/* Days: one pinned sheet each */
+.days {
+  display: grid;
+  gap: 34px;
+}
+
+.day.sheet {
+  padding: 28px 30px 10px;
+  scroll-margin-top: 24px;
+}
+
+.day h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 26px;
+  padding-bottom: 6px;
+}
+
+.today-badge {
+  padding: 3px 10px 1px;
+  border-radius: 3px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.day .nothing {
+  margin: 6px 0 20px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Time | dot, name, where, kind | links */
+.event {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr) auto;
+  gap: 4px 24px;
+  align-items: start;
+  padding: 16px 0;
+  border-top: 1.5px dashed rgb(29 42 47 / 0.3);
+}
+
+.day .event-time {
+  margin: 3px 0 0;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.event-name {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  column-gap: 10px;
+  margin: 0 0 4px;
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.event-name::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--where);
+  box-shadow: inset 0 0 0 1.5px rgb(29 42 47 / 0.35);
+}
+
+/* No underline until hover; "Details on their site" is the visible link. */
+.event-name a {
+  text-decoration-color: transparent;
+  text-decoration-thickness: 2px;
+}
+
+.event-name a:hover {
+  text-decoration-color: var(--ink);
+}
+
+.day .event-meta,
+.day .event-kinds {
+  max-width: none;
+  margin: 0 0 0 24px;
+  font-size: 14.5px;
+  line-height: 1.4;
+}
+
+.event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 14px;
+  color: var(--ink);
+}
+
+.event-area {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 800;
+}
+
+.event-meta a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  position: relative;
+}
+
+/* Keeps the tap area 44px tall without spacing the line out. */
+.event-meta a::after {
+  content: "";
+  position: absolute;
+  inset: -6px 0;
+}
+
+.day .event-kinds {
+  color: var(--muted);
+}
+
+.event-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
+}
+
+.event-details {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: -10px;
+  font-weight: 800;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+/* Add to calendar: a quiet text button, so the event and its link lead */
+.cal {
+  position: relative;
+}
+
+.cal-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: 600 14px var(--sans);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.cal-toggle:hover,
+.cal-toggle[aria-expanded="true"] {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cal-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 2px);
+  z-index: 10;
+  width: 240px;
+  padding: 6px;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: var(--lift);
+}
+
+.cal-menu a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.cal-menu a:hover,
+.cal-menu a:focus-visible {
+  background: var(--fabric);
+}
+
+.cal-note {
+  margin: 4px 12px 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.no-match {
+  margin: 0;
+  padding: 26px 28px;
+  background: #fff;
+  box-shadow: var(--lift);
+  font-weight: 700;
+  font-size: 17px;
+}
+
+/* Month grid (restyle comes next block): scrolls sideways inside its box on phones */
+.month-scroll {
+  overflow-x: auto;
+  background: #fff;
+  box-shadow: var(--lift);
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(96px, 1fr));
+  min-width: 672px;
+}
+
+.mhead {
+  padding: 10px 10px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  border-bottom: 1.5px solid rgb(29 42 47 / 0.2);
+}
+
+.mday {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  min-height: 116px;
+  min-width: 0;
+  padding: 8px;
+  border: 0;
+  border-right: 1px solid rgb(29 42 47 / 0.14);
+  border-bottom: 1px solid rgb(29 42 47 / 0.14);
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+}
+
+.mday:nth-child(7n) {
+  border-right: 0;
+}
+
+.month-grid > .mday:nth-last-child(-n + 7) {
+  border-bottom: 0;
+}
+
+button.mday {
+  cursor: pointer;
+}
+
+button.mday:hover {
+  background: #f1f7fa;
+}
+
+.mnum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.mday.is-outside,
+.mday.is-past {
+  color: var(--muted);
+  background: #f4f7f8;
+}
+
+.mday.is-outside .mnum,
+.mday.is-past .mnum {
+  font-weight: 400;
+}
+
+.mday.is-today .mnum {
+  background: var(--ink);
+  color: #fff;
+}
+
+.mchip {
+  display: block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--where);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mmore {
+  font-size: 12px;
+  color: var(--muted);
+  padding-left: 2px;
+}
+
+/* Organizers: a pinned sheet at the bottom */
+.events-organizers {
+  max-width: 640px;
+  margin: 72px auto 64px;
+}
+
+@media (max-width: 700px) {
+  .events-hero {
+    padding-top: 24px;
+  }
+
+  .events-hero h1 {
+    font-size: 38px;
+  }
+
+  .event-controls .area-filter {
+    flex: 1 1 100%;
+  }
+
+  .event-controls .area-filter select {
+    flex: 1;
+  }
+
+  .week-nav h2 {
+    font-size: 24px;
+  }
+
+  .days {
+    gap: 28px;
+  }
+
+  .day.sheet {
+    padding: 24px 18px 6px;
+  }
+
+  .day h3 {
+    font-size: 22px;
+  }
+
+  .event {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .event-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 20px;
+    margin-left: 24px;
+  }
+
+  .event-details {
+    margin-top: 0;
+  }
+
+  .cal-menu {
+    left: 0;
+    right: auto;
+  }
+
+  .events-organizers {
+    margin: 56px 0 48px;
+  }
+
+  .sheet.events-organizers {
+    padding: 30px 22px 26px;
+  }
+}

@@ -94,8 +94,9 @@ export const copy = {
     title: "Events · new to nova",
     metaDescription:
       "Things to do this week in Northern Virginia, with groups that welcome new people.",
-    heading: "Things to do this week,",
-    headingItalic: "with groups that welcome new people.",
+    // The highlighted words get a white marker stripe, as on the homepage.
+    heading: "Things to do this week, with groups that welcome",
+    headingHighlight: "new people",
     subline: "Each event links to the group's own page, where the current details live.",
     filtersLabel: "Filter events",
     viewLabel: "View",
@@ -106,7 +107,14 @@ export const copy = {
     all: "All",
     areaLabel: "Area",
     allAreas: "All areas",
-    count: (n: number) => `${n} ${n === 1 ? "event" : "events"}`,
+    // The count says what it covers: "17 events this week", "42 events in November 2026".
+    count: (n: number, scope: string) => `${n} ${n === 1 ? "event" : "events"} ${scope}`,
+    scopeThisWeek: "this week",
+    scopeNextWeek: "next week",
+    scopeThatWeek: "that week",
+    scopeThisWeekend: "this weekend",
+    scopeNextWeekend: "next weekend",
+    scopeMonth: (month: string) => `in ${month}`,
     showAll: "Show all events",
     thisWeek: "This week",
     nextWeek: "Next week",
@@ -130,6 +138,7 @@ export const copy = {
     continues: "Continues",
     nothingDay: "Nothing listed yet.",
     noMatch: "Nothing matches that yet. Try another area, or look at next week.",
+    nothingLeft: "Nothing else listed this week. Try next week.",
     details: "Details on their site ↗",
     newTab: "(opens in a new tab)",
     organizers: {

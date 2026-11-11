@@ -5,6 +5,7 @@ import { categories } from "../categories";
 import { areas } from "../areas";
 import orgsData from "../data/orgs.json";
 import eventsData from "../data/events.json";
+import "../styles/events.css";
 
 type Org = { id: string; name: string; category: string[] };
 type RawEvent = {
@@ -53,7 +54,7 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
 
 <Base title={c.title} description={c.metaDescription} current="events">
   <section class="wrap events-hero">
-    <h1>{c.heading} <em>{c.headingItalic}</em></h1>
+    <h1>{c.heading} <span class="hl">{c.headingHighlight}</span>.</h1>
     <p>{c.subline}</p>
   </section>
 
@@ -64,7 +65,7 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
           <button type="button" id="view-week" aria-pressed="true">{c.week}</button>
           <button type="button" id="view-month" aria-pressed="false">{c.month}</button>
         </div>
-        <button class="chip chip-all weekend-toggle" id="weekend" type="button" aria-pressed="false">{c.weekend}</button>
+        <button class="kind-tag weekend-toggle" id="weekend" type="button" aria-pressed="false">{c.weekend}</button>
       </div>
       <div class="area-filter">
         <label for="area">{c.areaLabel}</label>
@@ -75,41 +76,40 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
       </div>
     </div>
 
-    <fieldset class="chips">
+    <fieldset class="kind-tags">
       <legend class="visually-hidden">{c.categoryLabel}</legend>
-      <button class="chip chip-all" type="button" data-category="" aria-pressed="true">{c.all}</button>
+      <button class="kind-tag" type="button" data-category="" aria-pressed="true">{c.all}</button>
       {usedCategories.map((cat) => (
-        <button class="chip" type="button" data-category={cat.name} aria-pressed="false" style={`background:${cat.color}`}>
+        <button class="kind-tag" type="button" data-category={cat.name} aria-pressed="false">
           {cat.name}
         </button>
       ))}
     </fieldset>
 
-    <div class="results-bar events-results">
-      <p class="count" id="count" role="status"></p>
-      <button class="btn btn-outline btn-small" id="show-all" type="button" hidden>{c.showAll}</button>
+    <div class="events-results">
+      <p class="events-count" id="count" role="status"></p>
+      <button class="paper-btn btn-small" id="show-all" type="button" hidden>{c.showAll}</button>
     </div>
 
     <div class="week-nav">
-      <button class="arrow" id="prev" type="button" aria-label={c.prev}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
-      </button>
       <h2 id="week-title" aria-live="polite"></h2>
+      <button class="arrow" id="prev" type="button" aria-label={c.prev}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+      </button>
       <button class="arrow" id="next" type="button" aria-label={c.next}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
       </button>
     </div>
 
-    <div id="days"></div>
+    <div class="days" id="days"></div>
     <div class="month-scroll" id="month" hidden></div>
     <p class="no-match" id="no-match" hidden>{c.noMatch}</p>
 
-    <aside class="organizers">
-      <div>
-        <h2>{c.organizers.heading}</h2>
-        <p>{c.organizers.body}</p>
-      </div>
-      <a class="btn btn-outline" href={c.organizers.href}>{c.organizers.button}</a>
+    <aside class="sheet events-organizers" style="--tilt:-0.6deg">
+      <span class="pin" style="--pin:#1F6FD1" aria-hidden="true"></span>
+      <h2>{c.organizers.heading}</h2>
+      <p>{c.organizers.body}</p>
+      <a class="paper-btn" href={c.organizers.href}>{c.organizers.button}</a>
     </aside>
   </section>
 
@@ -118,7 +118,7 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
 
 <script>
   import { copy } from "../copy";
-  import { categoryColor } from "../categories";
+  import { placeColor } from "../routes";
   import { wideAreas } from "../areas";
   import { WEEKEND } from "../weekend";
   import { googleUrl, icsPath, icsFileName } from "../calendar";
@@ -168,7 +168,7 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
   const monthBtn = $<HTMLButtonElement>("view-month");
   const weekendBtn = $<HTMLButtonElement>("weekend");
   const areaSelect = $<HTMLSelectElement>("area");
-  const chips = document.querySelectorAll<HTMLButtonElement>(".chips .chip");
+  const chips = document.querySelectorAll<HTMLButtonElement>(".kind-tags .kind-tag");
   const count = $("count");
   const showAll = $<HTMLButtonElement>("show-all");
   const prev = $<HTMLButtonElement>("prev");
@@ -241,7 +241,7 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
     const id = `cal-${e.id}-${day}`;
     const ics = `href="${icsPath(e)}" download="${esc(icsFileName(e))}"`;
     return `<div class="cal">
-      <button class="btn btn-outline btn-small cal-toggle" type="button" aria-expanded="false" aria-controls="${id}">
+      <button class="cal-toggle" type="button" aria-expanded="false" aria-controls="${id}">
         ${calIcon}${c.addToCalendar}<span class="visually-hidden">: ${esc(e.name)}</span>
       </button>
       <div class="cal-menu" id="${id}" hidden>
@@ -253,32 +253,41 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
     </div>`;
   }
 
+  // Colour means place, as on the homepage: each event's dot takes its route group's colour.
   function eventRow(e: Row, day: string) {
     const time = e.allDay ? c.allDay : e.first < day ? c.continues : timeLabel(e.start);
-    const pills = e.categories
-      .map((cat) => `<span class="pill" style="background:${categoryColor(cat)}">${esc(cat)}</span>`)
-      .join("");
     const who = e.org
       ? `<a href="${esc(e.org.href)}">${esc(e.org.name)}</a>`
       : e.where
         ? `<span>${esc(e.where)}</span>`
         : "";
     const area = e.area.length ? `<span class="event-area">${pin}${esc(e.area.join(", "))}</span>` : "";
+    const kinds = e.categories.length ? `<p class="event-kinds">${e.categories.map(esc).join(" · ")}</p>` : "";
     const name = e.link
       ? `<a href="${esc(e.link)}" target="_blank" rel="noopener">${esc(e.name)}<span class="visually-hidden"> ${c.newTab}</span></a>`
       : esc(e.name);
-    return `<li class="event">
+    return `<li class="event" style="--where:${placeColor(e.area)}">
       <p class="event-time">${time}</p>
       <div class="event-body">
-        ${pills ? `<div class="pills">${pills}</div>` : ""}
         <h4 class="event-name">${name}</h4>
-        ${who || area ? `<p class="event-meta">${who}${area}</p>` : ""}
+        ${who || area ? `<p class="event-meta">${area}${who}</p>` : ""}
+        ${kinds}
       </div>
       <div class="event-actions">
+        ${e.link ? `<a class="event-details" href="${esc(e.link)}" target="_blank" rel="noopener">${c.details}<span class="visually-hidden">: ${esc(e.name)} ${c.newTab}</span></a>` : ""}
         ${calendarMenu(e, day)}
-        ${e.link ? `<a class="visit" href="${esc(e.link)}" target="_blank" rel="noopener">${c.details}<span class="visually-hidden">: ${esc(e.name)} ${c.newTab}</span></a>` : ""}
       </div>
     </li>`;
+  }
+
+  // Slight, repeatable tilts and pin colours so the day sheets look hand-pinned.
+  const tilts = [-0.5, 0.4, -0.3, 0.6, -0.4, 0.3, -0.6];
+  const pins = ["#E2402F", "#1F6FD1", "#1E9E57", "#F2B705", "#7A4FD6"];
+
+  // The words the count and title use for the week on show.
+  function weekScope() {
+    if (weekendOnly) return [c.scopeThisWeekend, c.scopeNextWeekend][week] ?? c.scopeThatWeek;
+    return [c.scopeThisWeek, c.scopeNextWeek][week] ?? c.scopeThatWeek;
   }
 
   function renderWeek(now: number, shown: Set<string>) {
@@ -287,18 +296,23 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
       (d) => d >= today && (!weekendOnly || WEEKEND.some((w) => w.day === weekday(d))),
     );
 
-    const html = days.map((day) => {
-      const list = eventsOn(day, now);
+    const lists = days.map((day) => ({ day, list: eventsOn(day, now) }));
+    // Today with nothing left on it isn't worth a sheet.
+    const sheets = lists.filter(({ day, list }) => day !== today || list.length > 0);
+
+    const html = sheets.map(({ day, list }, i) => {
       list.forEach((e) => shown.add(e.id));
       const badge = day === today ? ` <span class="today-badge">${c.today}</span>` : "";
-      return `<section class="day" id="day-${day}">
+      const n = Number(day.slice(8));
+      return `<section class="day sheet" id="day-${day}" style="--tilt:${tilts[n % tilts.length]}deg">
+        <span class="pin" style="--pin:${pins[(n + i) % pins.length]}" aria-hidden="true"></span>
         <h3>${dayLabel(day)}${badge}</h3>
         ${list.length ? `<ul class="event-list">${list.map((e) => eventRow(e, day)).join("")}</ul>` : `<p class="nothing">${c.nothingDay}</p>`}
       </section>`;
     });
 
     const empty = isFiltered() && shown.size === 0;
-    daysEl.innerHTML = empty ? "" : html.join("");
+    daysEl.innerHTML = empty ? "" : html.length ? html.join("") : `<p class="no-match">${c.nothingLeft}</p>`;
     noMatch.hidden = !empty;
 
     const label = weekendOnly ? [c.thisWeekend, c.nextWeekend][week] : [c.thisWeek, c.nextWeek][week];
@@ -306,12 +320,14 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
     title.textContent = label ? `${label}, ${range}` : range;
     prev.disabled = week === 0;
     next.disabled = week >= maxWeek;
+    return weekScope();
   }
 
   function renderMonth(now: number, shown: Set<string>) {
     const first = monthStart(thisMonth, month);
     const lastOfMonth = addDays(monthStart(first, 1), -1);
-    const start = mondayOf(first);
+    // This month starts at this week: earlier weeks are already over.
+    const start = month === 0 ? thisMonday : mondayOf(first);
     const end = addDays(mondayOf(lastOfMonth), 6);
 
     const cells: string[] = c.weekdays.map((d) => `<div class="mhead" aria-hidden="true">${d}</div>`);
@@ -328,8 +344,7 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
         .slice(0, 2)
         .map((e) => {
           const time = e.allDay || e.first < day ? "" : `${shortTime(e.start)} `;
-          const bg = e.categories.length ? categoryColor(e.categories[0]) : "var(--panel)";
-          return `<span class="mchip" style="background:${bg}">${esc(time + e.name)}</span>`;
+          return `<span class="mchip" style="--where:${placeColor(e.area)}">${esc(time + e.name)}</span>`;
         })
         .join("");
       const more = list.length > 2 ? `<span class="mmore">${c.more(list.length - 2)}</span>` : "";
@@ -346,6 +361,7 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
     title.textContent = monthTitle(first);
     prev.disabled = month === 0;
     next.disabled = month >= maxMonth;
+    return c.scopeMonth(monthTitle(first));
   }
 
   const isFiltered = () => weekendOnly || areaSelect.value !== "" || category !== "";
@@ -355,15 +371,14 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
     const shown = new Set<string>();
     daysEl.hidden = view !== "week";
     monthEl.hidden = view !== "month";
-    if (view === "week") renderWeek(now, shown);
-    else renderMonth(now, shown);
+    const scope = view === "week" ? renderWeek(now, shown) : renderMonth(now, shown);
 
     weekBtn.setAttribute("aria-pressed", String(view === "week"));
     monthBtn.setAttribute("aria-pressed", String(view === "month"));
     weekendBtn.setAttribute("aria-pressed", String(weekendOnly));
     prev.setAttribute("aria-label", view === "week" ? c.prev : c.prevMonth);
     next.setAttribute("aria-label", view === "week" ? c.next : c.nextMonth);
-    count.textContent = c.count(shown.size);
+    count.textContent = c.count(shown.size, scope);
     showAll.hidden = !isFiltered();
   }
 
