@@ -61,6 +61,10 @@ Chosen 2026-11-11 after an Impeccable critique and three drafts. Pinned paper fl
 
 - Done: homepage (`src/pages/index.astro`, `src/styles/home.css`) and the site-wide font, colours and header.
 - Next: Events page in the new look (plus hide an empty today, start the month grid at this week, label what the count covers), then About and Join (restyle the Kit form), then DESIGN.md, delete `src/pages/drafts/`, and rewrite this section. The C1 notes below describe the old design and only still apply to pages not yet converted.
+- Not pushed yet: the homepage commit (728f573) is local only. Push it together with the Events restyle, so the live site isn't half-converted for long.
+- Never commit `src/pages/drafts/` (the direction drafts). Astro builds them, so they would go live at `/drafts/...`. Block 3 deletes the folder.
+- Optional ideas from Impeccable's finish review, not yet decided: tear-off tabs that look actually torn, pins in varied spots, Becca's handwriting font for small asides, a distinct look for the organizer and signup sheets.
+- Screenshots: headless Chrome draws the system font instead of Overpass at phone width. Check phone layouts in the real browser tab instead.
 
 ## Old design: homepage layout "C1"
 
