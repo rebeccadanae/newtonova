@@ -41,7 +41,11 @@ const { title = copy.siteTitle, description = copy.metaDescription, current } = 
   <body>
     <header class="site-header">
       <div class="wrap">
-        <a class="logo" href="/">new to <em>nova</em></a>
+        <a class="logo" href="/">
+          <!-- Same drawing as public/favicon.svg, without its ink square (the header is ink). -->
+          <svg class="logo-mark" viewBox="0 12 64 44" aria-hidden="true"><path fill="#CFE2EA" d="M12.9 42.2L15.7 44.9L25.3 39.8L28.0 28.6L30.9 29.7L32.4 25.1L33.5 25.7L36.1 21.1L36.0 18.2L40.5 20.6L42.1 18.5L46.9 21.8L45.8 26.8L47.8 26.2L48.8 27.9L54.9 29.8L54.5 32.6L49.7 30.1L55.0 33.0L55.7 35.3L54.5 34.7L54.2 36.3L56.1 38.3L50.9 37.2L52.9 37.0L55.0 39.6L58.6 38.6L60.3 41.9L2.0 53.8L5.7 51.6L12.9 42.2ZM59.0 28.3L62.0 26.9L58.4 37.0L59.0 28.3Z"/><circle cx="47.2" cy="19.6" r="4.8" fill="#0E1619" fill-opacity=".5"/><circle cx="46.4" cy="18.6" r="4.8" fill="#E2402F"/><circle cx="44.8" cy="17.0" r="1.5" fill="#fff" fill-opacity=".7"/></svg>
+          new to nova
+        </a>
         <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">{copy.nav.menu}</button>
         <nav class="site-nav" id="site-nav" aria-label={copy.nav.label}>
           <a href="/" aria-current={here("groups")}>{copy.nav.groups}</a>

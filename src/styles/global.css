@@ -118,11 +118,34 @@ a:hover {
 }
 
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
   font-family: var(--serif);
   font-weight: 800;
   font-size: 27px;
   line-height: 1;
   text-decoration: none;
+}
+
+.logo-mark {
+  flex-shrink: 0;
+  width: 50px;
+  height: 34px;
+}
+
+/* Very narrow phones: keep the logo and Menu button on one line */
+@media (max-width: 380px) {
+  .logo {
+    gap: 8px;
+    font-size: 23px;
+  }
+
+  .logo-mark {
+    width: 42px;
+    height: 29px;
+  }
 }
 
 .site-nav {

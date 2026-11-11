@@ -60,6 +60,7 @@ Area options: Alexandria, Annandale, Arlington, Ashburn, Centreville, Chantilly,
 Chosen 2026-11-11 after an Impeccable critique and three drafts. Pinned paper flyers on a pale blue fabric board; colour means place (each route group has a colour, set in `src/routes.ts`); "Where are you headed?" picks Inside the Beltway / I-66 West / Dulles Toll Road / I-95 South or a town; "Coming up" pinned sheet; Becca's note (photo + her words) under the headline; Overpass everywhere, sentence case, no all caps. The direction contract lives in `.impeccable/surfaces/src-pages-index-astro.md`; product goals in `PRODUCT.md`.
 
 - Done: homepage (`src/pages/index.astro`, `src/styles/home.css`) and the site-wide font, colours and header.
+- Logo and favicon: Virginia (traced from US Census outlines, tilted 12°) in board blue with a red pin over NoVA. `public/favicon.svg`, `favicon.ico` (16/32/48) and `apple-touch-icon.png` (180); the header logo inlines the same drawing beside plain "new to nova" (no italic).
 - Events, part 1 done (block 2): week view as pinned day sheets with route-colour dots, white tags, headline stripe, empty today hidden, month grid starts at this week, count names what it covers. Events styles are in `src/styles/events.css`; shared pinboard pieces (pin, tape, paper buttons, white tags, sheet, headline stripe) moved to `global.css`.
 - Events part 2: event rows replaced by place-coloured ticket stubs (chosen 2026-11-11 from three drafts, over a tidy list and a planner page).
 - Month view done (taped sheet, dots on phones).
