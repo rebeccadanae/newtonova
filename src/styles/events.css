@@ -94,12 +94,13 @@
   background-color: var(--fabric);
 }
 
+/* Under the week title: the count, and Show all events when a filter is on */
 .events-results {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
-  min-height: 46px;
-  margin: 14px 0 8px;
+  gap: 4px 14px;
+  margin-top: 6px;
 }
 
 .events-count {
@@ -117,13 +118,17 @@
 /* Week title with the arrows beside it */
 .week-nav {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  padding: 18px 0 30px;
+  padding: 30px 0 30px;
+}
+
+.week-head {
+  flex: 1;
+  min-width: 0;
 }
 
 .week-nav h2 {
-  flex: 1;
   font-size: 32px;
 }
 
@@ -498,11 +503,44 @@ button.mday:hover {
   }
 
   .events-hero h1 {
-    font-size: 38px;
+    font-size: 32px;
+  }
+
+  .events-hero p {
+    font-size: 16px;
+  }
+
+  .event-controls {
+    margin-bottom: 12px;
   }
 
   .event-controls .area-filter {
     flex: 1 1 100%;
+  }
+
+  /* Category tags: one row that swipes, fading at the right edge, as on Groups */
+  .kind-tags {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -24px;
+    padding: 4px 48px 8px 24px;
+    scroll-padding: 0 48px 0 24px;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
+  }
+
+  .kind-tags::-webkit-scrollbar {
+    display: none;
+  }
+
+  .kind-tag {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .week-nav {
+    padding: 20px 0 26px;
   }
 
   .event-controls .area-filter select {
