@@ -148,15 +148,31 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 22px;
-  align-items: start;
+  align-items: stretch; /* signs in a row share a height, so their panels line up */
 }
 
+/* Each route is a green guide sign. Its place colour is the panel along the bottom,
+   like the yellow EXIT ONLY panel on real signs. */
 .route-card {
+  --sign: #0b6b3a;
   position: relative;
-  padding: 18px 14px 10px;
-  background: var(--paper);
-  transform: rotate(var(--tilt));
+  display: flex;
+  flex-direction: column;
+  padding: 10px 10px 0;
+  border-radius: 10px;
+  background: var(--sign);
+  color: #fff;
   box-shadow: var(--lift);
+}
+
+/* The white inset border */
+.route-card::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 2.5px solid #fff;
+  border-radius: 7px;
+  pointer-events: none;
 }
 
 .route-top {
@@ -168,15 +184,15 @@
 .route-name {
   flex: 1;
   display: grid;
-  grid-template-columns: 40px 1fr auto;
+  grid-template-columns: 44px 1fr;
   align-items: center;
   gap: 10px;
-  min-height: 52px;
+  min-height: 56px;
   padding: 4px 6px;
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: var(--ink);
+  color: #fff;
   font: 800 19px/1.08 var(--sans);
   text-align: left;
   cursor: pointer;
@@ -185,17 +201,30 @@
 .route-name:hover,
 .town:hover,
 .towns-toggle:hover {
-  background: rgb(255 255 255 / 0.4);
+  background: rgb(255 255 255 / 0.14);
 }
 
-.route-name[aria-pressed="true"] {
-  background: var(--ink);
-  color: #fff;
+/* Chosen: the row turns white, like a highlighted line on the sign */
+.route-name[aria-pressed="true"],
+.town[aria-pressed="true"] {
+  background: #fff;
+  color: var(--sign);
+}
+
+.route-name:focus-visible,
+.town:focus-visible,
+.towns-toggle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
 .shield {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+}
+
+.shield-va {
+  height: 35px;
 }
 
 .shield text {
@@ -203,8 +232,7 @@
 }
 
 .route-n {
-  font-weight: 700;
-  font-size: 14px;
+  display: none;
 }
 
 /* The towns arrow only shows on phones, where towns start folded away. */
@@ -218,7 +246,7 @@
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: var(--ink);
+  color: #fff;
   cursor: pointer;
 }
 
@@ -232,9 +260,8 @@
 
 .towns {
   list-style: none;
-  margin: 6px 0 0;
-  padding: 6px 0 0;
-  border-top: 2px dashed rgb(29 42 47 / 0.35);
+  margin: 2px 0 6px;
+  padding: 0;
 }
 
 .town {
@@ -247,20 +274,28 @@
   border: 0;
   border-radius: 4px;
   background: transparent;
-  color: var(--ink);
-  font: 700 16px var(--sans);
+  color: #fff;
+  font: 800 17px var(--sans);
   text-align: left;
   cursor: pointer;
 }
 
+/* Group counts sit where the mileage would be */
 .town span {
-  font-weight: 400;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
 }
 
-.town[aria-pressed="true"] {
-  background: #fff;
-  box-shadow: inset 0 0 0 2px var(--ink);
+.route-panel {
+  margin: auto -6px 0;
+  padding: 10px 12px 8px;
+  border-radius: 0 0 6px 6px;
+  background: var(--where);
+  color: var(--ink);
+  font: 800 15px/1.2 var(--sans);
+  text-align: center;
+  transform: translateY(-4px);
 }
 
 .routes-note {
@@ -514,29 +549,31 @@ a.tab:focus-visible {
     font-size: 24px;
   }
 
+  /* Opening one sign's towns shouldn't stretch its neighbour */
   .route-cards {
     gap: 16px 12px;
+    align-items: start;
   }
 
   .route-card {
-    padding: 14px 6px 6px;
+    padding: 8px 6px 0;
   }
 
   .route-name {
-    grid-template-columns: 30px 1fr;
+    grid-template-columns: 32px 1fr;
     gap: 6px;
-    min-height: 48px;
+    min-height: 50px;
     padding: 2px 4px;
     font-size: 15px;
   }
 
-  .route-n {
-    display: none;
+  .shield {
+    width: 32px;
+    height: 32px;
   }
 
-  .shield {
-    width: 30px;
-    height: 30px;
+  .shield-va {
+    height: 26px;
   }
 
   .towns-toggle {
@@ -549,8 +586,13 @@ a.tab:focus-visible {
   }
 
   .town {
-    font-size: 14.5px;
+    font-size: 15px;
     padding: 0 6px;
+  }
+
+  .route-panel {
+    padding: 8px 8px 6px;
+    font-size: 14px;
   }
 
   .routes-note {

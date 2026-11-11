@@ -23,7 +23,7 @@ Reference draft: `src/pages/drafts/combined.astro` (font=overpass, note=quiet), 
 
 THESIS: A local community pinboard, not a directory template. Groups are paper flyers pinned to a blue fabric board, colored by where they are, and you choose where by the roads people actually use. Refuses the white card grid with pastel category pills and the italic-serif hero.
 
-OWN-WORLD: Pale blue woven-fabric ground (#CFE2EA), ink #1D2A2F shell bar, white paper sheets with soft downward shadows and colored pushpins, slight tilts. Route colors carry place everywhere: coral Inside the Beltway, yellow I-66 West, green Dulles Toll Road, pink I-95 South, lilac Anywhere. Category is plain white tags. Overpass throughout, sentence case, no all caps; a pen hand only for small asides. Real interstate and Virginia route shields.
+OWN-WORLD: Pale blue woven-fabric ground (#CFE2EA), ink #1D2A2F shell bar, white paper sheets with soft downward shadows and colored pushpins, slight tilts. Route colors carry place everywhere: coral Inside the Beltway, yellow I-66 West, green Dulles Toll Road, pink I-95 South, lilac Anywhere. Category is plain white tags. Overpass throughout, sentence case, no all caps; a pen hand only for small asides. Real interstate and Virginia route shields. Route groups are green guide signs with a place-colour panel along the bottom (like EXIT ONLY), unpinned.
 
 STORY: A newcomer sees Becca's face and words, searches or picks a route, scans flyers colored by place, sees each group's next date, and tears off a tab to go. An organizer spots "Yours? Check it" and the pinned sheet asking them to check their listing.
 

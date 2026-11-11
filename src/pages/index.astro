@@ -125,8 +125,7 @@ const pins = ["#E2402F", "#1F6FD1", "#1E9E57", "#F2B705", "#7A4FD6"];
     </div>
     <div class="route-cards">
       {routeData.map((r, i) => (
-        <div class="route-card" style={`--paper:${r.color}; --tilt:${[-0.8, 0.6, -0.5, 0.9][i % 4]}deg; --pin:${pins[i % pins.length]}`}>
-          <span class="pin" aria-hidden="true"></span>
+        <div class="route-card" style={`--where:${r.color}`}>
           <div class="route-top">
             <button
               type="button"
@@ -143,10 +142,11 @@ const pins = ["#E2402F", "#1F6FD1", "#1E9E57", "#F2B705", "#7A4FD6"];
                   <text x="30" y={r.number.length > 2 ? 42 : 43} text-anchor="middle" font-size={r.number.length > 2 ? 17 : 21} font-weight="800" fill="#fff">{r.number}</text>
                 </svg>
               ) : (
-                <svg class="shield" viewBox="0 0 60 60" aria-hidden="true">
-                  <rect x="4" y="6" width="52" height="48" rx="6" fill="#fff" />
-                  <path d="M11 13 H49 V38 Q49 47 30 51 Q11 47 11 38 Z" fill="none" stroke="#111" stroke-width="2.5" />
-                  <text x="30" y="36" text-anchor="middle" font-size="16" font-weight="800" fill="#111">{r.number}</text>
+                // Virginia primary route marker: white shield cut out of a black rectangle.
+                <svg class="shield shield-va" viewBox="0 0 60 48" aria-hidden="true">
+                  <rect width="60" height="48" rx="2" fill="#111" />
+                  <path d="M6 3 H54 Q57 3 57 6 V17 Q57 36 30 45.5 Q3 36 3 17 V6 Q3 3 6 3 Z" fill="#fff" />
+                  <text x="30" y="31.5" text-anchor="middle" font-size="25" font-weight="800" letter-spacing="-1" fill="#111">{r.number}</text>
                 </svg>
               )}
               <span class="route-label">{r.label}</span>
@@ -171,6 +171,7 @@ const pins = ["#E2402F", "#1F6FD1", "#1E9E57", "#F2B705", "#7A4FD6"];
               </li>
             ))}
           </ul>
+          <p class="route-panel" aria-hidden="true">{copy.listing.total(r.count)}</p>
         </div>
       ))}
     </div>
