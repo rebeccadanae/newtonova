@@ -343,14 +343,21 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
         })
         .join("");
       const more = list.length > 2 ? `<span class="mmore">${c.more(list.length - 2)}</span>` : "";
-      const inner = `<span class="mnum">${num}</span>${chipsHtml}${more}`;
+      // Phones show up to three place-colour dots instead of the chips.
+      const dots = list.length
+        ? `<span class="mdots" aria-hidden="true">${list
+            .slice(0, 3)
+            .map((e) => `<span style="--where:${placeColor(e.area)}"></span>`)
+            .join("")}</span>`
+        : "";
+      const inner = `<span class="mnum">${num}</span>${chipsHtml}${more}${dots}`;
       cells.push(
         past
           ? `<div class="${classes}">${inner}</div>`
           : `<button type="button" class="${classes}" data-day="${day}" aria-label="${esc(c.dayButton(dayLabel(day), list.length))}">${inner}</button>`,
       );
     }
-    monthEl.innerHTML = `<div class="month-grid">${cells.join("")}</div>`;
+    monthEl.innerHTML = `<span class="tape" aria-hidden="true"></span><div class="month-grid">${cells.join("")}</div>`;
     noMatch.hidden = true;
 
     title.textContent = monthTitle(first);
