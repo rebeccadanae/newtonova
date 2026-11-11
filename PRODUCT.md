@@ -47,7 +47,7 @@ Success, a year out:
 
 ## Brand Commitments
 
-- Name is written **new to nova**, all lowercase. In the header logo it is plain (no italic), beside the mark: Virginia tilted 12° with a red pushpin over Northern Virginia (the same drawing as the favicon, `public/favicon.svg`). The domain is newtonova.org.
+- Name is written **new to nova**, all lowercase, never italic. The header logo sits beside the mark: Virginia tilted 12° with a red pushpin over Northern Virginia (the same drawing as the favicon, `public/favicon.svg`). The domain is newtonova.org.
 - Voice is first person singular ("I'll let you know"): one local person, not a company.
 - The About page copy is final and in Becca's own words. Other site copy (headline, intro, buttons) is placeholder until Becca rewrites it, and lives in one place (`src/copy.ts`).
 

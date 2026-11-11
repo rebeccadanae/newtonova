@@ -1,3 +1,11 @@
+/* Overpass draws the middle dot (·) with zero width, so it runs into the next word.
+   This face borrows just that one character from a system font. */
+@font-face {
+  font-family: "Middot";
+  src: local("Helvetica Neue"), local("Arial"), local("Roboto"), local("Segoe UI"), local("DejaVu Sans");
+  unicode-range: U+00B7;
+}
+
 :root {
   --ink: #1d2a2f;
   --body: #26363c;
@@ -14,8 +22,8 @@
   --link-underline: #b5b0a6;
 
   /* One face everywhere: Overpass (after US highway-sign lettering). --serif is kept as a name until the other pages are restyled. */
-  --serif: "Overpass", system-ui, -apple-system, sans-serif;
-  --sans: "Overpass", system-ui, -apple-system, sans-serif;
+  --serif: "Middot", "Overpass", system-ui, -apple-system, sans-serif;
+  --sans: "Middot", "Overpass", system-ui, -apple-system, sans-serif;
 }
 
 *,
