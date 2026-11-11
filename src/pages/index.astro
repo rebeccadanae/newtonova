@@ -40,7 +40,8 @@ const upcoming = (eventsData as Ev[])
 // Coming up: a few spares, so the sheet stays full as the first ones pass.
 const coming = upcoming.slice(0, 10).map((e) => {
   const org = orgById.get(e.orgId!)!;
-  return { ...e, when: whenShort(e), org: org.name, color: placeColor(org.area) };
+  // Colour by where the event happens (as on Events); fall back to the group's towns.
+  return { ...e, when: whenShort(e), org: org.name, color: placeColor(e.area.length ? e.area : org.area) };
 });
 const COMING_SHOWN = 4;
 
