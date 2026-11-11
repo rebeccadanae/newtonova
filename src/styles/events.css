@@ -189,141 +189,136 @@
   font-size: 15px;
 }
 
-.event-list {
+/* Events: ticket stubs in their place colour, a few across */
+.stubs {
   list-style: none;
-  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+  margin: 14px 0 22px;
   padding: 0;
 }
 
-/* Time | dot, name, where, kind | links */
-.event {
-  display: grid;
-  grid-template-columns: 112px minmax(0, 1fr) auto;
-  gap: 4px 24px;
-  align-items: start;
-  padding: 16px 0;
-  border-top: 1.5px dashed rgb(29 42 47 / 0.3);
-}
-
-.day .event-time {
-  margin: 3px 0 0;
-  color: var(--ink);
-  font-weight: 800;
-  font-size: 15px;
-}
-
-.event-name {
-  display: grid;
-  grid-template-columns: 14px 1fr;
-  column-gap: 10px;
-  margin: 0 0 4px;
-  font-size: 21px;
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-.event-name::before {
-  content: "";
-  width: 14px;
-  height: 14px;
-  margin-top: 4px;
-  border-radius: 50%;
+.stub {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 150px;
+  padding: 14px 16px 14px;
   background: var(--where);
-  box-shadow: inset 0 0 0 1.5px rgb(29 42 47 / 0.35);
+  transform: rotate(var(--t));
+  box-shadow: 0 4px 8px rgb(29 54 66 / 0.18);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
 }
 
-/* No underline until hover; "Details on their site" is the visible link. */
-.event-name a {
-  text-decoration-color: transparent;
+.stub:hover,
+.stub:focus-within {
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow: 0 8px 16px rgb(29 54 66 / 0.22);
+}
+
+/* An open calendar menu sits above the neighbouring stubs */
+.stub:has(.cal-toggle[aria-expanded="true"]),
+.day:has(.cal-toggle[aria-expanded="true"]) {
+  z-index: 5;
+}
+
+.day .stub-time {
+  margin: 0;
+  padding-right: 40px;
+  font-weight: 800;
+  font-size: 26px;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.stub-name {
+  margin: 8px 0 12px;
+  padding-right: 8px;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.22;
+  text-wrap: pretty;
+}
+
+.stub-link {
+  text-decoration: none;
+}
+
+/* The name's link covers the whole stub */
+.stub-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.stub-link:hover {
+  text-decoration: underline;
   text-decoration-thickness: 2px;
 }
 
-.event-name a:hover {
-  text-decoration-color: var(--ink);
+.stub-link:focus-visible {
+  outline: none;
 }
 
-.day .event-meta,
-.day .event-kinds {
-  max-width: none;
-  margin: 0 0 0 24px;
-  font-size: 14.5px;
-  line-height: 1.4;
+.stub:has(.stub-link:focus-visible) {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
 }
 
-.event-meta {
+.day .stub-where {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0 14px;
+  align-items: baseline;
+  gap: 0 6px;
+  max-width: none;
+  margin: auto 0 0;
+  font-size: 13.5px;
+  line-height: 1.35;
   color: var(--ink);
 }
 
-.event-area {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+.stub-where strong {
   font-weight: 800;
 }
 
-.event-meta a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
+/* The org link sits above the stub's own link */
+.stub-org {
   position: relative;
+  z-index: 1;
+  text-decoration-color: rgb(29 42 47 / 0.45);
+  text-underline-offset: 2px;
 }
 
-/* Keeps the tap area 44px tall without spacing the line out. */
-.event-meta a::after {
-  content: "";
-  position: absolute;
-  inset: -6px 0;
+.stub-org:hover {
+  text-decoration-color: var(--ink);
 }
 
-.day .event-kinds {
-  color: var(--muted);
-}
-
-.event-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0;
-}
-
-.event-details {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  margin-top: -10px;
-  font-weight: 800;
-  font-size: 15px;
-  white-space: nowrap;
-}
-
-/* Add to calendar: a quiet text button, so the event and its link lead */
+/* Add to calendar: an icon button in the stub's top corner */
 .cal {
-  position: relative;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
 }
 
 .cal-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 44px;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: 0;
-  background: none;
-  color: var(--muted);
-  font: 600 14px var(--sans);
-  white-space: nowrap;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink);
   cursor: pointer;
 }
 
 .cal-toggle:hover,
 .cal-toggle[aria-expanded="true"] {
-  color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  background: rgb(255 255 255 / 0.55);
 }
 
 .cal-menu {
@@ -478,6 +473,12 @@ button.mday:hover {
   margin: 72px auto 64px;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .stub {
+    transition: none;
+  }
+}
+
 @media (max-width: 700px) {
   .events-hero {
     padding-top: 24px;
@@ -511,26 +512,13 @@ button.mday:hover {
     font-size: 22px;
   }
 
-  .event {
+  .stubs {
     grid-template-columns: minmax(0, 1fr);
-    gap: 4px;
+    gap: 14px;
   }
 
-  .event-actions {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0 20px;
-    margin-left: 24px;
-  }
-
-  .event-details {
-    margin-top: 0;
-  }
-
-  .cal-menu {
-    left: 0;
-    right: auto;
+  .stub {
+    min-height: 0;
   }
 
   .events-organizers {

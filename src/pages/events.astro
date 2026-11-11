@@ -130,7 +130,6 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
     mondayOf,
     dayLabel,
     rangeLabel,
-    timeLabel,
     shortTime,
     monthTitle,
     monthStart,
@@ -234,15 +233,14 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
   const esc = (s: string) =>
     s.replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]!);
 
-  const pin = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>`;
-  const calIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18M12 14v4M10 16h4"></path></svg>`;
+  const calIcon = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18M12 14v4M10 16h4"></path></svg>`;
 
   function calendarMenu(e: Row, day: string) {
     const id = `cal-${e.id}-${day}`;
     const ics = `href="${icsPath(e)}" download="${esc(icsFileName(e))}"`;
     return `<div class="cal">
-      <button class="cal-toggle" type="button" aria-expanded="false" aria-controls="${id}">
-        ${calIcon}${c.addToCalendar}<span class="visually-hidden">: ${esc(e.name)}</span>
+      <button class="cal-toggle" type="button" aria-expanded="false" aria-controls="${id}" title="${c.addToCalendar}">
+        ${calIcon}<span class="visually-hidden">${c.addToCalendar}: ${esc(e.name)}</span>
       </button>
       <div class="cal-menu" id="${id}" hidden>
         <a href="${esc(googleUrl(e))}" target="_blank" rel="noopener">${c.google}<span class="visually-hidden"> ${c.newTab}</span></a>
@@ -253,32 +251,29 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
     </div>`;
   }
 
-  // Colour means place, as on the homepage: each event's dot takes its route group's colour.
-  function eventRow(e: Row, day: string) {
-    const time = e.allDay ? c.allDay : e.first < day ? c.continues : timeLabel(e.start);
+  // Each event is a ticket stub in its place colour (route group, as on the homepage).
+  // The name link stretches over the whole stub; the org link and calendar button sit above it.
+  function eventRow(e: Row, day: string, i: number) {
+    const time = e.allDay ? c.allDay : e.first < day ? c.continues : shortTime(e.start);
     const who = e.org
-      ? `<a href="${esc(e.org.href)}">${esc(e.org.name)}</a>`
+      ? `<a class="stub-org" href="${esc(e.org.href)}">${esc(e.org.name)}</a>`
       : e.where
         ? `<span>${esc(e.where)}</span>`
         : "";
-    const area = e.area.length ? `<span class="event-area">${pin}${esc(e.area.join(", "))}</span>` : "";
-    const kinds = e.categories.length ? `<p class="event-kinds">${e.categories.map(esc).join(" · ")}</p>` : "";
+    const town = e.area.length ? `<strong>${esc(e.area.join(", "))}</strong>` : "";
+    const where = [town, who].filter(Boolean).join(`<span class="sep" aria-hidden="true">·</span>`);
     const name = e.link
-      ? `<a href="${esc(e.link)}" target="_blank" rel="noopener">${esc(e.name)}<span class="visually-hidden"> ${c.newTab}</span></a>`
+      ? `<a class="stub-link" href="${esc(e.link)}" target="_blank" rel="noopener">${esc(e.name)}<span class="visually-hidden"> ${c.newTab}</span></a>`
       : esc(e.name);
-    return `<li class="event" style="--where:${placeColor(e.area)}">
-      <p class="event-time">${time}</p>
-      <div class="event-body">
-        <h4 class="event-name">${name}</h4>
-        ${who || area ? `<p class="event-meta">${area}${who}</p>` : ""}
-        ${kinds}
-      </div>
-      <div class="event-actions">
-        ${e.link ? `<a class="event-details" href="${esc(e.link)}" target="_blank" rel="noopener">${c.details}<span class="visually-hidden">: ${esc(e.name)} ${c.newTab}</span></a>` : ""}
-        ${calendarMenu(e, day)}
-      </div>
+    return `<li class="stub" style="--where:${placeColor(e.area)};--t:${stubTilts[i % stubTilts.length]}deg">
+      <p class="stub-time">${time}</p>
+      <h4 class="stub-name">${name}</h4>
+      ${where ? `<p class="stub-where">${where}</p>` : ""}
+      ${calendarMenu(e, day)}
     </li>`;
   }
+
+  const stubTilts = [-1, 0.8, -0.5, 1.1, -0.8, 0.4];
 
   // Slight, repeatable tilts and pin colours so the day sheets look hand-pinned.
   const tilts = [-0.5, 0.4, -0.3, 0.6, -0.4, 0.3, -0.6];
@@ -307,7 +302,7 @@ const json = JSON.stringify(events).replace(/</g, "\\u003c");
       return `<section class="day sheet" id="day-${day}" style="--tilt:${tilts[n % tilts.length]}deg">
         <span class="pin" style="--pin:${pins[(n + i) % pins.length]}" aria-hidden="true"></span>
         <h3>${dayLabel(day)}${badge}</h3>
-        ${list.length ? `<ul class="event-list">${list.map((e) => eventRow(e, day)).join("")}</ul>` : `<p class="nothing">${c.nothingDay}</p>`}
+        ${list.length ? `<ul class="stubs">${list.map((e, i) => eventRow(e, day, i)).join("")}</ul>` : `<p class="nothing">${c.nothingDay}</p>`}
       </section>`;
     });
 
