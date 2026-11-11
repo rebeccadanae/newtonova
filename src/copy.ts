@@ -19,8 +19,8 @@ export const copy = {
 
   hero: {
     // The highlighted words get a white marker stripe.
-    headline: "Groups in Northern Virginia that welcome",
-    headlineHighlight: "new people",
+    headline: "New to Northern Virginia?",
+    headlineHighlight: "Find your people",
     searchLabel: "Search the board",
     searchPlaceholder: "Try pottery, hiking, choir",
   },
