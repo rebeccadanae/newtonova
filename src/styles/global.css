@@ -8,21 +8,15 @@
 
 :root {
   --ink: #1d2a2f;
-  --body: #26363c;
   --muted: #3d4e55;
   /* Pinboard: blue fabric ground, white paper, soft drop shadow */
   --fabric: #cfe2ea;
   --fabric-deep: #b4d0dc;
   --lift: 0 10px 20px rgb(29 54 66 / 0.22), 0 2px 3px rgb(29 54 66 / 0.2);
-  --rule: #e3e3e3;
   --paper: #ffffff;
-  --panel: #f5f3ef;
-  --panel-border: #d6d1c7;
-  --dashed: #bdb8ae;
   --link-underline: #b5b0a6;
 
-  /* One face everywhere: Overpass (after US highway-sign lettering). --serif is kept as a name until the other pages are restyled. */
-  --serif: "Middot", "Overpass", system-ui, -apple-system, sans-serif;
+  /* One face everywhere: Overpass (after US highway-sign lettering). */
   --sans: "Middot", "Overpass", system-ui, -apple-system, sans-serif;
 }
 
@@ -53,7 +47,7 @@ body {
 h1,
 h2,
 h3 {
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-weight: 800;
   letter-spacing: -0.01em;
   line-height: 1.08;
@@ -130,7 +124,7 @@ a:hover {
   align-items: center;
   gap: 10px;
   min-height: 44px;
-  font-family: var(--serif);
+  font-family: var(--sans);
   font-weight: 800;
   font-size: 27px;
   line-height: 1;
@@ -215,22 +209,6 @@ a:hover {
   cursor: pointer;
 }
 
-/* Hero */
-.hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  gap: 48px;
-  align-items: start;
-  padding-top: 56px;
-  padding-bottom: 40px;
-}
-
-.hero h1 {
-  font-size: 64px;
-  line-height: 1.02;
-  margin-bottom: 32px;
-}
-
 .search-label {
   display: block;
   font-size: 14px;
@@ -267,44 +245,6 @@ a:hover {
   color: var(--muted);
 }
 
-/* Signup box */
-.signup {
-  background: var(--panel);
-  border-radius: 16px;
-  padding: 28px;
-}
-
-.signup h2 {
-  font-size: 30px;
-  line-height: 1.1;
-  margin-bottom: 8px;
-}
-
-.signup p {
-  margin: 0 0 20px;
-  color: var(--body);
-}
-
-.signup-bottom {
-  display: none;
-}
-
-.signup input {
-  width: 100%;
-  height: 48px;
-  padding: 0 14px;
-  border: 1px solid var(--panel-border);
-  border-radius: 10px;
-  font: inherit;
-  background: var(--paper);
-  color: var(--ink);
-  margin-bottom: 12px;
-}
-
-.signup input::placeholder {
-  color: var(--muted);
-}
-
 .btn {
   display: inline-flex;
   align-items: center;
@@ -325,221 +265,6 @@ a:hover {
   border: 1.5px solid var(--ink);
 }
 
-.btn-fit {
-  width: auto;
-}
-
-.btn-outline {
-  background: var(--paper);
-  color: var(--ink);
-  border: 1.5px solid var(--ink);
-  white-space: nowrap;
-}
-
-.btn-outline:hover {
-  background: var(--panel);
-}
-
-/* Filter row */
-.filters {
-  padding-bottom: 8px;
-}
-
-/* Group count on the left, Area dropdown on the right */
-.results-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  margin: 8px 0 16px;
-}
-
-.results-bar .count {
-  order: -1;
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-}
-
-.chip {
-  min-height: 44px;
-  padding: 0 14px;
-  border-radius: 999px;
-  border: 1.5px solid transparent;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--ink);
-  cursor: pointer;
-}
-
-.chip-all {
-  background: var(--paper);
-  border-color: var(--rule);
-}
-
-.chip[aria-pressed="true"] {
-  border-color: var(--ink);
-}
-
-.area-filter {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-  font-size: 15px;
-  color: var(--muted);
-}
-
-.area-filter select {
-  min-height: 44px;
-  padding: 0 40px 0 18px;
-  border: 1.5px solid var(--rule);
-  border-radius: 999px;
-  font: inherit;
-  font-weight: 500;
-  color: var(--ink);
-  background: var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231a1a1a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 16px center;
-  appearance: none;
-  cursor: pointer;
-}
-
-.area-filter select:hover {
-  border-color: var(--ink);
-}
-
-/* Listing cards */
-.count {
-  margin: 0;
-  font-size: 14px;
-  color: var(--muted);
-}
-
-.listings {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.org {
-  display: flex;
-  flex-direction: column;
-  padding: 20px 20px 8px;
-  border: 1px solid var(--rule);
-  border-radius: 14px;
-}
-
-.pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.pill {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.org h3 {
-  font-size: 24px;
-  line-height: 1.15;
-  margin-bottom: 8px;
-}
-
-.org h3 a {
-  text-decoration-thickness: 1px;
-}
-
-.blurb {
-  margin: 0 0 12px;
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--body);
-}
-
-.org-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0 20px;
-  margin-top: auto;
-}
-
-.area {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin: 0 0 4px;
-  color: var(--muted);
-  font-size: 15px;
-}
-
-/* Keep the pin full size and level with the first line when the towns wrap */
-.area svg {
-  flex-shrink: 0;
-  margin-top: 0.2em;
-}
-
-.visit {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  font-weight: 600;
-  font-size: 15px;
-}
-
-.claim {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  color: var(--muted);
-  font-size: 15px;
-}
-
-.empty {
-  padding: 32px 0;
-  color: var(--muted);
-}
-
-/* Organizers box */
-.organizers {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  margin-top: 56px;
-  margin-bottom: 56px;
-  padding: 28px 32px;
-  border: 1.5px dashed var(--dashed);
-  border-radius: 14px;
-}
-
-.organizers h2 {
-  font-size: 28px;
-  line-height: 1.1;
-  margin-bottom: 6px;
-}
-
-.organizers p {
-  margin: 0;
-  color: var(--body);
-}
-
-/* About page */
 /* Pinboard pieces shared by every page: pins, tape, paper buttons, white tags, pinned sheets */
 /* White marker stripe behind a headline's key words */
 .hl {
@@ -669,7 +394,6 @@ a:hover {
   max-width: 460px;
 }
 
-
 /* Footer */
 .site-footer {
   border-top: 2px solid var(--fabric-deep);
@@ -690,13 +414,6 @@ a:hover {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-}
-
-/* Narrow window or tablet */
-@media (max-width: 1000px) {
-  .listings {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 /* Phone */
@@ -730,83 +447,5 @@ a:hover {
     margin-top: 16px;
     min-height: 48px;
   }
-  .hero {
-    grid-template-columns: 1fr;
-    gap: 32px;
-    padding-top: 32px;
-  }
 
-  .hero h1 {
-    font-size: 44px;
-  }
-
-  /* Signup box moves below the cards so the list comes first */
-  .signup-top {
-    display: none;
-  }
-
-  .signup-bottom {
-    display: block;
-    margin-top: 40px;
-  }
-
-  .signup-bottom .btn {
-    width: 100%;
-  }
-
-  .signup-bottom + .organizers {
-    margin-top: 24px;
-  }
-
-  /* Category chips: one row that swipes sideways, running to the screen
-     edge, with a fade on the right to show there are more */
-  .filters .chips {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    min-width: 0;
-    margin: 0 -24px;
-    padding: 3px 48px 3px 24px;
-    scroll-padding: 0 48px 0 24px;
-    scrollbar-width: none;
-    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
-    mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
-  }
-
-  .filters .chips::-webkit-scrollbar {
-    display: none;
-  }
-
-  .filters .chip {
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-
-  .results-bar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .results-bar .count {
-    order: 0;
-  }
-
-  .area-filter select {
-    flex: 1;
-  }
-
-  .listings {
-    grid-template-columns: 1fr;
-  }
-
-  .organizers {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 24px;
-  }
-}
-
-/* An org card linked to from /events */
-.org:target {
-  border-color: var(--ink);
-  scroll-margin-top: 24px;
 }

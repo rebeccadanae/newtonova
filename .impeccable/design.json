@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T16:10:00-05:00",
+  "title": "Design System: new to nova",
+  "extensions": {
+    "colorMeta": {
+      "ink": { "role": "primary", "displayName": "Sign Ink" },
+      "muted": { "role": "neutral", "displayName": "Muted Slate" },
+      "fabric": { "role": "neutral", "displayName": "Fabric Blue" },
+      "fabric-deep": { "role": "neutral", "displayName": "Fabric Deep" },
+      "paper": { "role": "neutral", "displayName": "Paper" },
+      "sign-green": { "role": "secondary", "displayName": "Guide-sign Green" },
+      "route-beltway": { "role": "tertiary", "displayName": "Beltway Coral" },
+      "route-i66": { "role": "tertiary", "displayName": "I-66 Yellow" },
+      "route-dulles": { "role": "tertiary", "displayName": "Dulles Green" },
+      "route-i95": { "role": "tertiary", "displayName": "I-95 Pink" },
+      "route-anywhere": { "role": "tertiary", "displayName": "Anywhere Lilac" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page headlines, key words on the white marker stripe." },
+      "headline": { "displayName": "Headline", "purpose": "Section headings and the week title." },
+      "title": { "displayName": "Title", "purpose": "Flyer names, day headings, sheet headings." },
+      "body": { "displayName": "Body", "purpose": "Blurbs and the About letter." },
+      "label": { "displayName": "Label", "purpose": "Tags, counts, times, buttons." }
+    },
+    "shadows": [
+      { "name": "lift", "value": "0 10px 20px rgb(29 54 66 / 0.22), 0 2px 3px rgb(29 54 66 / 0.2)", "purpose": "Paper and signs on the board." },
+      { "name": "tag", "value": "0 2px 4px rgb(29 54 66 / 0.22)", "purpose": "White tags and small controls." },
+      { "name": "stub", "value": "0 4px 8px rgb(29 54 66 / 0.18)", "purpose": "Event stubs." },
+      { "name": "pin", "value": "1px 4px 4px rgb(20 40 50 / 0.4)", "purpose": "Pushpins." }
+    ],
+    "motion": [
+      { "name": "settle", "value": "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "A tilted flyer or stub straightens and lifts on hover or focus." }
+    ],
+    "breakpoints": [
+      { "name": "phone", "value": "700px" },
+      { "name": "narrow", "value": "760px" },
+      { "name": "tablet", "value": "1000px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Ink button",
+      "kind": "button",
+      "refersTo": "button-ink",
+      "description": "The main action on a sheet.",
+      "html": "<button class=\"ds-ink-btn\">Keep me posted</button>",
+      "css": ".ds-ink-btn { display: inline-flex; align-items: center; min-height: 46px; padding: 0 18px; border: 0; border-radius: 4px; background: #1d2a2f; color: #fff; font: 700 15px/1 Overpass, system-ui, sans-serif; cursor: pointer; } .ds-ink-btn:hover { background: #2f4249; } .ds-ink-btn:focus-visible { outline: 2px solid #1d2a2f; outline-offset: 3px; }"
+    },
+    {
+      "name": "Paper button",
+      "kind": "button",
+      "refersTo": "button-paper",
+      "description": "Secondary actions on the board.",
+      "html": "<button class=\"ds-paper-btn\">All of NoVA</button>",
+      "css": ".ds-paper-btn { display: inline-flex; align-items: center; min-height: 46px; padding: 0 18px; border: 0; border-radius: 4px; background: #fff; color: #1d2a2f; box-shadow: inset 0 0 0 2px #1d2a2f; font: 700 15px/1 Overpass, system-ui, sans-serif; cursor: pointer; } .ds-paper-btn:hover { background: #cfe2ea; }"
+    },
+    {
+      "name": "Tag",
+      "kind": "chip",
+      "refersTo": "tag",
+      "description": "Category filter; selected is ink.",
+      "html": "<button class=\"ds-tag\">Creative</button> <button class=\"ds-tag\" aria-pressed=\"true\">Social</button>",
+      "css": ".ds-tag { min-height: 44px; padding: 0 14px; border: 0; border-radius: 3px; background: #fff; color: #1d2a2f; font: 700 14px Overpass, system-ui, sans-serif; box-shadow: 0 2px 4px rgb(29 54 66 / 0.22); cursor: pointer; } .ds-tag:hover { background: #cfe2ea; } .ds-tag[aria-pressed=\"true\"] { background: #1d2a2f; color: #fff; }"
+    },
+    {
+      "name": "Pinned sheet",
+      "kind": "card",
+      "refersTo": "sheet",
+      "description": "White paper pinned to the board, slightly tilted.",
+      "html": "<div class=\"ds-sheet\"><span class=\"ds-pin\"></span><h3>Say hi</h3><p>I'd love to hear from you.</p></div>",
+      "css": ".ds-sheet { position: relative; max-width: 320px; padding: 34px; background: #fff; color: #1d2a2f; transform: rotate(-0.8deg); box-shadow: 0 10px 20px rgb(29 54 66 / 0.22), 0 2px 3px rgb(29 54 66 / 0.2); font: 400 16px/1.5 Overpass, system-ui, sans-serif; } .ds-sheet h3 { margin: 0 0 8px; font-weight: 800; font-size: 26px; } .ds-pin { position: absolute; top: -9px; left: 50%; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.7) 0 18%, transparent 20%), #e2402f; box-shadow: 1px 4px 4px rgb(20 40 50 / 0.4); }"
+    },
+    {
+      "name": "Route sign",
+      "kind": "custom",
+      "refersTo": "route-sign",
+      "description": "Green guide sign with towns and a place-colour panel.",
+      "html": "<div class=\"ds-sign\"><div class=\"ds-sign-head\">I-66 West</div><div class=\"ds-sign-row\"><span>Fairfax</span><span>15</span></div><div class=\"ds-sign-row\"><span>Manassas</span><span>5</span></div><div class=\"ds-sign-panel\">21 groups</div></div>",
+      "css": ".ds-sign { position: relative; width: 240px; padding: 10px 10px 0; border-radius: 10px; background: #0b6b3a; color: #fff; font: 800 17px Overpass, system-ui, sans-serif; } .ds-sign::after { content: \"\"; position: absolute; inset: 4px; border: 2.5px solid #fff; border-radius: 7px; pointer-events: none; } .ds-sign-head { padding: 10px 8px; font-size: 19px; } .ds-sign-row { display: flex; justify-content: space-between; padding: 10px 8px; } .ds-sign-panel { margin: 6px -6px 0; padding: 10px 12px 8px; border-radius: 0 0 6px 6px; background: #f6d44a; color: #1d2a2f; font-size: 15px; text-align: center; transform: translateY(-4px); }"
+    },
+    {
+      "name": "Text field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Visible label above, ink border, yellow focus ring.",
+      "html": "<label class=\"ds-label\" for=\"ds-email\">Your email</label><input class=\"ds-input\" id=\"ds-email\" type=\"email\">",
+      "css": ".ds-label { display: block; margin-bottom: 4px; font: 800 16px Overpass, system-ui, sans-serif; color: #1d2a2f; } .ds-input { width: 100%; min-height: 50px; padding: 12px 14px; border: 2px solid #1d2a2f; border-radius: 4px; background: #fff; color: #1d2a2f; font: 400 17px/1.4 Overpass, system-ui, sans-serif; } .ds-input:focus-visible { outline: 3px solid #f6d44a; outline-offset: 1px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Community Pinboard",
+    "overview": "Groups and events are paper pinned to a pale blue fabric board, coloured by where they happen; the routes are real green highway signs.",
+    "keyCharacteristics": [
+      "Blue fabric ground, white paper, soft shadows, pushpins, small tilts",
+      "Colour means place; categories are white tags",
+      "Real highway signs and shields, Overpass throughout",
+      "Sentence case, no italics, no all caps"
+    ],
+    "rules": [
+      { "name": "The Colour Means Place Rule", "body": "Route colours mark where something happens and nothing else.", "section": "colors" },
+      { "name": "The Ink On Colour Rule", "body": "Text on a place colour is always ink.", "section": "colors" },
+      { "name": "The No Italics Rule", "body": "Nothing is italic; emphasis is weight or the marker stripe.", "section": "typography" },
+      { "name": "The Pins Are For Paper Rule", "body": "Paper is pinned and tilted; signs and controls never are.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do colour things by where they happen, using the five route colours.",
+      "Do put text on place colours in ink.",
+      "Do pin or tape paper and give it a small tilt.",
+      "Do keep every target at least 44px."
+    ],
+    "donts": [
+      "Don't colour categories.",
+      "Don't use italics, all caps or a second typeface.",
+      "Don't put pushpins on signs or controls.",
+      "Don't add contact details for groups or subscribers."
+    ]
+  }
+}

@@ -55,90 +55,39 @@ A free directory of Northern Virginia groups that welcome new people: creative c
 Category options: Creative, Sports & movement, Activism, Mutual aid, Learning, Social, Families, Religious, Volunteering.
 Area options: Alexandria, Annandale, Arlington, Ashburn, Centreville, Chantilly, Fairfax, Falls Church, Herndon, Lorton, Manassas, McLean, Reston, Woodbridge, Statewide, National.
 
-## Design: being replaced by the "pinboard" direction (in progress)
+## Design: the pinboard
 
-Chosen 2026-11-11 after an Impeccable critique and three drafts. Pinned paper flyers on a pale blue fabric board; colour means place (each route group has a colour, set in `src/routes.ts`); "Where are you headed?" picks Inside the Beltway / I-66 West / Dulles Toll Road / I-95 South or a town; "Coming up" pinned sheet; Becca's note (photo + her words) under the headline; Overpass everywhere, sentence case, no all caps. The direction contract lives in `.impeccable/surfaces/src-pages-index-astro.md`; product goals in `PRODUCT.md`.
+Chosen 2026-11-11 after an Impeccable critique and three drafts; every page now uses it. **DESIGN.md** is the design system (colours, type, shadows, components, rules) with a sidecar in `.impeccable/design.json`; read it before changing anything visual. The homepage's direction contract is in `.impeccable/surfaces/src-pages-index-astro.md`; product goals are in `PRODUCT.md`.
 
-- Done: homepage (`src/pages/index.astro`, `src/styles/home.css`) and the site-wide font, colours and header.
-- "Where are you headed?" routes are green guide signs (white inset border, real shields; the Virginia 267 marker is a white shield cut from a black rectangle). Place colour is a panel along the bottom with the group count, like an EXIT ONLY panel. No pushpins on signs: pins are for paper. Town counts sit where mileage would, with no box. Chosen 2026-11-11 from three drafts.
-- Logo and favicon: Virginia (traced from US Census outlines, tilted 12°) in board blue with a red pin over NoVA. `public/favicon.svg`, `favicon.ico` (16/32/48) and `apple-touch-icon.png` (180); the header logo inlines the same drawing beside plain "new to nova" (no italic).
-- Events, part 1 done (block 2): week view as pinned day sheets with route-colour dots, white tags, headline stripe, empty today hidden, month grid starts at this week, count names what it covers. Events styles are in `src/styles/events.css`; shared pinboard pieces (pin, tape, paper buttons, white tags, sheet, headline stripe) moved to `global.css`.
-- Events part 2: event rows replaced by place-coloured ticket stubs (chosen 2026-11-11 from three drafts, over a tidy list and a planner page).
-- Month view done (taped sheet, dots on phones).
-- Phone filters done (tags swipe in one row, count under the week title). Homepage and Events pushed together.
-- About and Join done: pinned sheets (About: snapshot photo, letter, How the list works, Say hi; Join: our own form on one sheet, plus `/join/thanks/`). Styles in `src/styles/pages.css`.
-- Next: DESIGN.md, delete `src/pages/drafts/`, and rewrite this section. The C1 notes below describe the old design and only still apply to pages not yet converted.
-- Never commit `src/pages/drafts/` (the direction drafts). Astro builds them, so they would go live at `/drafts/...`. Block 3 deletes the folder.
-- Optional ideas from Impeccable's finish review, not yet decided: tear-off tabs that look actually torn, pins in varied spots, Becca's handwriting font for small asides, a distinct look for the organizer and signup sheets.
-- Screenshots: headless Chrome draws the system font instead of Overpass at phone width. Check phone layouts in the real browser tab instead.
+In short: paper pinned to a pale blue fabric board; colour means place (route colours in `src/routes.ts`), categories are plain white tags; the routes are real green highway signs; Overpass everywhere, sentence case, no italics, no all caps.
 
-## Old design: homepage layout "C1"
+- **Styles:** `src/styles/global.css` (tokens, header, footer, shared pieces: `.pin`, `.tape`, `.ink-btn`, `.paper-btn`, `.kind-tag`, `.sheet`, `.hl` marker stripe), `home.css` (Groups), `events.css` (Events), `pages.css` (About, Join).
+- **Header** (`src/layouts/Base.astro`): ink bar, the Virginia mark beside plain "new to nova", Groups · Events · About and a white "Stay in the loop" button; the current page is underlined (`current` prop). Below 700px a Menu button opens the links stacked. No organizers link in the nav; organizers reach the form from About's "How the list works" (`/about/#organizers`), the bottom sheets on Groups and Events, and the footer.
+- **Logo and favicon:** Virginia (traced from US Census outlines, tilted 12°) in board blue with a red pin over NoVA. `public/favicon.svg`, `favicon.ico` (16/32/48) and `apple-touch-icon.png` (180); the header inlines the same drawing.
+- **Screenshots:** headless Chrome draws the system font instead of Overpass at phone width. Check phone layouts in the real browser tab.
+- **Drafts:** direction drafts were deleted on 2026-11-11. If new ones are made, keep them out of git: anything in `src/pages/` is built and would go live.
+- Optional ideas, not decided: tear-off tabs that look actually torn, pins in varied spots, Becca's handwriting font for small asides.
 
-Quiet, white directory. The colored category pills are the only color on the page. No blue.
+## Groups (homepage)
 
-**Fonts** (Google Fonts): Instrument Serif (headings, logo, org names; regular weight, italic for emphasis) and Instrument Sans (everything else, 400/500/600).
+`src/pages/index.astro`, copy in `copy.hero`, `copy.note`, `copy.coming`, `copy.routes`, `copy.listing`. Filters run in the browser.
 
-**Colors**
-
-| Token | Hex | Use |
-|---|---|---|
-| ink | `#1A1A1A` | Text, buttons, active chip border |
-| body | `#333333` | Blurb text |
-| muted | `#555555` | Labels, location line, footer |
-| rule | `#E3E3E3` | Header border, row dividers |
-| paper | `#FFFFFF` | Page background |
-| panel | `#F5F3EF` | Signup box background |
-| panel-border | `#D6D1C7` | Signup input border |
-| dashed | `#BDB8AE` | Organizers box dashed border |
-| link underline | `#B5B0A6` | Underline color, darkens to ink on hover; links are ink, underline offset 3px |
-
-**Category pill colors** (text is always ink):
-
-| Category | Hex |
-|---|---|
-| Creative | `#F6D9C9` |
-| Sports & movement | `#CFE6D6` |
-| Activism | `#D9DDF6` |
-| Social | `#F3E3A6` |
-| Learning | `#E2DAF2` |
-| Mutual aid | `#F5D0DC` |
-| Families, Religious, Volunteering | pick three more in the same soft range, distinguishable by lightness as well as hue |
-
-**Page, top to bottom** (max width 1200px, 24px side padding):
-
-1. **Header (all pages, in `src/layouts/Base.astro`):** logo "new to *nova*" (Instrument Serif 30px, "nova" in italic) on the left. On the right: Groups (`/`) · Events (`/events`) · About as plain links, the current page underlined (`aria-current="page"`, set with the layout's `current` prop), then "Stay in the loop" as the one filled ink button (to `/join`). Below 700px it collapses to the logo plus a "Menu" button that opens the links stacked, with the button full width at the bottom. (No organizers link in the nav; organizers are pointed to the form from the About page's "How the list works" section, anchor `/about/#organizers`.) 1px rule underneath.
-2. **Hero, two columns** that stack on a phone:
-   - Left, wider: H1 in Instrument Serif 64px, line-height 1.02, "Groups in Northern Virginia that *welcome new people.*" (second half italic). Below it, a search field: label "Search the list", 56px tall, 1.5px ink border, 12px radius, magnifier icon, placeholder "Try pottery, hiking, Reston".
-   - Right: **signup box**, panel background, 16px radius, 28px padding. H2 and one line from `copy.signup` (Instrument Serif 30px heading), then a full-width ink button that links to `/join`. No form on the homepage. **On a phone the box moves below the cards** (just above the organizers box) so the list comes first; the markup has two copies (`.signup-top`, `.signup-bottom`), one hidden at each size.
-3. **Filter row:** category chips across the full width, with the Area dropdown on the count line below (moved there once 10 chips plus the dropdown no longer fit on one line).
-   - Chips are 44px tall, fully rounded, 14px text, 14px side padding, 8px apart. "All" is white with a light grey border. Each category chip is filled with its pill color. The active chip gets an ink border. Only categories with at least one Live group get a chip. No counts on chips (they'd push the row to two lines).
-   - Area dropdown: a native `<select>` with a visible muted "Area" label, 44px tall, fully rounded, light grey border. Options are "All areas" plus each area with at least one Live group, with a count, e.g. "Reston (5)". **Statewide and National groups also show under every town**, and town counts include them. Area order lives in `src/areas.ts`.
-   - On a phone, the chips are one row that swipes sideways (running to the screen edge, with a fade on the right), and the dropdown sits below them at full width, with the count line under it. The Events page chips still wrap.
-   - Area, category and search all combine (AND).
-   - A Gallery / Map toggle comes later with the map; there is no toggle now.
-4. **Group count line:** small muted text (14px) between the chips and the cards, with the Area dropdown at its right end. "18 groups" with no filters, "Showing 5 of 18 groups" when any filter or search is active. It's a `role="status"` region so screen readers hear it change.
-5. **Gallery of cards** (replaced the earlier listing rows): a grid, 3 across on desktop, 2 at 1000px and below, 1 on a phone, 16px gaps. Each card is white with a 1px rule border, 14px radius, no shadow. Top to bottom:
-   - Category pill(s) (13px, 600 weight, small and rounded)
-   - Org name (Instrument Serif 24px, linked to its site)
-   - The full blurb (15px, line-height 1.6), not truncated, since there are no org pages yet
-   - Map-pin icon with the area in muted text, on its own line
-   - "Visit website" (600 weight) and "Is this your group?" (muted, links to Tally with the org prefilled), pinned to the bottom of the card so links line up across a row
-   - Don't put the pill and the area side by side. They read as one thing when they're next to each other.
-6. **Organizers box:** dashed border, 14px radius. Left: "Run one of these groups?" (Instrument Serif 28px) with the line "Verify your listing to fix the details and show it's current. Free." Right: an outlined ink button "Verify your listing", which goes to Tally.
-7. **Footer:** "newtonova.org" on the left, "Suggest a group" on the right, muted 14px, rule above.
-
-**Accessibility:** use real `<button>`, `<a>`, `<label>` and `<input>` elements. Every touch target should be at least 44px, and body text should meet 4.5:1 contrast. Icon-only buttons get an `aria-label`. Below about 700px wide, everything stacks to one column and nothing scrolls sideways.
+- **Top:** headline with "new people" on the marker stripe, Becca's note (photo + her words), search ("Search the board"). On the right, the taped **Coming up** sheet: the next four events from Live groups, each with a dot in its event's place colour (falling back to the group's towns), and "All events". On phones it shows the next three stacked, name on one line, no group name.
+- **Where are you headed?** Four route signs (Inside the Beltway, I-66 West, Dulles Toll Road, I-95 South). Click a sign's name for the whole route or a town for one town; click again to clear; "All of NoVA" clears. **Statewide and National groups count under every town.** A note explains lilac (statewide, national, or in lots of places). On phones the towns fold behind an arrow.
+- **Kind tags:** "Everything" plus each category with a Live group; one row that swipes on phones. Search, place and kind combine (AND). The count reads "40 groups", or "Showing 10 of 40 groups" when filtered (`role="status"`).
+- **Flyers:** one per Live group, filled with its place colour, tilted and pinned: name (links to its site), bold place line + kinds, the full blurb, then tear-off tabs: **Next** (its next event, or "Nothing listed yet"), **Visit** their site, **"Yours? Check it"** (Tally with `org` and `org_id` prefilled). Each flyer has id `org-<page id>` so Events can link to it.
+- **Bottom:** two pinned sheets, organizers (to Tally) and "Stay in the loop" (to `/join`).
 
 ## /events page
 
 `src/pages/events.astro`; copy in `copy.events`. Everything after the build is client-side, from the event list embedded in the page as JSON.
 
-- Heading, subline, then controls: Week | Month segmented toggle (Week is the default), "This weekend" pill toggle (switches to week view), Area select (areas with upcoming events; Statewide and National show under every town, as on Groups), category chips (same chips and tints as Groups), a count under the week title ("17 events this week", "62 events in November 2026") with a "Show all events" button beside it when any filter is on. On phones the category tags are one row that swipes, as on Groups.
-- **Week view:** Monday to Sunday, prev/next arrows (no paging before this week, or past the week of the last event), days already past hidden. Title "This week, 11 to 15 November" / "Next week, …" / a plain date range. Day headings with a "Today" badge; empty days say "Nothing listed yet."; a filter with no matches that week shows the warm grey panel instead. Multi-day events show on each day they cover.
+- Heading, subline, then controls: Week | Month segmented toggle (Week is the default), "This weekend" toggle (a white tag; switches to week view), Area select (areas with upcoming events; Statewide and National show under every town, as on Groups), category tags (white, as on Groups), a count under the week title ("17 events this week", "62 events in November 2026") with a "Show all events" button beside it when any filter is on. On phones the category tags are one row that swipes, as on Groups.
+- **Week view:** Monday to Sunday, prev/next arrows (no paging before this week, or past the week of the last event), days already past hidden. Title "This week, 11 to 15 November" / "Next week, …" / a plain date range. Day headings with a "Today" badge; empty days say "Nothing listed yet."; a filter with no matches that week shows a white "Nothing matches that yet" sheet instead. Today is hidden when nothing is left on it. Multi-day events show on each day they cover.
 - **Event stubs** (in the pinboard look): each day is a pinned sheet holding a grid of ticket stubs, one per event, filled with its place colour (`placeColor` from `src/routes.ts`), slightly tilted. Top to bottom: time ("6pm", "All day", "Continues"), name (its link covers the whole stub), then town in bold · org (org links to its card on Groups, `/#org-<page id>`; no org: Where). "Add to calendar" is an icon button in the stub's top corner. No category line. One stub per row on phones.
 - **Month view:** one taped white sheet, Mon–Sun grid with dashed lines; the current month starts at this week. Days outside the month and past days muted, today's number in an ink circle. Up to 2 chips per day in each event's place colour ("6pm Open Studio", Name truncated with an ellipsis), then "+N more". Clicking a day (today or later) opens week view for that week, scrolled to the day. On phones the chips give way to up to 3 place-colour dots per day, so the whole month fits with no sideways scroll.
 - **Add to calendar** (`src/calendar.ts`): a menu with Google Calendar (a link made in the browser) and Apple Calendar / Outlook, which download a .ics file built at build time by `src/pages/events/[id].ics.ts` (served at `/events/<page id>.ics`). Location is Where, else Area; details are just the Link. No end time means start + 2 hours; all-day events become all-day entries.
-- Dashed organizer callout at the bottom, same Tally link.
+- A pinned organizer sheet at the bottom, same Tally link.
 
 ## Later (not now)
 
