@@ -52,7 +52,8 @@ const usedAreas = areas
       </div>
     </div>
 
-    <div class="signup" id="signup">
+    <!-- Shown on desktop. Phones get the copy below the cards instead, so the list comes first. -->
+    <div class="signup signup-top" id="signup">
       <h2>{copy.signup.heading}</h2>
       <p>{copy.signup.body}</p>
       <a class="btn btn-solid" href={copy.signup.href}>{copy.signup.button}</a>
@@ -123,6 +124,13 @@ const usedAreas = areas
       ))}
     </ul>
     <p class="empty" id="empty" hidden={orgs.length > 0}>{copy.listing.empty}</p>
+
+    <!-- Phone-only copy of the signup box (the one in the hero is hidden there). -->
+    <div class="signup signup-bottom">
+      <h2>{copy.signup.heading}</h2>
+      <p>{copy.signup.body}</p>
+      <a class="btn btn-solid" href={copy.signup.href}>{copy.signup.button}</a>
+    </div>
 
     <aside class="organizers" id="organizers">
       <div>

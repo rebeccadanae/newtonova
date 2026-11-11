@@ -217,6 +217,10 @@ a:hover {
   color: var(--body);
 }
 
+.signup-bottom {
+  display: none;
+}
+
 .signup input {
   width: 100%;
   height: 48px;
@@ -409,11 +413,17 @@ a:hover {
 
 .area {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
   margin: 0 0 4px;
   color: var(--muted);
   font-size: 15px;
+}
+
+/* Keep the pin full size and level with the first line when the towns wrap */
+.area svg {
+  flex-shrink: 0;
+  margin-top: 0.2em;
 }
 
 .visit {
@@ -1053,6 +1063,47 @@ button.mday:hover {
 
   .hero h1 {
     font-size: 44px;
+  }
+
+  /* Signup box moves below the cards so the list comes first */
+  .signup-top {
+    display: none;
+  }
+
+  .signup-bottom {
+    display: block;
+    margin-top: 40px;
+  }
+
+  .signup-bottom .btn {
+    width: 100%;
+  }
+
+  .signup-bottom + .organizers {
+    margin-top: 24px;
+  }
+
+  /* Category chips: one row that swipes sideways, running to the screen
+     edge, with a fade on the right to show there are more */
+  .filters .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    min-width: 0;
+    margin: 0 -24px;
+    padding: 3px 48px 3px 24px;
+    scroll-padding: 0 48px 0 24px;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 48px), transparent);
+  }
+
+  .filters .chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filters .chip {
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
   .results-bar {
