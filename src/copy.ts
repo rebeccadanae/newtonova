@@ -29,7 +29,7 @@ export const copy = {
   note: {
     photoAlt: "Becca Portman",
     hello: "Hi, I'm Becca!",
-    body: "I wasn't sure how to make friends when I first moved to Northern Virginia, but I've discovered so many great community groups along the way! I made this page to make it easier for you to get started.",
+    body: "I wasn't sure how to find community when I first moved to NoVA, but I've discovered so many great groups along the way! I made this page to make it easier for you to get started.",
   },
 
   // Homepage "Coming up" sheet: the next few events from Live groups.
