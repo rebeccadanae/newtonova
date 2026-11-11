@@ -27,7 +27,7 @@ OWN-WORLD: Pale blue woven-fabric ground (#CFE2EA), ink #1D2A2F shell bar, white
 
 STORY: A newcomer sees Becca's face and words, searches or picks a route, scans flyers colored by place, sees each group's next date, and tears off a tab to go. An organizer spots "Yours? Check it" and the pinned sheet asking them to check their listing.
 
-FIRST VIEWPORT: Desktop: left 60%: headline in Overpass 800, Becca's quiet note (84px round photo, plain text), search. Right: "Coming up" taped white sheet with four next events, each with a route-color dot. "Where are you headed?" begins just below. Phone: headline, note, search, Coming up as a swipe strip, then four compact route buttons (towns open on tap), then flyers; first flyer within about a screen and a half.
+FIRST VIEWPORT: Desktop: left 60%: headline in Overpass 800, Becca's quiet note (84px round photo, plain text), search. Right: "Coming up" taped white sheet with four next events, each with a route-color dot. "Where are you headed?" begins just below. Phone: headline, note, search, Coming up as the next three stacked (name on one line, group hidden), then four compact route buttons (towns open on tap), then flyers; first flyer within about a screen and a half.
 
 FORM: Fusion pinned by Becca after the roll: board (pinned flyers, tear-off tabs, Coming up) + assigned highway-signs direction (route groups, shields, Overpass) + guide-map palette and photo placement. seed:eee6b5e51f873239 (assigned candidate 5, highway signs, kept as the route-group system).
 

@@ -464,10 +464,10 @@ a.tab:focus-visible {
     font-size: 16px;
   }
 
-  /* Coming up becomes a short strip you swipe */
+  /* Coming up on a phone: the next three, stacked, one line per name; the group shows on desktop only */
   .coming {
     margin: 0;
-    padding: 22px 16px 6px;
+    padding: 22px 18px 6px;
     transform: none;
   }
 
@@ -476,31 +476,30 @@ a.tab:focus-visible {
   }
 
   .coming ul {
-    position: relative; /* keeps the hidden screen-reader text inside the strip */
-    display: flex;
-    overflow-x: auto;
-    scrollbar-width: none;
-    margin: 10px -16px 2px;
-    padding: 0 16px;
+    margin: 8px 0 2px;
   }
 
-  .coming ul::-webkit-scrollbar {
+  .coming li:not([hidden]) ~ li:not([hidden]) ~ li:not([hidden]) ~ li:not([hidden]) {
     display: none;
   }
 
-  .coming li {
-    flex: 0 0 72%;
-    border-top: 0;
-    border-left: 1.5px dashed rgb(29 42 47 / 0.3);
-    padding-left: 12px;
-    margin-left: 12px;
+  .coming li a {
+    grid-template-columns: 12px minmax(0, 1fr);
+    padding: 9px 0;
   }
 
-  .coming li:not([hidden]):first-child,
-  .coming li[hidden] + li:not([hidden]) {
-    border-left: 0;
-    padding-left: 0;
-    margin-left: 0;
+  .coming li a::before {
+    grid-row: 1 / 3;
+  }
+
+  .coming .what {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .coming .who {
+    display: none;
   }
 
   .routes {
