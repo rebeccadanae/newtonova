@@ -11,7 +11,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "db:migrate:local": "wrangler d1 migrations apply newtonova --config db/wrangler.jsonc --local",
-    "db:migrate": "wrangler d1 migrations apply newtonova --config db/wrangler.jsonc --remote"
+    "db:migrate": "wrangler d1 migrations apply newtonova --config db/wrangler.jsonc --remote",
+    "import:local": "node --env-file-if-exists=.env scripts/import-from-notion.mjs",
+    "import": "node --env-file-if-exists=.env scripts/import-from-notion.mjs --remote"
   },
   "dependencies": {
     "@notionhq/client": "^5.27.1",
