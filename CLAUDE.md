@@ -18,7 +18,11 @@ A free directory of Northern Virginia groups that welcome new people: creative c
   - Only rows with **Status = Live** are published.
 - **Events: a second Notion database, "newtonova Events"** (data source `423e16f9-1f99-434c-a8c7-18853486c103`), read by `scripts/fetch-events.mjs` into `src/data/events.json`. Only Status = Live, and past events are dropped at build time and again in the browser. Summary is newsletter-only and never written to the JSON. Each event's categories come from its related org; the event's own Category is used only when it has no Live org. Dates are shown in America/New_York (helpers in `src/event-dates.ts`). What "This weekend" means lives in `src/weekend.ts` (Friday from 5pm through Sunday).
   - Token in `NOTION_TOKEN`, from an integration shared with these two databases only. Never commit it: `.env` locally, an environment variable on the host.
-- **Hosting: Cloudflare Workers** (static assets), deployed from GitHub via Workers Builds on every push to `main`. Free tier. Project name `newtonova`, live at https://newtonova.org (also https://newtonova.rebeccadportman.workers.dev/). No wrangler config in the repo; Cloudflare detected Astro on its own.
+- **Moving off Notion to Cloudflare D1** (started 2026-11-13). Notion is still what the site builds from and where edits happen until the switch.
+  - Database `newtonova` (id `9708a4bf-d7ae-4321-9c29-8c7619e1c7e2`, region ENAM), free tier. Tables `orgs` and `events` in `db/migrations/0001_init.sql`: every Notion field plus new empty org fields (schedule, cost, accessibility, ages, first_time) not shown yet. Ids are the Notion page ids, so `/#org-<id>`, the Tally prefill and `.ics` links keep working. Category and area are JSON arrays of names.
+  - Database settings are in `db/wrangler.jsonc`, kept out of the repo root on purpose so the deploy still detects Astro on its own. New table changes go in a new numbered file in `db/migrations/`, then `npm run db:migrate:local` and `npm run db:migrate`.
+  - Plan: phase 1 = tables (done), a rerunnable Notion import, then the build writes the same `orgs.json`/`events.json` from D1 instead of Notion (pages unchanged). Phase 2 = admin page for Becca (Notion retired, live updates). Phase 3 = owner sign-in, claims, edit queue Becca approves, a verification process. Phase 4 = owners add events. Photos are on hold.
+- **Hosting: Cloudflare Workers** (static assets), deployed from GitHub via Workers Builds on every push to `main`. Free tier. Project name `newtonova`, live at https://newtonova.org (also https://newtonova.rebeccadportman.workers.dev/). No wrangler config in the repo root; Cloudflare detected Astro on its own.
 - **Domain:** newtonova.org is registered at **GoDaddy**, with nameservers pointed at Cloudflare. `newtonova.org` is a custom domain on the Worker. `www` is a proxied placeholder A record (192.0.2.1) plus a Cloudflare Redirect Rule ("Redirect from WWW to root") that sends it to newtonova.org; adding www as a Worker custom domain failed with "No zones match". Cloudflare Email Routing forwards hello@newtonova.org; leave its MX and TXT records alone.
 - **Rebuilds:** manual for now (a push or a manual rebuild in Cloudflare). A nightly rebuild is still wanted later; deploy hooks are a Pages feature, so check how to trigger a Workers Builds rebuild on a schedule (e.g. a free GitHub Action) before building it.
 - **Organizer form: Tally, "Your group on newtonova"** at https://tally.so/r/RWK9Pd (stored once as `TALLY_URL` in `src/copy.ts`).
@@ -46,14 +50,15 @@ A free directory of Northern Virginia groups that welcome new people: creative c
 | Category | multi-select | Colored pill(s), filter chips |
 | Area | multi-select | Location line with pin icon |
 | Blurb | text | Card body |
-| Status | select: Collecting, Ready, Live, Removed | Publish only Live. Removed = the org asked to come down; keep the row so it isn't re-added |
+| Status | select: Collecting, Ready, Live (Removed isn't an option in Notion yet; the D1 table allows it) | Publish only Live. Removed = the org asked to come down; keep the row so it isn't re-added |
 | Verified | checkbox | Not shown yet |
 | Found via | url | Never shown (internal) |
 | Where | text | Not used until the map |
 | No fixed place | checkbox | Not used until the map |
+| Events page | text | Internal (where to find their events) |
 
 Category options: Creative, Sports & movement, Activism, Mutual aid, Learning, Social, Families, Religious, Volunteering.
-Area options: Alexandria, Annandale, Arlington, Ashburn, Centreville, Chantilly, Fairfax, Falls Church, Herndon, Lorton, Manassas, McLean, Reston, Woodbridge, Statewide, National.
+Area options: Alexandria, Annandale, Arlington, Ashburn, Centreville, Chantilly, Fairfax, Falls Church, Herndon, Lorton, Manassas, McLean, Reston, Woodbridge, Clifton, Statewide, National.
 
 ## Design: the pinboard
 

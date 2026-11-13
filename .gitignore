@@ -19,3 +19,6 @@ npm-debug.log*
 # generated from Notion at build time (scripts/fetch-orgs.mjs, scripts/fetch-events.mjs)
 src/data/orgs.json
 src/data/events.json
+
+# local copy of the D1 database (wrangler --local)
+.wrangler/

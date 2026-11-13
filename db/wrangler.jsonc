@@ -1,0 +1,15 @@
+// Used only for database commands, e.g.
+//   npx wrangler d1 migrations apply newtonova --config db/wrangler.jsonc --local
+// It sits in db/ (not the repo root) on purpose, so Cloudflare's deploy keeps
+// detecting Astro on its own and never reads this file.
+{
+  "name": "newtonova-db",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "newtonova",
+      "database_id": "9708a4bf-d7ae-4321-9c29-8c7619e1c7e2",
+      "migrations_dir": "migrations"
+    }
+  ]
+}
