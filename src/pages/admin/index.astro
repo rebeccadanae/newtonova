@@ -1,0 +1,126 @@
+---
+// Admin: every group in D1, any status. Read only for now.
+import { env } from "cloudflare:workers";
+import Admin from "../../layouts/Admin.astro";
+import { copy } from "../../copy";
+
+export const prerender = false;
+
+const t = copy.admin;
+const STATUSES = ["Live", "Ready", "Collecting", "Removed"] as const;
+
+const q = (Astro.url.searchParams.get("q") ?? "").trim();
+const statusParam = Astro.url.searchParams.get("status") ?? "";
+const status = (STATUSES as readonly string[]).includes(statusParam) ? statusParam : "";
+
+type Row = {
+  id: string;
+  name: string;
+  website: string | null;
+  status: string;
+  category: string;
+  area: string;
+  verified: number;
+  updated_at: string;
+};
+
+// Search matches name, towns and kinds; status narrows further.
+const where: string[] = [];
+const binds: string[] = [];
+if (q) {
+  where.push("(name LIKE ?1 OR area LIKE ?1 OR category LIKE ?1)");
+  binds.push(`%${q}%`);
+}
+if (status) {
+  where.push(`status = ?${binds.length + 1}`);
+  binds.push(status);
+}
+const sql = `SELECT id, name, website, status, category, area, verified, updated_at FROM orgs
+  ${where.length ? `WHERE ${where.join(" AND ")}` : ""} ORDER BY name COLLATE NOCASE`;
+
+const [{ results: rows }, { results: counts }] = await Promise.all([
+  env.DB.prepare(sql).bind(...binds).all<Row>(),
+  // Counts follow the search, so each status link says what it would show.
+  env.DB.prepare(
+    `SELECT status, COUNT(*) AS n FROM orgs ${q ? "WHERE (name LIKE ?1 OR area LIKE ?1 OR category LIKE ?1)" : ""} GROUP BY status`,
+  )
+    .bind(...(q ? [`%${q}%`] : []))
+    .all<{ status: string; n: number }>(),
+]);
+
+const countOf = (s: string) => counts.find((c) => c.status === s)?.n ?? 0;
+const total = counts.reduce((sum, c) => sum + c.n, 0);
+
+const list = (json: string) => {
+  const items = JSON.parse(json) as string[];
+  return items.length ? items.join(", ") : t.none;
+};
+const day = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "America/New_York" });
+
+const statusHref = (s: string) => {
+  const p = new URLSearchParams();
+  if (q) p.set("q", q);
+  if (s) p.set("status", s);
+  const qs = p.toString();
+  return `/admin/${qs ? `?${qs}` : ""}`;
+};
+---
+
+<Admin title={t.groupsHeading}>
+  <p class="admin-note">{t.notionNote}</p>
+
+  <section class="admin-sheet" aria-labelledby="groups-heading">
+    <div class="admin-head">
+      <h1 id="groups-heading">{t.groupsHeading}</h1>
+      <form class="admin-search" method="get" action="/admin/" role="search">
+        <label for="admin-q">{t.searchLabel}</label>
+        <div class="admin-search-row">
+          <input id="admin-q" name="q" type="search" value={q} placeholder={t.searchPlaceholder} />
+          {status && <input type="hidden" name="status" value={status} />}
+          <button class="ink-btn" type="submit">{t.searchButton}</button>
+        </div>
+      </form>
+    </div>
+
+    <nav class="admin-filter" aria-label={t.statusLabel}>
+      <a href={statusHref("")} aria-current={status === "" ? "page" : undefined}>{t.allStatuses} ({total})</a>
+      {STATUSES.map((s) => (
+        <a href={statusHref(s)} aria-current={status === s ? "page" : undefined}>{s} ({countOf(s)})</a>
+      ))}
+    </nav>
+
+    {rows.length === 0 ? (
+      <p class="admin-empty">
+        {t.empty} {q && <a href={statusHref(status)}>{t.clear}</a>}
+      </p>
+    ) : (
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th scope="col">{t.columns.name}</th>
+            <th scope="col">{t.columns.status}</th>
+            <th scope="col">{t.columns.kinds}</th>
+            <th scope="col">{t.columns.towns}</th>
+            <th scope="col">{t.columns.verified}</th>
+            <th scope="col">{t.columns.updated}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <th scope="row" data-label={t.columns.name}>
+                {r.website ? <a href={r.website} rel="noopener">{r.name}</a> : <>{r.name} <span class="admin-muted">({t.noWebsite})</span></>}
+              </th>
+              <td data-label={t.columns.status}><span class="admin-status">{r.status}</span></td>
+              <td data-label={t.columns.kinds}>{list(r.category)}</td>
+              <td data-label={t.columns.towns}>{list(r.area)}</td>
+              <td data-label={t.columns.verified}>{r.verified ? t.verifiedYes : t.verifiedNo}</td>
+              <td data-label={t.columns.updated}><time datetime={r.updated_at}>{day(r.updated_at)}</time></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </section>
+</Admin>

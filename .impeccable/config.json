@@ -11,7 +11,20 @@
         ],
         "createdAt": "2026-11-11T14:47:30.421Z",
         "reason": "Claude triage: flagged shadow is var(--lift), a 10px-offset soft blue-grey elevation shadow on a light ground, not a zero-offset glow; temporary draft page"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "middot",
+        "createdAt": "2026-11-13T11:08:46.465Z",
+        "reason": "Agent: single-glyph @font-face (unicode-range U+00B7) patching Overpass's zero-width middle dot; not a new typeface"
       }
     ]
+  },
+  "hook": {
+    "enabled": true,
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
   }
 }

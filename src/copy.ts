@@ -217,4 +217,26 @@ export const copy = {
     suggest: "Suggest a group",
     suggestHref: TALLY_URL,
   },
+
+  // /admin, seen only by Becca.
+  admin: {
+    title: "Admin",
+    signedInAs: "Signed in as",
+    viewSite: "View the site",
+    notionNote:
+      "Read only for now. Keep editing in Notion: every build copies Notion in, so changes made anywhere else would be overwritten until the switch.",
+    groupsHeading: "Groups",
+    searchLabel: "Search groups",
+    searchPlaceholder: "Name, town or kind",
+    searchButton: "Search",
+    statusLabel: "Status",
+    allStatuses: "All",
+    columns: { name: "Name", status: "Status", kinds: "Kinds", towns: "Towns", verified: "Verified", updated: "Updated" },
+    verifiedYes: "Yes",
+    verifiedNo: "No",
+    noWebsite: "No website",
+    none: "None",
+    empty: "No groups match.",
+    clear: "Clear search",
+  },
 };

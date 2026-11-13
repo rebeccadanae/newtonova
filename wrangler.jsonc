@@ -4,6 +4,12 @@
 {
   "name": "newtonova",
   "compatibility_date": "2026-10-01",
+  // Cloudflare Access app that guards /admin (checked in src/admin/access.ts).
+  // Not secret. Empty means /admin refuses everyone.
+  "vars": {
+    "ACCESS_TEAM_DOMAIN": "still-unit-07fd.cloudflareaccess.com",
+    "ACCESS_AUD": "59c4f4ecc9beaa8390210d8ab5779e21c342923e865431313720442d0f1187db"
+  },
   "d1_databases": [
     {
       "binding": "DB",
