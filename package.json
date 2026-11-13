@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "fetch": "node --env-file-if-exists=.env scripts/fetch-orgs.mjs && node --env-file-if-exists=.env scripts/fetch-events.mjs",
+    "fetch": "node --env-file-if-exists=.env scripts/import-from-notion.mjs --remote && node --env-file-if-exists=.env scripts/fetch-from-d1.mjs",
     "predev": "npm run fetch",
     "dev": "astro dev",
     "prebuild": "npm run fetch",

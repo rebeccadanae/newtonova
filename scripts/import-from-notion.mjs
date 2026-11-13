@@ -5,11 +5,11 @@
 //   npm run import:local    (local copy, for testing)
 //   npm run import          (the real database on Cloudflare)
 
-import { execFileSync } from "node:child_process";
 import { writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Client, collectPaginatedAPI, isFullPage } from "@notionhq/client";
+import { d1, query as d1query } from "./d1.mjs";
 
 const ORGS_SOURCE = "db1b67aa-be6e-453c-9481-4e2c9549f87a";
 const EVENTS_SOURCE = "423e16f9-1f99-434c-a8c7-18853486c103";
@@ -42,12 +42,8 @@ ON CONFLICT(id) DO UPDATE SET ${updates.join(", ")};`;
 const all = async (id) =>
   (await collectPaginatedAPI(notion.dataSources.query, { data_source_id: id })).filter(isFullPage);
 
-const wrangler = (args) =>
-  execFileSync("npx", ["wrangler", "d1", "execute", "newtonova", "--config", "db/wrangler.jsonc", target, ...args], {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-const query = (sql) => JSON.parse(wrangler(["--json", "--command", sql]))[0].results;
+const wrangler = (args) => d1(target, args);
+const query = (sql) => d1query(target, sql);
 
 // ---- Read Notion
 
