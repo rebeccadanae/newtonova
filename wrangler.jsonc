@@ -1,0 +1,15 @@
+// Cloudflare settings for the newtonova Worker (the live site).
+// Astro's Cloudflare adapter fills in the entrypoint and static assets.
+// Secrets are never written here: use `npx wrangler secret put <NAME>`.
+{
+  "name": "newtonova",
+  "compatibility_date": "2026-10-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "newtonova",
+      "database_id": "9708a4bf-d7ae-4321-9c29-8c7619e1c7e2",
+      "migrations_dir": "db/migrations"
+    }
+  ]
+}

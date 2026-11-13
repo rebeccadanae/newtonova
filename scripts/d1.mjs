@@ -18,7 +18,7 @@ export function d1(target, args) {
   try {
     return execFileSync(
       "npx",
-      ["wrangler", "d1", "execute", "newtonova", "--config", "db/wrangler.jsonc", target, ...args],
+      ["wrangler", "d1", "execute", "newtonova", target, ...args],
       { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], env },
     );
   } catch (err) {
