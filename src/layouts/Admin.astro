@@ -6,9 +6,10 @@ import { copy } from "../copy";
 
 interface Props {
   title: string;
+  section?: "groups" | "events";
 }
 
-const { title } = Astro.props;
+const { title, section = "groups" } = Astro.props;
 const email = Astro.locals.adminEmail;
 ---
 
@@ -28,6 +29,10 @@ const email = Astro.locals.adminEmail;
     <header class="site-header">
       <div class="wrap admin-bar">
         <a class="logo" href="/admin/">new to nova <span class="admin-badge">{copy.admin.title}</span></a>
+        <nav class="admin-nav" aria-label={copy.admin.title}>
+          <a href="/admin/" aria-current={section === "groups" ? "page" : undefined}>{copy.admin.groupsHeading}</a>
+          <a href="/admin/events/" aria-current={section === "events" ? "page" : undefined}>{copy.admin.events.heading}</a>
+        </nav>
         <p class="admin-who">
           {email && <span>{copy.admin.signedInAs} {email}</span>}
           <a href="/">{copy.admin.viewSite}</a>

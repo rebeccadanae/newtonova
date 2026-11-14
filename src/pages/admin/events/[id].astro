@@ -1,0 +1,227 @@
+---
+// Admin: edit an event (/admin/events/<id>) or add one (/admin/events/new).
+// /admin/events/new?from=<id> starts a copy of that event, with no date.
+import { env } from "cloudflare:workers";
+import Admin from "../../../layouts/Admin.astro";
+import { copy } from "../../../copy";
+import { KINDS, STATUSES, TOWN_GROUPS } from "../../../admin/groups";
+import { emptyEvent, fromRow, readEvent, saveEvent, type EventErrors, type EventForm, type EventRow } from "../../../admin/events";
+
+export const prerender = false;
+
+const t = copy.admin;
+const te = t.events;
+const f = te.fields;
+const id = Astro.params.id ?? "";
+const isNew = id === "new";
+
+const getEvent = (eventId: string) => env.DB.prepare("SELECT * FROM events WHERE id = ?1").bind(eventId).first<EventRow>();
+
+let existing: EventRow | null = null;
+if (!isNew) {
+  existing = await getEvent(id);
+  if (!existing) return new Response(te.notFound, { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
+}
+
+// A copy: every field from the source except the date.
+const fromId = isNew ? Astro.url.searchParams.get("from") : null;
+const source = fromId ? await getEvent(fromId) : null;
+
+const { results: orgs } = await env.DB.prepare("SELECT id, name, status FROM orgs ORDER BY name COLLATE NOCASE").all<{
+  id: string;
+  name: string;
+  status: string;
+}>();
+
+let values: EventForm = existing
+  ? fromRow(existing)
+  : source
+    ? { ...fromRow(source), date: "", end_date: "" }
+    : emptyEvent();
+let errors: EventErrors = {};
+let saveError = "";
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const kept = existing ? fromRow(existing) : undefined;
+  const read = readEvent(form, new Set(orgs.map((o) => o.id)), kept && { area: kept.area, category: kept.category });
+  values = read.values;
+  errors = read.errors;
+
+  if (Object.keys(errors).length === 0) {
+    try {
+      const savedId = await saveEvent(env.DB, isNew ? null : id, values);
+      return Astro.redirect(`/admin/events/?saved=${encodeURIComponent(savedId)}`, 303);
+    } catch (e) {
+      saveError = e instanceof Error ? e.message : String(e);
+    }
+  } else {
+    Astro.response.status = 400;
+  }
+}
+
+const heading = isNew ? te.newHeading : existing?.name ?? te.newHeading;
+const errorCount = Object.keys(errors).length;
+const err = (key: keyof EventErrors) => (errors[key] ? `${key}-error` : undefined);
+const describe = (...ids: (string | undefined)[]) => ids.filter(Boolean).join(" ") || undefined;
+
+// Towns or a kind already on the event that are no longer on the lists still show.
+const listedTowns = TOWN_GROUPS.flatMap((g) => g.towns);
+const extraTowns = values.area.filter((x) => !listedTowns.includes(x));
+const townGroups = extraTowns.length ? [...TOWN_GROUPS, { label: t.fields.other, towns: extraTowns }] : TOWN_GROUPS;
+const kinds = values.category && !KINDS.includes(values.category) ? [...KINDS, values.category] : KINDS;
+---
+
+<Admin title={heading} section="events">
+  <p class="admin-back"><a href="/admin/events/">{te.backToEvents}</a></p>
+
+  <section class="admin-sheet gf-sheet" aria-labelledby="event-heading">
+    <div class="admin-title">
+      <h1 id="event-heading">{heading}</h1>
+      {existing && <a class="paper-btn" href={`/admin/events/new?from=${encodeURIComponent(existing.id)}`}>{te.copy}</a>}
+    </div>
+    {existing && (
+      <p class="admin-muted gf-meta">
+        {t.lastSaved}{" "}
+        <time datetime={existing.updated_at}>
+          {new Date(existing.updated_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "America/New_York" })}
+        </time>
+      </p>
+    )}
+    {source && !existing && <p class="admin-note gf-copy-note">{te.copyNote(source.name)}</p>}
+
+    {(errorCount > 0 || saveError) && (
+      <div class="gf-summary" role="alert">
+        <p>{saveError ? `${t.saveFailed} ${saveError}` : t.fixErrors(errorCount)}</p>
+      </div>
+    )}
+
+    <form method="post" class="gf-form" novalidate>
+      <fieldset class="gf-section">
+        <legend>{f.eventLegend}</legend>
+
+        <div class="gf-field">
+          <label for="ef-name">{f.name}</label>
+          <input id="ef-name" name="name" type="text" required maxlength="200" value={values.name}
+            aria-invalid={errors.name ? "true" : undefined} aria-describedby={err("name")} />
+          {errors.name && <p class="gf-error" id="name-error">{errors.name}</p>}
+        </div>
+
+        <div class="gf-field">
+          <label for="ef-link">{f.link}</label>
+          <p class="gf-hint" id="link-hint">{f.linkHint}</p>
+          <input id="ef-link" name="link" type="url" inputmode="url" placeholder="https://" value={values.link}
+            aria-invalid={errors.link ? "true" : undefined} aria-describedby={describe("link-hint", err("link"))} />
+          {errors.link && <p class="gf-error" id="link-error">{errors.link}</p>}
+        </div>
+
+        <div class="gf-field">
+          <label for="ef-group">{f.group}</label>
+          <p class="gf-hint" id="group-hint">{f.groupHint}</p>
+          <select id="ef-group" name="org_id" aria-invalid={errors.org_id ? "true" : undefined} aria-describedby={describe("group-hint", err("org_id"))}>
+            <option value="">{f.noGroup}</option>
+            {orgs.map((o) => (
+              <option value={o.id} selected={values.org_id === o.id}>{o.status === "Live" ? o.name : `${o.name} (${o.status})`}</option>
+            ))}
+          </select>
+          {errors.org_id && <p class="gf-error" id="org_id-error">{errors.org_id}</p>}
+        </div>
+      </fieldset>
+
+      <fieldset class="gf-section">
+        <legend>{f.whenLegend}</legend>
+        <div class="gf-row">
+          <div class="gf-field">
+            <label for="ef-date">{f.date}</label>
+            <input id="ef-date" name="date" type="date" required value={values.date}
+              aria-invalid={errors.date ? "true" : undefined} aria-describedby={err("date")} />
+            {errors.date && <p class="gf-error" id="date-error">{errors.date}</p>}
+          </div>
+          <div class="gf-field">
+            <label for="ef-start">{f.startTime}</label>
+            <input id="ef-start" name="start_time" type="time" value={values.start_time}
+              aria-invalid={errors.start_time ? "true" : undefined} aria-describedby={describe("start-hint", err("start_time"))} />
+            <p class="gf-hint gf-hint-after" id="start-hint">{f.startTimeHint}</p>
+            {errors.start_time && <p class="gf-error" id="start_time-error">{errors.start_time}</p>}
+          </div>
+        </div>
+        <div class="gf-row">
+          <div class="gf-field">
+            <label for="ef-end-date">{f.endDate}</label>
+            <input id="ef-end-date" name="end_date" type="date" value={values.end_date}
+              aria-invalid={errors.end_date ? "true" : undefined} aria-describedby={describe("end-date-hint", err("end_date"))} />
+            <p class="gf-hint gf-hint-after" id="end-date-hint">{f.endDateHint}</p>
+            {errors.end_date && <p class="gf-error" id="end_date-error">{errors.end_date}</p>}
+          </div>
+          <div class="gf-field">
+            <label for="ef-end-time">{f.endTime}</label>
+            <input id="ef-end-time" name="end_time" type="time" value={values.end_time}
+              aria-invalid={errors.end_time ? "true" : undefined} aria-describedby={err("end_time")} />
+            {errors.end_time && <p class="gf-error" id="end_time-error">{errors.end_time}</p>}
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="gf-section">
+        <legend>{f.whereLegend}</legend>
+        <fieldset class="gf-checks" aria-describedby={err("area")}>
+          <legend>{f.towns}</legend>
+          {townGroups.map((g) => (
+            <div class="gf-town-group">
+              <p class="gf-town-label">{g.label}</p>
+              <div class="gf-check-grid">
+                {g.towns.map((town) => (
+                  <label class="gf-check"><input type="checkbox" name="area" value={town} checked={values.area.includes(town)} /> {town}</label>
+                ))}
+              </div>
+            </div>
+          ))}
+          {errors.area && <p class="gf-error" id="area-error">{errors.area}</p>}
+        </fieldset>
+        <div class="gf-field">
+          <label for="ef-where">{f.where}</label>
+          <p class="gf-hint" id="where-hint">{f.whereHint}</p>
+          <input id="ef-where" name="where_text" type="text" value={values.where_text}
+            aria-invalid={errors.where_text ? "true" : undefined} aria-describedby={describe("where-hint", err("where_text"))} />
+          {errors.where_text && <p class="gf-error" id="where_text-error">{errors.where_text}</p>}
+        </div>
+      </fieldset>
+
+      <fieldset class="gf-section">
+        <legend>{f.extrasLegend}</legend>
+        <div class="gf-field">
+          <label for="ef-kind">{f.kind}</label>
+          <p class="gf-hint" id="kind-hint">{f.kindHint}</p>
+          <select id="ef-kind" name="category" aria-describedby={describe("kind-hint", err("category"))}>
+            <option value="">{f.noKind}</option>
+            {kinds.map((k) => <option value={k} selected={values.category === k}>{k}</option>)}
+          </select>
+          {errors.category && <p class="gf-error" id="category-error">{errors.category}</p>}
+        </div>
+        <div class="gf-field">
+          <label for="ef-summary">{f.summary}</label>
+          <p class="gf-hint" id="summary-hint">{f.summaryHint}</p>
+          <textarea id="ef-summary" name="summary" rows="4" aria-describedby={describe("summary-hint", err("summary"))}>{values.summary}</textarea>
+          {errors.summary && <p class="gf-error" id="summary-error">{errors.summary}</p>}
+        </div>
+      </fieldset>
+
+      <fieldset class="gf-section gf-admin">
+        <legend>{f.adminLegend}</legend>
+        <div class="gf-field">
+          <label for="ef-status">{f.status}</label>
+          <select id="ef-status" name="status" aria-invalid={errors.status ? "true" : undefined}>
+            {STATUSES.map((s) => <option value={s} selected={values.status === s}>{s}</option>)}
+          </select>
+          <p class="gf-hint gf-hint-after">{f.statusHint}</p>
+          {errors.status && <p class="gf-error">{errors.status}</p>}
+        </div>
+      </fieldset>
+
+      <div class="gf-actions">
+        <button class="ink-btn" type="submit">{isNew ? te.addButton : te.saveButton}</button>
+        <a href="/admin/events/">{t.cancel}</a>
+      </div>
+    </form>
+  </section>
+</Admin>

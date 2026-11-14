@@ -48,7 +48,7 @@ const heading = isNew ? t.newHeading : values.name || existing?.name || t.editHe
 const errorCount = Object.keys(errors).length;
 ---
 
-<Admin title={heading}>
+<Admin title={heading} section="groups">
   <p class="admin-back"><a href="/admin/">{t.backToGroups}</a></p>
 
   <section class="admin-sheet gf-sheet" aria-labelledby="group-heading">

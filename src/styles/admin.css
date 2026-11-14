@@ -446,3 +446,93 @@
     margin-top: 0;
   }
 }
+
+/* ---- Admin nav (Groups · Events) */
+
+.admin-nav {
+  display: flex;
+  gap: 4px 20px;
+  margin-right: auto;
+  margin-left: 12px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.admin-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: none;
+}
+
+.admin-nav a[aria-current="page"] {
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 6px;
+}
+
+/* ---- Events list and form */
+
+.admin-filter-tight {
+  margin-top: -8px;
+}
+
+.admin-when {
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+}
+
+.admin-when .admin-muted {
+  font-size: 14px;
+}
+
+.gf-hint-after {
+  margin: 6px 0 0;
+}
+
+.gf-copy-note {
+  margin: 14px 0 0;
+}
+
+.gf-row .gf-field {
+  flex: 0 1 15em;
+}
+
+.gf-field input[type="date"],
+.gf-field input[type="time"] {
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 12px;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background: #fff;
+  font: 400 16px/1.4 var(--sans);
+  color: var(--ink);
+}
+
+.gf-field input[type="date"][aria-invalid="true"],
+.gf-field input[type="time"][aria-invalid="true"] {
+  border-color: #c2410c;
+}
+
+@media (max-width: 760px) {
+  .admin-nav {
+    margin-left: 0;
+    order: 3;
+    width: 100%;
+  }
+
+  .gf-row .gf-field {
+    flex: 1 1 100%;
+  }
+}
+
+/* Long group names must not push the dropdown past the sheet. */
+.gf-field select {
+  max-width: 100%;
+}
+
+#ef-group {
+  width: 100%;
+}

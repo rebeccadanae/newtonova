@@ -1,0 +1,153 @@
+---
+// Admin: every event in D1, any status. Upcoming by default, past on request.
+import { env } from "cloudflare:workers";
+import Admin from "../../../layouts/Admin.astro";
+import { copy } from "../../../copy";
+import { STATUSES } from "../../../admin/groups";
+import { splitStored } from "../../../admin/events";
+import { todayKey } from "../../../event-dates";
+
+export const prerender = false;
+
+const t = copy.admin;
+const te = t.events;
+
+const q = (Astro.url.searchParams.get("q") ?? "").trim();
+const statusParam = Astro.url.searchParams.get("status") ?? "";
+const status = (STATUSES as readonly string[]).includes(statusParam) ? statusParam : "";
+const past = Astro.url.searchParams.get("when") === "past";
+
+type Row = {
+  id: string;
+  name: string;
+  start: string;
+  end: string | null;
+  all_day: number;
+  area: string;
+  status: string;
+  org_id: string | null;
+  org_name: string | null;
+};
+
+// Stored dates start with their New York day, so the first 10 characters compare as days.
+const today = todayKey();
+const base: string[] = [past ? `substr(COALESCE(e."end", e.start), 1, 10) < ?1` : `substr(COALESCE(e."end", e.start), 1, 10) >= ?1`];
+const binds: string[] = [today];
+if (q) {
+  binds.push(`%${q}%`);
+  base.push(`(e.name LIKE ?${binds.length} OR o.name LIKE ?${binds.length})`);
+}
+const from = `FROM events e LEFT JOIN orgs o ON o.id = e.org_id WHERE ${base.join(" AND ")}`;
+const statusWhere = status ? ` AND e.status = ?${binds.length + 1}` : "";
+
+const [{ results: rows }, { results: counts }] = await Promise.all([
+  env.DB.prepare(
+    `SELECT e.id, e.name, e.start, e."end", e.all_day, e.area, e.status, e.org_id, o.name AS org_name ${from}${statusWhere}
+     ORDER BY e.start ${past ? "DESC" : "ASC"}`,
+  )
+    .bind(...binds, ...(status ? [status] : []))
+    .all<Row>(),
+  env.DB.prepare(`SELECT e.status, COUNT(*) AS n ${from} GROUP BY e.status`).bind(...binds).all<{ status: string; n: number }>(),
+]);
+
+const countOf = (s: string) => counts.find((c) => c.status === s)?.n ?? 0;
+const total = counts.reduce((sum, c) => sum + c.n, 0);
+
+const savedId = Astro.url.searchParams.get("saved");
+const saved = savedId
+  ? await env.DB.prepare("SELECT name FROM events WHERE id = ?1").bind(savedId).first<{ name: string }>()
+  : null;
+
+const dayFmt = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+const day = (key: string) => dayFmt.format(new Date(`${key}T00:00:00Z`)).replace(",", "");
+const clock = (time: string) => {
+  const [h, m] = time.split(":").map(Number);
+  return `${h % 12 || 12}${m ? `:${String(m).padStart(2, "0")}` : ""}${h < 12 ? "am" : "pm"}`;
+};
+const when = (r: Row) => {
+  const s = splitStored(r.start);
+  const e = splitStored(r.end);
+  const endDay = e.day && e.day !== s.day ? ` to ${day(e.day)}` : "";
+  if (r.all_day) return { day: `${day(s.day)}${endDay}`, time: te.allDay };
+  return { day: `${day(s.day)}${endDay}`, time: e.time ? `${clock(s.time)} to ${clock(e.time)}` : clock(s.time) };
+};
+const list = (json: string) => {
+  const items = JSON.parse(json) as string[];
+  return items.length ? items.join(", ") : t.none;
+};
+
+const href = (opts: { status?: string; past?: boolean }) => {
+  const p = new URLSearchParams();
+  if (q) p.set("q", q);
+  if (opts.past ?? past) p.set("when", "past");
+  const s = opts.status ?? status;
+  if (s) p.set("status", s);
+  const qs = p.toString();
+  return `/admin/events/${qs ? `?${qs}` : ""}`;
+};
+---
+
+<Admin title={te.heading} section="events">
+  {saved && <p class="admin-saved" role="status">{te.saved(saved.name)}</p>}
+
+  <section class="admin-sheet" aria-labelledby="events-heading">
+    <div class="admin-head">
+      <div class="admin-title">
+        <h1 id="events-heading">{te.heading}</h1>
+        <a class="ink-btn" href="/admin/events/new">{te.newEvent}</a>
+      </div>
+      <form class="admin-search" method="get" action="/admin/events/" role="search">
+        <label for="admin-q">{te.searchLabel}</label>
+        <div class="admin-search-row">
+          <input id="admin-q" name="q" type="search" value={q} placeholder={te.searchPlaceholder} />
+          {past && <input type="hidden" name="when" value="past" />}
+          {status && <input type="hidden" name="status" value={status} />}
+          <button class="ink-btn" type="submit">{t.searchButton}</button>
+        </div>
+      </form>
+    </div>
+
+    <nav class="admin-filter" aria-label={te.heading}>
+      <a href={href({ past: false, status: "" })} aria-current={!past ? "page" : undefined}>{te.upcoming}</a>
+      <a href={href({ past: true, status: "" })} aria-current={past ? "page" : undefined}>{te.past}</a>
+    </nav>
+    <nav class="admin-filter admin-filter-tight" aria-label={t.statusLabel}>
+      <a href={href({ status: "" })} aria-current={status === "" ? "page" : undefined}>{t.allStatuses} ({total})</a>
+      {STATUSES.map((s) => (
+        <a href={href({ status: s })} aria-current={status === s ? "page" : undefined}>{s} ({countOf(s)})</a>
+      ))}
+    </nav>
+
+    {rows.length === 0 ? (
+      <p class="admin-empty">{te.empty} {q && <a href={`/admin/events/${past ? "?when=past" : ""}`}>{t.clear}</a>}</p>
+    ) : (
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th scope="col">{te.columns.when}</th>
+            <th scope="col">{te.columns.name}</th>
+            <th scope="col">{te.columns.group}</th>
+            <th scope="col">{te.columns.towns}</th>
+            <th scope="col">{te.columns.status}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const w = when(r);
+            return (
+              <tr>
+                <td data-label={te.columns.when}><span class="admin-when">{w.day}<span class="admin-muted">{w.time}</span></span></td>
+                <th scope="row" data-label={te.columns.name}><a href={`/admin/events/${r.id}`}>{r.name}</a></th>
+                <td data-label={te.columns.group}>
+                  {r.org_id ? <a href={`/admin/groups/${r.org_id}`}>{r.org_name}</a> : <span class="admin-muted">{te.noGroup}</span>}
+                </td>
+                <td data-label={te.columns.towns}>{list(r.area)}</td>
+                <td data-label={te.columns.status}><span class="admin-status">{r.status}</span></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    )}
+  </section>
+</Admin>

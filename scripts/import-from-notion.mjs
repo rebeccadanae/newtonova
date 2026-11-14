@@ -1,6 +1,6 @@
 // Copies every row (all statuses) from the two Notion databases into D1.
 // Safe to rerun: rows are matched by Notion page id and updated in place.
-// A group edited in /admin after its last Notion edit keeps the admin version.
+// A group or event edited in /admin after its last Notion edit keeps the admin version.
 // Never deletes; rows in D1 that are no longer in Notion are only listed.
 //
 //   npm run import:local    (local copy, for testing)
@@ -112,10 +112,10 @@ const events = eventPages
 
 // ---- Write to D1 (orgs first, since events point at them)
 
-// Groups can be edited in /admin, so the newer edit wins. Events still come only from Notion.
+// Groups and events can be edited in /admin, so the newer edit wins.
 const sql = [
   ...orgs.map((o) => upsert("orgs", o, { newerOnly: true })),
-  ...events.map((e) => upsert("events", e)),
+  ...events.map((e) => upsert("events", e, { newerOnly: true })),
 ].join("\n");
 const file = join(mkdtempSync(join(tmpdir(), "newtonova-import-")), "import.sql");
 writeFileSync(file, sql);
@@ -139,7 +139,7 @@ const extra = [...query("SELECT id, name FROM orgs"), ...query("SELECT id, name 
   (r) => !notionIds.has(r.id),
 );
 if (extra.length) {
-  console.log(`  In D1 but no longer in Notion (left alone): ${extra.length}`);
+  console.log(`  In D1 but not in Notion (added in /admin, or gone from Notion; left alone): ${extra.length}`);
   for (const r of extra) console.log(`    - ${r.name} (${r.id})`);
 }
 if (skipped.length) {
