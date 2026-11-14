@@ -114,3 +114,9 @@ Becca only. Server-rendered (`prerender = false`), layout `src/layouts/Admin.ast
 
 - **Map view:** Leaflet with OpenStreetMap tiles. People enter a ZIP (looked up from a static ZIP-to-coordinates table shipped with the site) or use "Use my location", so no address leaves the browser and there's no geocoding API. The address in Notion's **Where** field gets turned into coordinates at build time, with results cached. Orgs marked **No fixed place** stay in the list with no pin. Check OpenStreetMap's tile usage policy before launch.
 - Events newsletter content, Verified badge, org pages.
+
+## Backlog
+
+- When an idea comes up that isn't the current task, or I say "park this", add one line to BACKLOG.md under Next (with a size) or Someday, then go back to the current task. Don't start it.
+- At the end of a session, or when I say "wrap up", update Now with where we stopped and what's next.
+- Don't reorder or prune BACKLOG.md unless I ask.
