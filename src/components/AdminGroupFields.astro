@@ -1,0 +1,43 @@
+---
+// Fields only Becca sets: never part of an owner form.
+import { STATUSES, type GroupAdmin, type Errors } from "../admin/groups";
+import { copy } from "../copy";
+
+interface Props {
+  values: GroupAdmin;
+  errors: Errors;
+}
+
+const { values, errors } = Astro.props;
+const f = copy.admin.fields;
+---
+
+<fieldset class="gf-section gf-admin">
+  <legend>{f.adminLegend}</legend>
+
+  <div class="gf-row">
+    <div class="gf-field">
+      <label for="gf-status">{f.status}</label>
+      <select id="gf-status" name="status" aria-invalid={errors.status ? "true" : undefined}>
+        {STATUSES.map((s) => <option value={s} selected={values.status === s}>{s}</option>)}
+      </select>
+      <p class="gf-hint">{f.statusHint}</p>
+      {errors.status && <p class="gf-error">{errors.status}</p>}
+    </div>
+    <label class="gf-check gf-check-tall"><input type="checkbox" name="verified" checked={values.verified} /> {f.verified}</label>
+  </div>
+
+  <div class="gf-field">
+    <label for="gf-found">{f.foundVia}</label>
+    <input id="gf-found" name="found_via" type="url" inputmode="url" placeholder="https://" value={values.found_via}
+      aria-invalid={errors.found_via ? "true" : undefined} aria-describedby={errors.found_via ? "found_via-error" : undefined} />
+    {errors.found_via && <p class="gf-error" id="found_via-error">{errors.found_via}</p>}
+  </div>
+
+  <div class="gf-field">
+    <label for="gf-events">{f.eventsPage}</label>
+    <p class="gf-hint" id="events-hint">{f.eventsPageHint}</p>
+    <input id="gf-events" name="events_page" type="text" value={values.events_page} aria-describedby="events-hint" />
+    {errors.events_page && <p class="gf-error">{errors.events_page}</p>}
+  </div>
+</fieldset>

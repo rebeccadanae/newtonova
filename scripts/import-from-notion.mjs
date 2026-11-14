@@ -1,5 +1,6 @@
 // Copies every row (all statuses) from the two Notion databases into D1.
 // Safe to rerun: rows are matched by Notion page id and updated in place.
+// A group edited in /admin after its last Notion edit keeps the admin version.
 // Never deletes; rows in D1 that are no longer in Notion are only listed.
 //
 //   npm run import:local    (local copy, for testing)
@@ -31,12 +32,14 @@ const q = (v) =>
   : typeof v === "boolean" ? (v ? "1" : "0")
   : `'${String(v).replaceAll("'", "''")}'`;
 
-const upsert = (table, row) => {
+// newerOnly: update an existing row only if Notion's copy was edited after
+// D1's (both are ISO UTC times), so edits made in /admin aren't overwritten.
+const upsert = (table, row, { newerOnly = false } = {}) => {
   const cols = Object.keys(row);
   const quoted = cols.map((c) => `"${c}"`);
   const updates = cols.filter((c) => c !== "id").map((c) => `"${c}" = excluded."${c}"`);
   return `INSERT INTO ${table} (${quoted.join(", ")}) VALUES (${cols.map((c) => q(row[c])).join(", ")})
-ON CONFLICT(id) DO UPDATE SET ${updates.join(", ")};`;
+ON CONFLICT(id) DO UPDATE SET ${updates.join(", ")}${newerOnly ? ` WHERE excluded.updated_at > ${table}.updated_at` : ""};`;
 };
 
 const all = async (id) =>
@@ -109,7 +112,11 @@ const events = eventPages
 
 // ---- Write to D1 (orgs first, since events point at them)
 
-const sql = [...orgs.map((o) => upsert("orgs", o)), ...events.map((e) => upsert("events", e))].join("\n");
+// Groups can be edited in /admin, so the newer edit wins. Events still come only from Notion.
+const sql = [
+  ...orgs.map((o) => upsert("orgs", o, { newerOnly: true })),
+  ...events.map((e) => upsert("events", e)),
+].join("\n");
 const file = join(mkdtempSync(join(tmpdir(), "newtonova-import-")), "import.sql");
 writeFileSync(file, sql);
 wrangler(["--file", file, ...(target === "--remote" ? ["--yes"] : [])]);

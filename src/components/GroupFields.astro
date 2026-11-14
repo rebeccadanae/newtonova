@@ -1,0 +1,116 @@
+---
+// The group details an owner could also fill in. Used by /admin now, and
+// meant for the owner form later (which would leave out AdminGroupFields).
+import { KINDS, TOWN_GROUPS, type GroupDetails, type Errors } from "../admin/groups";
+import { copy } from "../copy";
+
+interface Props {
+  values: GroupDetails;
+  errors: Errors;
+}
+
+const { values, errors } = Astro.props;
+const f = copy.admin.fields;
+
+// Kinds or towns on the group that are no longer on the lists still show, so saving keeps them.
+const extraKinds = values.category.filter((k) => !KINDS.includes(k));
+const listed = TOWN_GROUPS.flatMap((g) => g.towns);
+const extraTowns = values.area.filter((t) => !listed.includes(t));
+const townGroups = extraTowns.length ? [...TOWN_GROUPS, { label: f.other, towns: extraTowns }] : TOWN_GROUPS;
+
+const err = (key: keyof Errors) => (errors[key] ? `${key}-error` : undefined);
+---
+
+<fieldset class="gf-section">
+  <legend>{f.aboutLegend}</legend>
+
+  <div class="gf-field">
+    <label for="gf-name">{f.name}</label>
+    <input id="gf-name" name="name" type="text" required maxlength="200" value={values.name}
+      aria-invalid={errors.name ? "true" : undefined} aria-describedby={err("name")} />
+    {errors.name && <p class="gf-error" id="name-error">{errors.name}</p>}
+  </div>
+
+  <div class="gf-field">
+    <label for="gf-website">{f.website}</label>
+    <input id="gf-website" name="website" type="url" inputmode="url" placeholder="https://" value={values.website}
+      aria-invalid={errors.website ? "true" : undefined} aria-describedby={err("website")} />
+    {errors.website && <p class="gf-error" id="website-error">{errors.website}</p>}
+  </div>
+
+  <div class="gf-field">
+    <label for="gf-blurb">{f.blurb}</label>
+    <p class="gf-hint" id="blurb-hint">{f.blurbHint}</p>
+    <textarea id="gf-blurb" name="blurb" rows="4" aria-describedby={["blurb-hint", err("blurb")].filter(Boolean).join(" ")}>{values.blurb}</textarea>
+    {errors.blurb && <p class="gf-error" id="blurb-error">{errors.blurb}</p>}
+  </div>
+
+  <fieldset class="gf-checks" aria-describedby={err("category")}>
+    <legend>{f.kinds}</legend>
+    <div class="gf-check-grid">
+      {[...KINDS, ...extraKinds].map((k) => (
+        <label class="gf-check"><input type="checkbox" name="category" value={k} checked={values.category.includes(k)} /> {k}</label>
+      ))}
+    </div>
+    {errors.category && <p class="gf-error" id="category-error">{errors.category}</p>}
+  </fieldset>
+</fieldset>
+
+<fieldset class="gf-section">
+  <legend>{f.whereLegend}</legend>
+
+  <fieldset class="gf-checks" aria-describedby={err("area")}>
+    <legend>{f.towns}</legend>
+    {townGroups.map((g) => (
+      <div class="gf-town-group">
+        <p class="gf-town-label">{g.label}</p>
+        <div class="gf-check-grid">
+          {g.towns.map((t) => (
+            <label class="gf-check"><input type="checkbox" name="area" value={t} checked={values.area.includes(t)} /> {t}</label>
+          ))}
+        </div>
+      </div>
+    ))}
+    {errors.area && <p class="gf-error" id="area-error">{errors.area}</p>}
+  </fieldset>
+
+  <div class="gf-field">
+    <label for="gf-where">{f.where}</label>
+    <p class="gf-hint" id="where-hint">{f.whereHint}</p>
+    <input id="gf-where" name="where_text" type="text" value={values.where_text}
+      aria-describedby={["where-hint", err("where_text")].filter(Boolean).join(" ")} />
+    {errors.where_text && <p class="gf-error" id="where_text-error">{errors.where_text}</p>}
+  </div>
+
+  <label class="gf-check"><input type="checkbox" name="no_fixed_place" checked={values.no_fixed_place} /> {f.noFixedPlace}</label>
+</fieldset>
+
+<fieldset class="gf-section">
+  <legend>{f.detailsLegend}</legend>
+  <p class="gf-hint">{f.detailsHint}</p>
+
+  {([
+    ["schedule", f.schedule, f.scheduleHint],
+    ["cost", f.cost, f.costHint],
+    ["ages", f.ages, f.agesHint],
+  ] as const).map(([key, label, hint]) => (
+    <div class="gf-field">
+      <label for={`gf-${key}`}>{label}</label>
+      <input id={`gf-${key}`} name={key} type="text" value={values[key]} placeholder={hint}
+        aria-invalid={errors[key] ? "true" : undefined} aria-describedby={err(key)} />
+      {errors[key] && <p class="gf-error" id={`${key}-error`}>{errors[key]}</p>}
+    </div>
+  ))}
+
+  {([
+    ["accessibility", f.accessibility],
+    ["first_time", f.firstTime],
+  ] as const).map(([key, label]) => (
+    <div class="gf-field">
+      <label for={`gf-${key}`}>{label}</label>
+      <textarea id={`gf-${key}`} name={key} rows="3"
+        aria-invalid={errors[key] ? "true" : undefined} aria-describedby={err(key)}>{values[key]}</textarea>
+      {errors[key] && <p class="gf-error" id={`${key}-error`}>{errors[key]}</p>}
+    </div>
+  ))}
+</fieldset>

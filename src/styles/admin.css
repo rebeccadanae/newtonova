@@ -214,3 +214,235 @@
     padding-bottom: 6px;
   }
 }
+
+/* ---- List additions: new group button, saved note, website link */
+
+.admin-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+}
+
+.admin-saved {
+  margin: 0 0 12px;
+  padding: 12px 16px;
+  background: #fff;
+  border: 2px solid #5f9e3a;
+  font-weight: 700;
+  max-width: 76ch;
+}
+
+.admin-site {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.admin-back {
+  margin: 0 0 14px;
+  font-size: 15px;
+}
+
+/* ---- Group form (edit and new) */
+
+.gf-sheet {
+  max-width: 820px;
+}
+
+.gf-sheet h1 {
+  font-size: 32px;
+}
+
+.gf-meta {
+  margin: 6px 0 0;
+  font-size: 14px;
+}
+
+.gf-summary {
+  margin: 18px 0 0;
+  padding: 12px 16px;
+  border: 2px solid #c2410c;
+  background: #fff4ef;
+  font-weight: 700;
+}
+
+.gf-summary p {
+  margin: 0;
+}
+
+.gf-form {
+  margin-top: 8px;
+}
+
+.gf-section {
+  margin: 0;
+  padding: 22px 0 6px;
+  border: 0;
+  border-top: 1px dashed rgb(29 42 47 / 0.35);
+  min-width: 0;
+}
+
+.gf-form > .gf-section:first-child {
+  border-top: 0;
+}
+
+.gf-section > legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.gf-section > legend + * {
+  clear: left;
+}
+
+.gf-admin {
+  margin-top: 12px;
+  padding: 20px 20px 6px;
+  border: 1.5px dashed rgb(29 42 47 / 0.5);
+  background: rgb(207 226 234 / 0.25);
+}
+
+.gf-field {
+  margin-bottom: 18px;
+}
+
+.gf-field label,
+.gf-checks > legend {
+  display: block;
+  margin-bottom: 6px;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.gf-field input[type="text"],
+.gf-field input[type="url"],
+.gf-field select,
+.gf-field textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background: #fff;
+  font: 400 16px/1.4 var(--sans);
+  color: var(--ink);
+}
+
+.gf-field select {
+  width: auto;
+  min-width: 12em;
+}
+
+.gf-field textarea {
+  resize: vertical;
+}
+
+.gf-field input:focus-visible,
+.gf-field select:focus-visible,
+.gf-field textarea:focus-visible,
+.gf-check input:focus-visible {
+  outline: 3px solid #f6d44a;
+  outline-offset: 0;
+}
+
+.gf-field input[aria-invalid="true"],
+.gf-field select[aria-invalid="true"],
+.gf-field textarea[aria-invalid="true"] {
+  border-color: #c2410c;
+}
+
+.gf-hint {
+  margin: -2px 0 6px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.gf-error {
+  margin: 6px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #b23a0b;
+}
+
+.gf-checks {
+  margin: 0 0 18px;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.gf-check-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11em, 1fr));
+  gap: 2px 12px;
+}
+
+.gf-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.gf-check input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--ink);
+  flex: none;
+}
+
+.gf-section > .gf-check {
+  margin-bottom: 18px;
+}
+
+.gf-town-group {
+  margin-bottom: 10px;
+}
+
+.gf-town-label {
+  margin: 0 0 2px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.gf-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  gap: 0 28px;
+}
+
+.gf-check-tall {
+  margin-top: 30px;
+  margin-bottom: 18px;
+}
+
+.gf-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  margin-top: 18px;
+  padding-top: 20px;
+  border-top: 1px dashed rgb(29 42 47 / 0.35);
+}
+
+@media (max-width: 760px) {
+  .gf-admin {
+    padding: 16px 14px 4px;
+  }
+
+  .gf-check-tall {
+    margin-top: 0;
+  }
+}

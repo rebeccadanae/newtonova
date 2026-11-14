@@ -1,0 +1,81 @@
+---
+// Admin: edit a group (/admin/groups/<id>) or add one (/admin/groups/new).
+// The form posts back here; Access and the middleware cover both.
+import { env } from "cloudflare:workers";
+import Admin from "../../../layouts/Admin.astro";
+import GroupFields from "../../../components/GroupFields.astro";
+import AdminGroupFields from "../../../components/AdminGroupFields.astro";
+import { copy } from "../../../copy";
+import { emptyGroup, fromRow, readAdmin, readDetails, saveGroup, type Errors, type Group, type OrgRow } from "../../../admin/groups";
+
+export const prerender = false;
+
+const t = copy.admin;
+const id = Astro.params.id ?? "";
+const isNew = id === "new";
+
+let existing: OrgRow | null = null;
+if (!isNew) {
+  existing = await env.DB.prepare("SELECT * FROM orgs WHERE id = ?1").bind(id).first<OrgRow>();
+  if (!existing) return new Response(t.notFound, { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
+}
+
+let values: Group = existing ? fromRow(existing) : emptyGroup();
+let errors: Errors = {};
+let saveError = "";
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const kept = existing ? fromRow(existing) : undefined;
+  const details = readDetails(form, kept);
+  const admin = readAdmin(form);
+  values = { ...details.values, ...admin.values };
+  errors = { ...details.errors, ...admin.errors };
+
+  if (Object.keys(errors).length === 0) {
+    try {
+      const savedId = await saveGroup(env.DB, isNew ? null : id, values);
+      return Astro.redirect(`/admin/?saved=${encodeURIComponent(savedId)}`, 303);
+    } catch (e) {
+      saveError = e instanceof Error ? e.message : String(e);
+    }
+  } else {
+    Astro.response.status = 400;
+  }
+}
+
+const heading = isNew ? t.newHeading : values.name || existing?.name || t.editHeading;
+const errorCount = Object.keys(errors).length;
+---
+
+<Admin title={heading}>
+  <p class="admin-back"><a href="/admin/">{t.backToGroups}</a></p>
+
+  <section class="admin-sheet gf-sheet" aria-labelledby="group-heading">
+    <h1 id="group-heading">{isNew ? t.newHeading : existing?.name}</h1>
+    {existing && (
+      <p class="admin-muted gf-meta">
+        {t.lastSaved}{" "}
+        <time datetime={existing.updated_at}>
+          {new Date(existing.updated_at).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "America/New_York" })}
+        </time>
+        {existing.status === "Live" && <> · <a href={`/#org-${existing.id}`}>{t.seeOnSite}</a></>}
+      </p>
+    )}
+
+    {(errorCount > 0 || saveError) && (
+      <div class="gf-summary" role="alert" tabindex="-1" id="gf-summary">
+        <p>{saveError ? `${t.saveFailed} ${saveError}` : t.fixErrors(errorCount)}</p>
+      </div>
+    )}
+
+    <form method="post" class="gf-form" novalidate>
+      <GroupFields values={values} errors={errors} />
+      <AdminGroupFields values={values} errors={errors} />
+      <div class="gf-actions">
+        <button class="ink-btn" type="submit">{isNew ? t.addButton : t.saveButton}</button>
+        <a href="/admin/">{t.cancel}</a>
+      </div>
+    </form>
+  </section>
+</Admin>
