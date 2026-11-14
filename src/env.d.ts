@@ -4,3 +4,6 @@ declare namespace App {
     adminEmail?: string;
   }
 }
+
+/** True in staging builds (CLOUDFLARE_ENV=staging); set in astro.config.mjs. */
+declare const __STAGING__: boolean;

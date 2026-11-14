@@ -11,6 +11,7 @@ interface Props {
 const here = (page: Props["current"]) => (current === page ? "page" : undefined);
 
 const { title = copy.siteTitle, description = copy.metaDescription, current } = Astro.props;
+const staging = __STAGING__;
 ---
 
 <!doctype html>
@@ -20,6 +21,7 @@ const { title = copy.siteTitle, description = copy.metaDescription, current } = 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {staging && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -39,6 +41,9 @@ const { title = copy.siteTitle, description = copy.metaDescription, current } = 
     ></script>
   </head>
   <body>
+    {staging && (
+      <p class="staging-bar">{copy.staging.bar}<a href="https://newtonova.org/">{copy.staging.live}</a></p>
+    )}
     <header class="site-header">
       <div class="wrap">
         <a class="logo" href="/">

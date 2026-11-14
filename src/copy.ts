@@ -5,6 +5,8 @@ export const TALLY_URL = "https://tally.so/r/RWK9Pd";
 
 export const copy = {
   siteTitle: "new to nova",
+  // Shown only on the staging site (staging builds).
+  staging: { bar: "Staging site. Changes here aren't live yet.", live: "Go to newtonova.org" },
   metaDescription:
     "A free directory of Northern Virginia groups that welcome new people.",
 
