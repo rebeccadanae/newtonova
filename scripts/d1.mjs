@@ -13,12 +13,17 @@ if (process.env.D1_API_TOKEN) {
   env.CLOUDFLARE_ACCOUNT_ID = ACCOUNT_ID;
 }
 
-// target: "--remote" (the real database) or "--local" (the test copy)
+// Staging builds (CLOUDFLARE_ENV=staging) use the staging database, never the real one.
+const staging = process.env.CLOUDFLARE_ENV === "staging";
+export const DATABASE = staging ? "newtonova-staging" : "newtonova";
+const envArgs = staging ? ["--env", "staging"] : [];
+
+// target: "--remote" (the database on Cloudflare) or "--local" (the test copy)
 export function d1(target, args) {
   try {
     return execFileSync(
       "npx",
-      ["wrangler", "d1", "execute", "newtonova", target, ...args],
+      ["wrangler", "d1", "execute", DATABASE, target, ...envArgs, ...args],
       { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], env },
     );
   } catch (err) {

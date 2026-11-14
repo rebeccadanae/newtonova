@@ -17,5 +17,26 @@
       "database_id": "9708a4bf-d7ae-4321-9c29-8c7619e1c7e2",
       "migrations_dir": "db/migrations"
     }
-  ]
+  ],
+  // Staging: a second Worker built from the `staging` branch, with its own
+  // database, so changes can be checked before they reach newtonova.org.
+  // Build it with CLOUDFLARE_ENV=staging. Nothing here is inherited from above.
+  "env": {
+    "staging": {
+      "name": "newtonova-staging",
+      // No Access on staging, so /admin refuses everyone there.
+      "vars": {
+        "ACCESS_TEAM_DOMAIN": "",
+        "ACCESS_AUD": ""
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "newtonova-staging",
+          "database_id": "7c7e820c-45db-467e-a521-8f7240506d75",
+          "migrations_dir": "db/migrations"
+        }
+      ]
+    }
+  }
 }

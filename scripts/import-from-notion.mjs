@@ -10,7 +10,7 @@ import { writeFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Client, collectPaginatedAPI, isFullPage } from "@notionhq/client";
-import { d1, query as d1query } from "./d1.mjs";
+import { d1, query as d1query, DATABASE } from "./d1.mjs";
 
 const ORGS_SOURCE = "db1b67aa-be6e-453c-9481-4e2c9549f87a";
 const EVENTS_SOURCE = "423e16f9-1f99-434c-a8c7-18853486c103";
@@ -128,7 +128,7 @@ const count = (table) =>
 const tally = (rows) => rows.reduce((t, r) => ((t[r.status] = (t[r.status] ?? 0) + 1), t), {});
 const show = (t) => Object.entries(t).sort().map(([k, n]) => `${k} ${n}`).join(", ") || "none";
 
-console.log(`import (${target.slice(2)}):`);
+console.log(`import (${DATABASE}, ${target.slice(2)}):`);
 console.log(`  Notion orgs:   ${orgPages.length} → imported ${orgs.length} (${show(tally(orgs))})`);
 console.log(`  D1 orgs now:   ${show(count("orgs"))}`);
 console.log(`  Notion events: ${eventPages.length} → imported ${events.length} (${show(tally(events))})`);

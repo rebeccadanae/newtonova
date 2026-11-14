@@ -8,7 +8,7 @@
 //   node scripts/fetch-from-d1.mjs --local   (the test copy)
 
 import { writeFileSync, mkdirSync } from "node:fs";
-import { query } from "./d1.mjs";
+import { query, DATABASE } from "./d1.mjs";
 
 const target = process.argv.includes("--local") ? "--local" : "--remote";
 const write = (name, rows) => {
@@ -75,4 +75,4 @@ for (const e of events) {
 }
 write("events.json", events);
 
-console.log(`fetch: wrote ${orgs.length} Live groups and ${events.length} upcoming Live events (skipped ${past} past) from D1`);
+console.log(`fetch: wrote ${orgs.length} Live groups and ${events.length} upcoming Live events (skipped ${past} past) from D1 (${DATABASE})`);
