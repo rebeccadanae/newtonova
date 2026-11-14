@@ -5,7 +5,7 @@ import Admin from "../../../layouts/Admin.astro";
 import { copy } from "../../../copy";
 import { STATUSES } from "../../../admin/groups";
 import { splitStored } from "../../../admin/events";
-import { todayKey } from "../../../event-dates";
+import { addDays, todayKey } from "../../../event-dates";
 
 export const prerender = false;
 
@@ -58,6 +58,28 @@ const saved = savedId
   ? await env.DB.prepare("SELECT name FROM events WHERE id = ?1").bind(savedId).first<{ name: string }>()
   : null;
 
+// After adding or changing dates in a series, name it.
+const seriesId = Astro.url.searchParams.get("series");
+const added = Number(Astro.url.searchParams.get("added") ?? "");
+const changed = Number(Astro.url.searchParams.get("changed") ?? "");
+const seriesName = seriesId
+  ? (await env.DB.prepare("SELECT name FROM events WHERE series_id = ?1 ORDER BY start DESC LIMIT 1").bind(seriesId).first<{ name: string }>())?.name
+  : null;
+const seriesNote = seriesName
+  ? changed ? te.seriesChanged(changed, seriesName) : Number.isFinite(added) ? te.seriesAdded(added, seriesName) : null
+  : null;
+
+// Series whose last date is within 30 days: time to add more.
+const { results: ending } = await env.DB.prepare(
+  `SELECT e.series_id, MAX(substr(e.start, 1, 10)) AS last,
+     (SELECT id FROM events x WHERE x.series_id = e.series_id AND x.status != 'Removed' ORDER BY x.start DESC LIMIT 1) AS last_id,
+     (SELECT name FROM events x WHERE x.series_id = e.series_id AND x.status != 'Removed' ORDER BY x.start DESC LIMIT 1) AS name
+   FROM events e WHERE e.series_id IS NOT NULL AND e.status != 'Removed'
+   GROUP BY e.series_id HAVING last >= ?1 AND last <= ?2 ORDER BY last`,
+)
+  .bind(today, addDays(today, 30))
+  .all<{ series_id: string; last: string; last_id: string; name: string }>();
+
 const dayFmt = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
 const day = (key: string) => dayFmt.format(new Date(`${key}T00:00:00Z`)).replace(",", "");
 const clock = (time: string) => {
@@ -89,6 +111,19 @@ const href = (opts: { status?: string; past?: boolean }) => {
 
 <Admin title={te.heading} section="events">
   {saved && <p class="admin-saved" role="status">{te.saved(saved.name)}</p>}
+  {seriesNote && <p class="admin-saved" role="status">{seriesNote}</p>}
+  {ending.length > 0 && (
+    <section class="admin-note admin-ending" aria-labelledby="ending-heading">
+      <h2 id="ending-heading">{te.endingHeading}</h2>
+      <ul>
+        {ending.map((s) => (
+          <li>
+            <strong>{s.name}</strong>, {te.endingItem(day(s.last))} · <a href={`/admin/events/${s.last_id}#ef-extend`}>{te.endingLink}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
 
   <section class="admin-sheet" aria-labelledby="events-heading">
     <div class="admin-head">

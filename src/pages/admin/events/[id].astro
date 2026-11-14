@@ -5,7 +5,12 @@ import { env } from "cloudflare:workers";
 import Admin from "../../../layouts/Admin.astro";
 import { copy } from "../../../copy";
 import { KINDS, STATUSES, TOWN_GROUPS } from "../../../admin/groups";
-import { emptyEvent, fromRow, readEvent, saveEvent, type EventErrors, type EventForm, type EventRow } from "../../../admin/events";
+import { emptyEvent, fromRow, readEvent, saveEvent, splitStored, type EventErrors, type EventForm, type EventRow } from "../../../admin/events";
+import {
+  RULES, MAX_MONTHS, DEFAULT_MONTHS, addMonths, checkUntil, createSeries, extendSeries, readRepeat,
+  ruleLabel, saveFromHereOn, seriesInfo,
+} from "../../../admin/series";
+import { todayKey } from "../../../event-dates";
 
 export const prerender = false;
 
@@ -41,27 +46,79 @@ let values: EventForm = existing
 let errors: EventErrors = {};
 let saveError = "";
 
+// Repeats (new events) and series (existing ones).
+const series = existing?.series_id ? await seriesInfo(env.DB, existing.series_id) : null;
+const laterCount = series && existing
+  ? ((await env.DB.prepare(
+      "SELECT COUNT(*) AS n FROM events WHERE series_id = ?1 AND id != ?2 AND substr(start, 1, 10) >= ?3",
+    )
+      .bind(existing.series_id, existing.id, splitStored(existing.start).day)
+      .first<{ n: number }>())?.n ?? 0)
+  : 0;
+let repeat = "none";
+let until = "";
+let repeatError = "";
+let scope = "this";
+let extendUntil = series ? addMonths(series.last || todayKey(), DEFAULT_MONTHS) : "";
+let extendError = "";
+
 if (Astro.request.method === "POST") {
   const form = await Astro.request.formData();
-  const kept = existing ? fromRow(existing) : undefined;
-  const read = readEvent(form, new Set(orgs.map((o) => o.id)), kept && { area: kept.area, category: kept.category });
-  values = read.values;
-  errors = read.errors;
+  const intent = String(form.get("intent") ?? "save");
 
-  if (Object.keys(errors).length === 0) {
-    try {
-      const savedId = await saveEvent(env.DB, isNew ? null : id, values);
-      return Astro.redirect(`/admin/events/?saved=${encodeURIComponent(savedId)}`, 303);
-    } catch (e) {
-      saveError = e instanceof Error ? e.message : String(e);
+  if (intent === "extend" && series) {
+    // Add more dates to the series, copied from its latest one.
+    extendUntil = String(form.get("extend_until") ?? "").trim();
+    const checked = checkUntil(extendUntil, series.last, addMonths(todayKey(), MAX_MONTHS));
+    extendError = checked.error;
+    if (!extendError) {
+      try {
+        const added = await extendSeries(env.DB, series.id, extendUntil);
+        return Astro.redirect(`/admin/events/?series=${encodeURIComponent(series.id)}&added=${added}`, 303);
+      } catch (e) {
+        extendError = e instanceof Error ? e.message : String(e);
+      }
     }
-  } else {
     Astro.response.status = 400;
+  } else {
+    const kept = existing ? fromRow(existing) : undefined;
+    const read = readEvent(form, new Set(orgs.map((o) => o.id)), kept && { area: kept.area, category: kept.category });
+    values = read.values;
+    errors = read.errors;
+
+    const rep = isNew ? readRepeat(form, values.date) : { rule: null, until: "", error: "" };
+    repeat = String(form.get("repeat") ?? "none");
+    until = String(form.get("until") ?? "");
+    repeatError = rep.error;
+    scope = form.get("scope") === "later" ? "later" : "this";
+
+    if (Object.keys(errors).length === 0 && !repeatError) {
+      try {
+        if (isNew && rep.rule) {
+          const made = await createSeries(env.DB, values, rep.rule, rep.until);
+          return Astro.redirect(`/admin/events/?series=${encodeURIComponent(made.seriesId)}&added=${made.count}`, 303);
+        }
+        if (existing && series && scope === "later") {
+          const changed = await saveFromHereOn(env.DB, existing, values);
+          return Astro.redirect(`/admin/events/?series=${encodeURIComponent(series.id)}&changed=${changed}`, 303);
+        }
+        const savedId = await saveEvent(env.DB, isNew ? null : id, values);
+        return Astro.redirect(`/admin/events/?saved=${encodeURIComponent(savedId)}`, 303);
+      } catch (e) {
+        saveError = e instanceof Error ? e.message : String(e);
+      }
+    } else {
+      Astro.response.status = 400;
+    }
   }
 }
 
+const shortDate = (day: string) =>
+  new Date(`${day}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+const repeatOptions = RULES.map((rule) => ({ rule, label: values.date ? ruleLabel(rule, values.date) : te.repeat.generic[rule] }));
+
 const heading = isNew ? te.newHeading : existing?.name ?? te.newHeading;
-const errorCount = Object.keys(errors).length;
+const errorCount = Object.keys(errors).length + (repeatError ? 1 : 0);
 const err = (key: keyof EventErrors) => (errors[key] ? `${key}-error` : undefined);
 const describe = (...ids: (string | undefined)[]) => ids.filter(Boolean).join(" ") || undefined;
 
@@ -160,7 +217,34 @@ const kinds = values.category && !KINDS.includes(values.category) ? [...KINDS, v
             {errors.end_time && <p class="gf-error" id="end_time-error">{errors.end_time}</p>}
           </div>
         </div>
+        {series && (
+          <p class="gf-series">
+            {te.repeat.partOf(ruleLabel(series.repeat, series.first || values.date), series.count, shortDate(series.first), shortDate(series.last))}
+          </p>
+        )}
       </fieldset>
+
+      {isNew && (
+        <fieldset class="gf-section" id="ef-repeats">
+          <legend>{te.repeat.legend}</legend>
+          <fieldset class="gf-checks" aria-describedby={repeatError ? "repeat-error" : undefined}>
+            <legend class="visually-hidden">{te.repeat.legend}</legend>
+            <label class="gf-check"><input type="radio" name="repeat" value="none" checked={repeat === "none"} /> {te.repeat.none}</label>
+            {repeatOptions.map((o) => (
+              <label class="gf-check">
+                <input type="radio" name="repeat" value={o.rule} checked={repeat === o.rule} />
+                <span data-rule-label={o.rule}>{o.label}</span>
+              </label>
+            ))}
+            {repeatError && <p class="gf-error" id="repeat-error">{repeatError}</p>}
+          </fieldset>
+          <div class="gf-field gf-until">
+            <label for="ef-until">{te.repeat.until}</label>
+            <p class="gf-hint" id="until-hint">{te.repeat.untilHint(DEFAULT_MONTHS, MAX_MONTHS)}</p>
+            <input id="ef-until" name="until" type="date" value={until} aria-describedby="until-hint" />
+          </div>
+        </fieldset>
+      )}
 
       <fieldset class="gf-section">
         <legend>{f.whereLegend}</legend>
@@ -218,10 +302,58 @@ const kinds = values.category && !KINDS.includes(values.category) ? [...KINDS, v
         </div>
       </fieldset>
 
+      {series && laterCount > 0 && (
+        <fieldset class="gf-checks gf-scope">
+          <legend>{te.repeat.scopeLegend}</legend>
+          <label class="gf-check"><input type="radio" name="scope" value="this" checked={scope === "this"} /> {te.repeat.scopeThis}</label>
+          <label class="gf-check"><input type="radio" name="scope" value="later" checked={scope === "later"} /> {te.repeat.scopeLater(laterCount)}</label>
+          <p class="gf-hint gf-hint-after">{te.repeat.scopeHint}</p>
+        </fieldset>
+      )}
+
       <div class="gf-actions">
-        <button class="ink-btn" type="submit">{isNew ? te.addButton : te.saveButton}</button>
+        <button class="ink-btn" type="submit" name="intent" value="save">{isNew ? te.addButton : te.saveButton}</button>
         <a href="/admin/events/">{t.cancel}</a>
       </div>
     </form>
+
+    {series && (
+      <form method="post" class="gf-extend" novalidate>
+        <h2>{te.repeat.extendHeading}</h2>
+        <p class="gf-hint" id="extend-hint">{te.repeat.extendHint(shortDate(series.last))}</p>
+        <div class="gf-extend-row">
+          <div class="gf-field">
+            <label for="ef-extend">{te.repeat.until}</label>
+            <input id="ef-extend" name="extend_until" type="date" value={extendUntil}
+              aria-invalid={extendError ? "true" : undefined} aria-describedby={extendError ? "extend-hint extend-error" : "extend-hint"} />
+            {extendError && <p class="gf-error" id="extend-error" role="alert">{extendError}</p>}
+          </div>
+          <button class="paper-btn" type="submit" name="intent" value="extend">{te.repeat.extendButton}</button>
+        </div>
+      </form>
+    )}
   </section>
+
+  {isNew && (
+    <script>
+      // Name the repeat choices after the picked date: "Monthly on the 3rd Tuesday".
+      import { ruleLabel, ruleProblem, isRule } from "../../../admin/series";
+      const date = document.querySelector<HTMLInputElement>("#ef-date");
+      const update = () => {
+        const day = date?.value ?? "";
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return;
+        document.querySelectorAll<HTMLElement>("[data-rule-label]").forEach((el) => {
+          const rule = el.dataset.ruleLabel ?? "";
+          if (!isRule(rule)) return;
+          el.textContent = ruleLabel(rule, day);
+          const input = el.closest("label")?.querySelector("input");
+          if (input) input.disabled = ruleProblem(rule, day) !== "";
+          el.closest("label")?.classList.toggle("gf-check-off", ruleProblem(rule, day) !== "");
+        });
+      };
+      date?.addEventListener("change", update);
+      date?.addEventListener("input", update);
+      update();
+    </script>
+  )}
 </Admin>

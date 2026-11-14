@@ -34,6 +34,7 @@ export type EventRow = {
   category: string | null;
   summary: string | null;
   status: string;
+  series_id: string | null;
   updated_at: string;
 };
 
@@ -163,11 +164,10 @@ export function storedTimes(v: EventForm) {
 const ordered = (picked: string[], order: string[]) =>
   [...picked].sort((a, b) => (order.indexOf(a) + 1 || 999) - (order.indexOf(b) + 1 || 999));
 
-// Saves an event. id null makes a new one. Returns the id.
-export async function saveEvent(db: D1Database, id: string | null, v: EventForm): Promise<string> {
-  const now = new Date().toISOString();
+// The columns an event form sets, ready for D1.
+export function eventRow(v: EventForm, now: string) {
   const { start, end } = storedTimes(v);
-  const row = {
+  return {
     name: v.name,
     start,
     end,
@@ -181,23 +181,33 @@ export async function saveEvent(db: D1Database, id: string | null, v: EventForm)
     status: v.status,
     updated_at: now,
   };
-  const cols = Object.keys(row);
-  const quoted = cols.map((c) => `"${c}"`);
-  const vals = Object.values(row);
+}
 
+// Statements for one event: an update by id, or an insert (optionally in a series).
+export function updateStatement(db: D1Database, id: string, v: EventForm, now: string) {
+  const row = eventRow(v, now);
+  const cols = Object.keys(row).map((c) => `"${c}"`);
+  const set = cols.map((c, i) => `${c} = ?${i + 1}`).join(", ");
+  return db.prepare(`UPDATE events SET ${set} WHERE id = ?${cols.length + 1}`).bind(...Object.values(row), id);
+}
+
+export function insertStatement(db: D1Database, newId: string, v: EventForm, now: string, seriesId: string | null = null) {
+  const row = { ...eventRow(v, now), series_id: seriesId, created_at: now };
+  const cols = Object.keys(row).map((c) => `"${c}"`);
+  return db
+    .prepare(`INSERT INTO events (id, ${cols.join(", ")}) VALUES (?1, ${cols.map((_, i) => `?${i + 2}`).join(", ")})`)
+    .bind(newId, ...Object.values(row));
+}
+
+// Saves one event. id null makes a new one. Returns the id.
+export async function saveEvent(db: D1Database, id: string | null, v: EventForm): Promise<string> {
+  const now = new Date().toISOString();
   if (id) {
-    const set = quoted.map((c, i) => `${c} = ?${i + 1}`).join(", ");
-    const res = await db.prepare(`UPDATE events SET ${set} WHERE id = ?${cols.length + 1}`).bind(...vals, id).run();
+    const res = await updateStatement(db, id, v, now).run();
     if (!res.meta.changes) throw new Error("That event no longer exists.");
     return id;
   }
-
   const newId = crypto.randomUUID();
-  await db
-    .prepare(
-      `INSERT INTO events (id, ${quoted.join(", ")}, created_at) VALUES (?1, ${cols.map((_, i) => `?${i + 2}`).join(", ")}, ?${cols.length + 2})`,
-    )
-    .bind(newId, ...vals, now)
-    .run();
+  await insertStatement(db, newId, v, now).run();
   return newId;
 }
