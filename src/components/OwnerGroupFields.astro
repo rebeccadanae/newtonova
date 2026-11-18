@@ -1,0 +1,158 @@
+---
+// The group's details, as an organizer edits them on /yours (step "fix").
+// Same field names as GroupFields.astro (the /admin form), so readDetails() in
+// src/admin/groups.ts reads both. The layout follows the approved mockups:
+// kinds and towns start as a summary with Change, newcomer details sit behind
+// one button, so changing one thing stays quick.
+import { KINDS, TOWN_GROUPS, type GroupDetails, type Errors } from "../admin/groups";
+import { routes, anywhereColor } from "../routes";
+import { copy } from "../copy";
+
+interface Props {
+  values: GroupDetails;
+  errors: Errors;
+}
+
+const { values, errors } = Astro.props;
+const t = copy.yours.fix;
+
+// Kinds or towns already on the group but no longer on the lists still show, so sending keeps them.
+const kinds = [...KINDS, ...values.category.filter((k) => !KINDS.includes(k))];
+const listed = TOWN_GROUPS.flatMap((g) => g.towns);
+const extraTowns = values.area.filter((a) => !listed.includes(a));
+const townGroups = extraTowns.length ? [...TOWN_GROUPS, { label: t.otherTowns, towns: extraTowns }] : TOWN_GROUPS;
+const townColor = (town: string) => routes.find((r) => r.towns.includes(town))?.color ?? anywhereColor;
+
+const err = (key: keyof Errors) => (errors[key] ? `${key}-error` : undefined);
+const describe = (...ids: (string | undefined)[]) => ids.filter(Boolean).join(" ") || undefined;
+
+const newcomerKeys = ["schedule", "cost", "first_time", "ages", "accessibility", "where_text"] as const;
+const newcomerOpen = newcomerKeys.some((k) => errors[k]);
+const tick = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>`;
+---
+
+<div class="yf">
+  <label for="of-name">{t.name}</label>
+  <input id="of-name" name="name" maxlength="200" value={values.name}
+    aria-invalid={errors.name ? "true" : undefined} aria-describedby={err("name")} />
+  {errors.name && <p class="yf-error" id="name-error">{errors.name}</p>}
+</div>
+
+<div class="yf">
+  <label for="of-website">{t.website}</label>
+  <input id="of-website" name="website" type="url" inputmode="url" placeholder="https://" value={values.website}
+    aria-invalid={errors.website ? "true" : undefined} aria-describedby={err("website")} />
+  {errors.website && <p class="yf-error" id="website-error">{errors.website}</p>}
+</div>
+
+<div class="yf">
+  <label for="of-blurb">{t.blurb}</label>
+  <p class="yf-hint" id="blurb-hint">{t.blurbHint}</p>
+  <textarea id="of-blurb" name="blurb" rows="6"
+    aria-invalid={errors.blurb ? "true" : undefined} aria-describedby={describe("blurb-hint", err("blurb"))}>{values.blurb}</textarea>
+  {errors.blurb && <p class="yf-error" id="blurb-error">{errors.blurb}</p>}
+</div>
+
+<div class="picks">
+  <details class="pick" data-pick open={!!errors.category}>
+    <summary>
+      <span class="pick-text">
+        <strong>{t.kinds}</strong>
+        <span class="pick-now" data-pick-now data-empty={t.none}>{values.category.join(", ") || t.none}</span>
+      </span>
+      <span class="pick-change" aria-hidden="true"><span class="when-closed">{t.change}</span><span class="when-open">{t.done}</span></span>
+    </summary>
+    <fieldset class="pick-body" aria-describedby={err("category")}>
+      <legend class="visually-hidden">{t.kinds}</legend>
+      <div class="pick-grid">
+        {kinds.map((k) => (
+          <label class="pick-cell">
+            <input class="visually-hidden" type="checkbox" name="category" value={k} checked={values.category.includes(k)} />
+            <span class="pick-box" set:html={tick}></span>
+            <span data-label>{k}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+    {errors.category && <p class="yf-error" id="category-error">{errors.category}</p>}
+  </details>
+
+  <details class="pick" data-pick open={!!errors.area}>
+    <summary>
+      <span class="pick-text">
+        <strong>{t.where}</strong>
+        <span class="pick-now" data-pick-now data-empty={t.none}>{values.area.join(", ") || t.none}</span>
+      </span>
+      <span class="pick-change" aria-hidden="true"><span class="when-closed">{t.change}</span><span class="when-open">{t.done}</span></span>
+    </summary>
+    <fieldset class="pick-body" aria-describedby={err("area")}>
+      <legend class="visually-hidden">{t.where}</legend>
+      {townGroups.map((g) => (
+        <div class="pick-group">
+          <p class="pick-group-label">{g.label}</p>
+          <div class="pick-grid">
+            {g.towns.map((town) => (
+              <label class="pick-cell">
+                <input class="visually-hidden" type="checkbox" name="area" value={town} checked={values.area.includes(town)} />
+                <span class="pick-box" set:html={tick}></span>
+                <span class="pick-dot" style={`background:${townColor(town)}`} aria-hidden="true"></span>
+                <span data-label>{town}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      ))}
+    </fieldset>
+    {errors.area && <p class="yf-error" id="area-error">{errors.area}</p>}
+  </details>
+</div>
+
+<details class="more-details" open={newcomerOpen}>
+  <summary>
+    <span>
+      <strong>{t.newcomers}</strong>
+      <span>{t.newcomersHint}</span>
+    </span>
+    <svg class="more-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+  </summary>
+  <div class="more-body">
+    {([
+      ["schedule", t.schedule, t.scheduleHint, false],
+      ["cost", t.cost, t.costHint, false],
+      ["first_time", t.firstTime, t.firstTimeHint, true],
+      ["ages", t.ages, t.agesHint, false],
+      ["accessibility", t.accessibility, t.accessibilityHint, true],
+      ["where_text", t.whereText, t.whereTextHint, false],
+    ] as const).map(([key, label, hint, long]) => (
+      <div class="yf">
+        <label for={`of-${key}`}>{label}</label>
+        {long ? (
+          <textarea id={`of-${key}`} name={key} rows="3" placeholder={hint}
+            aria-invalid={errors[key] ? "true" : undefined} aria-describedby={err(key)}>{values[key]}</textarea>
+        ) : (
+          <input id={`of-${key}`} name={key} value={values[key]} placeholder={hint}
+            aria-invalid={errors[key] ? "true" : undefined} aria-describedby={err(key)} />
+        )}
+        {errors[key] && <p class="yf-error" id={`${key}-error`}>{errors[key]}</p>}
+      </div>
+    ))}
+    <label class="pick-cell">
+      <input class="visually-hidden" type="checkbox" name="no_fixed_place" checked={values.no_fixed_place} />
+      <span class="pick-box" set:html={tick}></span>
+      <span>{t.noFixedPlace}</span>
+    </label>
+  </div>
+</details>
+
+<script>
+  // Keeps each picker's summary line ("Sports & movement, Social") in step with the ticks.
+  for (const pick of document.querySelectorAll<HTMLDetailsElement>("[data-pick]")) {
+    const now = pick.querySelector<HTMLElement>("[data-pick-now]")!;
+    pick.addEventListener("change", () => {
+      const picked = [...pick.querySelectorAll<HTMLInputElement>("input:checked")].map(
+        (i) => i.closest("label")!.querySelector("[data-label]")!.textContent!.trim(),
+      );
+      now.textContent = picked.join(", ") || now.dataset.empty || "";
+    });
+  }
+</script>

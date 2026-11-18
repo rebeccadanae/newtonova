@@ -1,0 +1,39 @@
+---
+// The send button with "who's sending" attached, as on every organizer step:
+//   - name known (from the invite): the button, then "Sending as Sam. Not Sam?"
+//     which opens the fields (a native disclosure, so it works without scripts)
+//   - no name yet: the fields first, then the button
+// The button goes in the default slot.
+import WhoFields from "./WhoFields.astro";
+import { copy } from "../copy";
+import type { Who, WhoErrors } from "../organizers/people";
+
+interface Props {
+  knownName: string;
+  who: Who;
+  errors: WhoErrors;
+  emailKnown: boolean;
+}
+
+const { knownName, who, errors, emailKnown } = Astro.props;
+const t = copy.yours;
+const open = Object.keys(errors).length > 0;
+---
+
+{knownName ? (
+  <div class="who-send">
+    <slot />
+    <details class="who" open={open}>
+      <summary>
+        <span>{t.sendingAs(knownName)}</span>
+        <span class="who-toggle">{t.notYou(knownName)}</span>
+      </summary>
+      <WhoFields who={who} errors={errors} emailKnown={emailKnown} />
+    </details>
+  </div>
+) : (
+  <div class="who-send">
+    <WhoFields who={who} errors={errors} emailKnown={emailKnown} />
+    <slot />
+  </div>
+)}

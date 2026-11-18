@@ -312,3 +312,223 @@
 .yours-thanks .pin {
   --pin: #1e9e57;
 }
+
+.yours-center {
+  text-align: center;
+}
+
+.yours-back {
+  margin: -6px 0 -6px;
+  font-size: 15px;
+}
+
+.yours-back a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.yours-alert {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: inset 0 0 0 2px #b3261e;
+  color: #b3261e;
+  font-weight: 700;
+}
+
+/* A form sheet: fields stacked with room between them */
+.yours-fields {
+  gap: 22px;
+}
+
+.who-send {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Kinds and towns: a summary line with Change, opening to an even two-column grid */
+.picks {
+  border-top: 1px solid rgb(29 42 47 / 0.14);
+}
+
+.pick {
+  border-bottom: 1px solid rgb(29 42 47 / 0.14);
+}
+
+.pick summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 72px;
+  padding: 10px 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.pick summary::-webkit-details-marker,
+.more-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.pick-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pick-text strong {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.pick-now {
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.pick-change {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 80px;
+  padding: 0 14px;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: inset 0 0 0 2px var(--ink);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.pick summary:hover .pick-change {
+  background: var(--fabric);
+}
+
+.pick .when-open,
+.pick[open] .when-closed {
+  display: none;
+}
+
+.pick[open] .when-open {
+  display: inline;
+}
+
+.pick-body {
+  margin: 0;
+  padding: 0 0 14px;
+  border: 0;
+  min-width: 0;
+}
+
+.pick-group + .pick-group {
+  margin-top: 10px;
+}
+
+.pick-group-label {
+  margin: 0 0 2px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.pick-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px 12px;
+}
+
+.pick-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  font-size: 15px;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.pick-cell:has(:checked) {
+  font-weight: 700;
+}
+
+.pick-cell:has(:focus-visible) {
+  outline: 3px solid #f6d44a;
+  outline-offset: 2px;
+}
+
+.pick-box {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background: #fff;
+  display: grid;
+  place-items: center;
+}
+
+.pick-box svg {
+  visibility: hidden;
+}
+
+.pick-cell:has(:checked) .pick-box {
+  background: var(--ink);
+}
+
+.pick-cell:has(:checked) .pick-box svg {
+  visibility: visible;
+}
+
+.pick-dot {
+  flex: none;
+  width: 11px;
+  height: 11px;
+  margin-right: -3px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px rgb(29 42 47 / 0.35);
+}
+
+/* "Add details for newcomers": one button that opens the optional fields */
+.more-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 14px;
+  border-radius: 4px;
+  background: var(--fabric);
+  cursor: pointer;
+  list-style: none;
+}
+
+.more-details summary strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.more-details summary span span {
+  display: block;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.more-details[open] .more-icon {
+  transform: rotate(45deg);
+}
+
+.more-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 18px 0 4px;
+}
