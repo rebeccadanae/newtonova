@@ -31,15 +31,28 @@ Success, a year out:
 
 - Visitors search, filter by category and area, and click through to each group's own site. The site never hosts sign-ups for groups.
 - Events: week and month views, "This weekend", add-to-calendar (Google link, or an .ics download for Apple Calendar and Outlook). Each event links to the group's own page for current details.
-- Organizers use one Tally form ("Your group on newtonova") to claim or update a listing, suggest a group, or ask for removal. Becca reviews every submission by hand and copies changes into Notion.
+- Organizers use one Tally form ("Your group on newtonova") to claim or update a listing, suggest a group, or ask for removal. Becca reviews every submission by hand and enters changes in `/admin`.
+- Being built as its replacement (spec `docs/superpowers/specs/2026-11-18-organizer-flow-design.md`):
+  - Becca emails each organizer a personal link that opens on their own flyer: "Is this right?", then Looks good, Fix something, or Take us off.
+  - An optional "help me help groups like yours" step follows.
+  - Everything waits for Becca's approval.
+  - Organizers don't need an account. "Nothing to join" is about visitors.
 - Email signup is Kit, on its own page (`/join`), with two optional free-text questions (what they're looking for, how they heard about the site).
 - Becca works on the site in short blocks (45-minute weekday mornings, sometimes a 2-hour weekend block).
 
 ## Capabilities and Constraints
 
 - Fully static Astro site on Cloudflare Workers; search and filters run in the browser. Data comes from two Notion databases at build time; only rows with Status = Live are published.
-- **No contact details** for groups or subscribers anywhere in the repo, data or pages. They stay in Tally and Kit. The only exception is hello@newtonova.org on the About page.
-- **Blurbs and event write-ups are in Becca's own words.** Never scraped or copied from a group's description. Groups are added by hand from public information, so details can go out of date; the verify flow exists to fix that.
+- **Contact details stay private** (rule changed 2026-11-18).
+  - An organizer's own name and email may be stored in D1 so Becca can reply.
+  - They are never shown on the site, never in the public JSON, and never in the repo.
+  - Subscriber details stay in Kit.
+  - The only email on the site is hello@newtonova.org on the About page.
+- **Blurbs** (rule changed 2026-11-18).
+  - Organizers can write their own.
+  - When Becca writes one, she paraphrases loosely.
+  - A group's text is never copied from their site without asking.
+  - Groups are added by hand from public information, so details can go out of date. The organizer flow exists to fix that.
 - **Spending is OK when it helps reach more people.** Free is still the default, but a paid tool or plan is fine if it gets the site in front of more newcomers or organizers. No fixed budget yet. Name the cost (and what it buys) before suggesting it.
 - Analytics: Umami Cloud, cookieless, so no cookie banner.
 - Terminology: "groups" (not organizations or listings, in visitor-facing copy), "Verify your listing", "Is this your group?", "Stay in the loop".

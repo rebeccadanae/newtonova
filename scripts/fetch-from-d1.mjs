@@ -11,7 +11,14 @@ import { writeFileSync, mkdirSync } from "node:fs";
 import { query, DATABASE } from "./d1.mjs";
 
 const target = process.argv.includes("--local") ? "--local" : "--remote";
+// Organizer contact details live in D1 (people table) but must never reach the
+// public JSON. Stop the build if a field that looks like one ever slips in.
+const CONTACTISH = /email|phone|person|people/i;
 const write = (name, rows) => {
+  for (const row of rows) {
+    const bad = Object.keys(row).find((k) => CONTACTISH.test(k));
+    if (bad) throw new Error(`fetch: refusing to write "${bad}" to ${name}: contact details stay out of the site`);
+  }
   const out = new URL(`../src/data/${name}`, import.meta.url);
   mkdirSync(new URL(".", out), { recursive: true });
   writeFileSync(out, JSON.stringify(rows, null, 2) + "\n");
