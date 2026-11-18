@@ -41,6 +41,7 @@ A free directory of Northern Virginia groups that welcome new people: creative c
   - Block 5 was done 2026-11-18: **To review** (`/admin/review/`, logic in `src/admin/review.ts`). Looks good and Take off are approved on `/admin/review/<id>`; changes and new groups open in the group form with `?review=<id>` (changed fields marked, compared with the group as it is now). Approving marks the group verified; new groups start as Ready. `ReviewPanel.astro` shows who sent it, their note and answers (admin only).
   - Block 6 was done 2026-11-18: the **Organizers** box on each group's admin page (`OrganizersBox.astro`, posting to `/admin/groups/<id>/organizers`): linked people, latest answers, and **Copy invite**, which drafts the email (`src/organizers/invite-email.ts`) with the group's link (one per group, reused). **Answers** (`/admin/answers/`) counts what organizers said.
   - To try organizer pages locally without the Notion import, use the `astro-dev-nofetch` launch config (port 4322) and add an invite row to the local D1.
+  - Live since 2026-11-18 (blocks 1–6; migration 0003 applied to staging and the real database). Becca sends invites from `/admin`. Next is block 7: the public "find or add your group" page with Turnstile.
   - It comes before phase 2 block 5.
   - Tally stays live until plan task 10 retires it.
 - **Organizer form until then: Tally, "Your group on newtonova"** at https://tally.so/r/RWK9Pd (stored once as `TALLY_URL` in `src/copy.ts`).
