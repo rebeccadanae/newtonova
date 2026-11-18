@@ -1,7 +1,7 @@
 ---
 // Organizer page for a personal link: /yours/<code>.
-// Steps (?step=): check (default), fix, remove, thanks. The "help me help"
-// step comes next block (see docs/superpowers/plans/2026-11-18-organizer-flow.md).
+// Steps (?step=): check (default), fix, remove, then about ("help me help",
+// optional) and thanks. Plan: docs/superpowers/plans/2026-11-18-organizer-flow.md.
 // Nothing here changes a group: every submission waits for Becca in /admin.
 import { env } from "cloudflare:workers";
 import Organizer from "../../layouts/Organizer.astro";
@@ -14,6 +14,7 @@ import { fromRow, readDetails, type Errors, type GroupDetails, type OrgRow } fro
 import { findInvite } from "../../organizers/invites";
 import { readWho, savePerson, linkPerson, type Who, type WhoErrors } from "../../organizers/people";
 import { createSubmission, lastPending, submissionForInvite, type Kind } from "../../organizers/submissions";
+import { STRUGGLES, CHAT, CONNECT, PROFILE, readAnswers, isEmpty, saveAnswers, answersFor } from "../../organizers/answers";
 import { isUpcoming, whenShort } from "../../event-dates";
 import type { FlyerOrg, NextEvent } from "../../flyer";
 
@@ -23,7 +24,7 @@ const t = copy.yours;
 const code = Astro.params.code ?? "";
 const invite = await findInvite(env.DB, code);
 
-const STEPS = ["check", "fix", "remove", "thanks"] as const;
+const STEPS = ["check", "fix", "remove", "about", "thanks"] as const;
 type Step = (typeof STEPS)[number];
 const asked = Astro.url.searchParams.get("step");
 const step: Step = (STEPS as readonly string[]).includes(asked ?? "") ? (asked as Step) : "check";
@@ -50,7 +51,7 @@ let details: GroupDetails | null = current;
 let detailErrors: Errors = {};
 let note = "";
 
-if (!gone && Astro.request.method === "POST" && step !== "thanks") {
+if (!gone && Astro.request.method === "POST" && (step === "check" || step === "fix" || step === "remove")) {
   const form = await Astro.request.formData();
   const read = readWho(form, { emailKnown });
   who = read.values;
@@ -81,7 +82,7 @@ if (!gone && Astro.request.method === "POST" && step !== "thanks") {
       proposed,
       note,
     });
-    return Astro.redirect(`/yours/${code}?step=thanks&s=${id}`, 303);
+    return Astro.redirect(`/yours/${code}?step=about&s=${id}`, 303);
   }
   Astro.response.status = 400;
 }
@@ -106,15 +107,29 @@ const pendingDate = pending
   ? new Date(pending.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "America/New_York" })
   : "";
 
-// Thanks: who sent it and what kind, read back from the submission (it must belong to this link).
-let thanks: { name: string; kind: Kind } | null = null;
-if (!gone && step === "thanks") {
+// About and thanks: what was sent and by whom, read back from the submission
+// (it must belong to this link).
+let sent: { id: string; name: string; kind: Kind; orgId: string | null; personId: string } | null = null;
+if (!gone && (step === "about" || step === "thanks")) {
   const s = await submissionForInvite(env.DB, Astro.url.searchParams.get("s") ?? "", code);
   if (s) {
     const p = await env.DB.prepare("SELECT name FROM people WHERE id = ?1").bind(s.person_id).first<{ name: string }>();
-    thanks = { name: p?.name ?? "", kind: s.kind };
+    sent = { id: s.id, name: p?.name ?? "", kind: s.kind, orgId: s.org_id, personId: s.person_id };
   }
 }
+
+// About: the answers are optional; an untouched form saves nothing.
+if (!gone && step === "about" && Astro.request.method === "POST") {
+  if (!sent) return Astro.redirect(`/yours/${code}`, 303);
+  const answers = readAnswers(await Astro.request.formData());
+  if (!isEmpty(answers)) {
+    await saveAnswers(env.DB, answers, { orgId: sent.orgId, personId: sent.personId, submissionId: sent.id });
+  }
+  return Astro.redirect(`/yours/${code}?step=thanks&s=${sent.id}`, 303);
+}
+
+const thanks = sent;
+const saidYesToChat = step === "thanks" && sent ? (await answersFor(env.DB, sent.id))?.chat === "yes" : false;
 const thanksBody = thanks?.kind === "change" ? t.thanksChange : thanks?.kind === "remove" ? t.thanksRemove : t.thanksConfirm;
 const formErrors = Object.keys(detailErrors).length > 0;
 const base = `/yours/${code}`;
@@ -133,10 +148,105 @@ const base = `/yours/${code}`;
         <span class="pin" aria-hidden="true"></span>
         <h1>{thanks?.name ? t.thanksHeading(thanks.name) : t.thanksNoName}</h1>
         <p>{thanksBody}</p>
+        {saidYesToChat && <p>{t.thanksChat}</p>}
         <p class="yours-muted">{t.signoff}</p>
       </section>
       {thanks?.kind !== "remove" && <a class="yours-btn paper" href={`/#org-${org.id}`}>{t.seeFlyer}</a>}
       <p class="yours-small yours-center">{t.later}</p>
+    </>
+  ) : step === "about" ? (
+    <>
+      <Steps current={2} />
+      <p class="yours-sent" role="status">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>
+        {t.about.sent(sent?.name ?? "")}
+      </p>
+      <div class="yours-intro">
+        <h1>{t.about.heading}</h1>
+        <p>{t.about.intro}</p>
+      </div>
+      <form method="post" action={`${base}?step=about&s=${sent?.id ?? ""}`} class="yours-sheet yours-taped yours-questions">
+        <span class="tape" aria-hidden="true"></span>
+
+        <fieldset class="q">
+          <legend>{t.about.strugglesQ}<span class="q-sub">{t.about.pickAny}</span></legend>
+          <div class="rows">
+            {STRUGGLES.map((key) => {
+              const [label, sub] = t.about.struggles[key];
+              return (
+                <label class="row" data-other={key === "other" ? "" : undefined}>
+                  <input class="visually-hidden" type="checkbox" name="struggles" value={key} />
+                  <span class="row-box" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg></span>
+                  <span>{label}{sub && <small>{sub}</small>}</span>
+                </label>
+              );
+            })}
+          </div>
+          <div class="yf row-other">
+            <label for="struggle_other">{t.about.otherLabel}</label>
+            <input id="struggle_other" name="struggle_other" maxlength="1000" />
+          </div>
+        </fieldset>
+
+        <div class="q yf">
+          <label for="hand_off" class="q-label">{t.about.handOffQ}</label>
+          <textarea id="hand_off" name="hand_off" rows="3" maxlength="1000"></textarea>
+        </div>
+
+        <fieldset class="q">
+          <legend>{t.about.chatQ}</legend>
+          <div class="seg" data-clearable>
+            {CHAT.map((key) => (
+              <label><input class="visually-hidden" type="radio" name="chat" value={key} />{t.about.chat[key]}</label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset class="q">
+          <legend>{t.about.connectQ}</legend>
+          <div class="rows" data-clearable>
+            {CONNECT.map((key) => (
+              <label class="row">
+                <input class="visually-hidden" type="radio" name="connect" value={key} />
+                <span class="row-ring" aria-hidden="true"></span>
+                <span>{t.about.connect[key]}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset class="q">
+          <legend>{t.about.profileQ}</legend>
+          <div class="seg" data-clearable>
+            {PROFILE.map((key) => (
+              <label><input class="visually-hidden" type="radio" name="profile" value={key} />{t.about.profile[key]}</label>
+            ))}
+          </div>
+          <p class="yours-small q-clear">{t.about.clearHint}</p>
+        </fieldset>
+
+        <button class="yours-btn ink" type="submit">{t.about.send}</button>
+        <p class="yours-quiet-link"><a href={`${base}?step=thanks&s=${sent?.id ?? ""}`}>{t.about.skip}</a></p>
+      </form>
+      <p class="yours-small">{t.about.private}</p>
+      <script>
+        // Tapping a picked answer again clears it (every question here is optional).
+        for (const group of document.querySelectorAll<HTMLElement>("[data-clearable]")) {
+          let wasChecked: HTMLInputElement | null = null;
+          group.addEventListener("pointerdown", (e) => {
+            const input = (e.target as HTMLElement).closest("label")?.querySelector("input");
+            wasChecked = input?.checked ? input : null;
+          });
+          group.addEventListener("click", (e) => {
+            const input = (e.target as HTMLElement).closest("label")?.querySelector("input");
+            if (input && input === wasChecked && e.detail > 0) {
+              e.preventDefault();
+              input.checked = false;
+              wasChecked = null;
+            }
+          });
+        }
+      </script>
     </>
   ) : step === "fix" ? (
     <>
