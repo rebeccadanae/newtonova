@@ -13,7 +13,8 @@
     "db:migrate:local": "wrangler d1 migrations apply newtonova --local",
     "db:migrate": "wrangler d1 migrations apply newtonova --remote",
     "import:local": "node --env-file-if-exists=.env scripts/import-from-notion.mjs",
-    "import": "node --env-file-if-exists=.env scripts/import-from-notion.mjs --remote"
+    "import": "node --env-file-if-exists=.env scripts/import-from-notion.mjs --remote",
+    "test": "vitest run"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.7",
@@ -22,6 +23,7 @@
     "jose": "^6.2.17"
   },
   "devDependencies": {
+    "vitest": "^5.1.1",
     "wrangler": "^4.161.0"
   }
 }
