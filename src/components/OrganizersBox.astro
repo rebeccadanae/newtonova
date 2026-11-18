@@ -1,0 +1,162 @@
+---
+// Admin: the Organizers box on a group's page. Who runs the group, their
+// latest "help me help" answers, and the personal link with Copy invite.
+// Admin only: organizer emails show here and nowhere else.
+import { env } from "cloudflare:workers";
+import { copy } from "../copy";
+import { activeInvite } from "../organizers/invites";
+import { inviteEmail } from "../organizers/invite-email";
+import type { OrgRow } from "../admin/groups";
+
+interface Props {
+  org: OrgRow;
+  origin: string;
+  /** From the query after an action: what happened, and the first name for the draft. */
+  link: string;
+  first: string;
+}
+
+const { org, origin, link, first } = Astro.props;
+const t = copy.admin.organizers;
+const a = copy.yours.about;
+const live = org.status === "Live";
+
+const { results: people } = await env.DB.prepare(
+  `SELECT p.name, p.email, op.role,
+          (SELECT MAX(created_at) FROM submissions s WHERE s.person_id = p.id AND s.org_id = op.org_id) AS last_sent
+   FROM org_people op JOIN people p ON p.id = op.person_id
+   WHERE op.org_id = ?1 ORDER BY p.name COLLATE NOCASE`,
+)
+  .bind(org.id)
+  .all<{ name: string; email: string; role: string | null; last_sent: string | null }>();
+
+const answers = await env.DB.prepare(
+  `SELECT a.struggles, a.struggle_other, a.hand_off, a.chat, a.connect, a.profile, a.created_at, p.name
+   FROM org_answers a JOIN people p ON p.id = a.person_id
+   WHERE a.org_id = ?1 ORDER BY a.created_at DESC LIMIT 1`,
+)
+  .bind(org.id)
+  .first<{ struggles: string; struggle_other: string | null; hand_off: string | null; chat: string | null; connect: string | null; profile: string | null; created_at: string; name: string }>();
+
+const code = await activeInvite(env.DB, org.id);
+const url = code ? `${origin}/yours/${code}` : "";
+const draft =
+  code && link === "draft"
+    ? inviteEmail(
+        { name: org.name, area: JSON.parse(org.area), category: JSON.parse(org.category), blurb: org.blurb ?? "" },
+        first,
+        url,
+      )
+    : null;
+
+const day = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "America/New_York" });
+const struggles = answers
+  ? (JSON.parse(answers.struggles) as string[]).map((k) => (k === "other" && answers.struggle_other ? `${a.struggles.other[0]} (${answers.struggle_other})` : a.struggles[k]?.[0] ?? k))
+  : [];
+const notice = t.notices[link as keyof typeof t.notices];
+---
+
+<section class="admin-sheet org-box" id="organizers" aria-labelledby="organizers-heading">
+  <h2 id="organizers-heading">{t.heading}</h2>
+  {notice && <p class="admin-saved" role="status">{notice}</p>}
+
+  {people.length === 0 ? (
+    <p class="admin-muted">{t.nobody}</p>
+  ) : (
+    <ul class="org-people">
+      {people.map((p) => (
+        <li>
+          <strong>{p.name}</strong>{p.role && ` (${p.role})`} · <a href={`mailto:${p.email}`}>{p.email}</a>
+          {p.last_sent && <span class="admin-muted"> · {t.lastSent(day(p.last_sent))}</span>}
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <h3>{t.linkHeading}</h3>
+  {!live ? (
+    <p class="admin-muted">{t.liveOnly}</p>
+  ) : (
+    <>
+      {draft && (
+        <div class="org-draft">
+          <label for="invite-subject">{t.subject}</label>
+          <input id="invite-subject" readonly value={draft.subject} />
+          <label for="invite-body">{t.body}</label>
+          <textarea id="invite-body" rows="16" readonly>{draft.body}</textarea>
+          <div class="rv-actions">
+            <button class="ink-btn" type="button" data-copy="#invite-body">{t.copyEmail}</button>
+            <button class="paper-btn" type="button" data-copy="#invite-subject">{t.copySubject}</button>
+          </div>
+          <p class="admin-muted">{t.draftHint}</p>
+        </div>
+      )}
+
+      <form method="post" action={`/admin/groups/${org.id}/organizers`} class="org-invite">
+        <input type="hidden" name="action" value="invite" />
+        <div class="gf-field">
+          <label for="invite-first">{t.firstName}</label>
+          <input id="invite-first" name="first" type="text" value={first} autocomplete="off" />
+        </div>
+        <div class="gf-field">
+          <label for="invite-email">{t.email}</label>
+          <input id="invite-email" name="email" type="text" inputmode="email" autocomplete="off" />
+          <p class="gf-hint">{t.emailHint}</p>
+        </div>
+        <button class="ink-btn" type="submit">{t.copyInvite}</button>
+      </form>
+
+      {code ? (
+        <div class="org-link">
+          <input id="invite-url" readonly value={url} aria-label={t.linkLabel} />
+          <div class="rv-actions">
+            <button class="paper-btn" type="button" data-copy="#invite-url">{t.copyLink}</button>
+            <form method="post" action={`/admin/groups/${org.id}/organizers`}>
+              <input type="hidden" name="action" value="new-link" />
+              <button class="paper-btn" type="submit">{t.newLink}</button>
+            </form>
+            <form method="post" action={`/admin/groups/${org.id}/organizers`}>
+              <input type="hidden" name="action" value="revoke" />
+              <button class="paper-btn" type="submit">{t.revoke}</button>
+            </form>
+          </div>
+        </div>
+      ) : (
+        <p class="admin-muted">{t.noLink}</p>
+      )}
+    </>
+  )}
+
+  {answers && (
+    <>
+      <h3>{t.answersHeading(answers.name, day(answers.created_at))}</h3>
+      <ul class="rv-answers">
+        {struggles.length > 0 && <li><strong>{copy.admin.review.answerLabels.struggles}:</strong> {struggles.join(", ")}</li>}
+        {answers.hand_off && <li><strong>{copy.admin.review.answerLabels.handOff}:</strong> {answers.hand_off}</li>}
+        {answers.chat && <li><strong>{copy.admin.review.answerLabels.chat}:</strong> {a.chat[answers.chat]}</li>}
+        {answers.connect && <li><strong>{copy.admin.review.answerLabels.connect}:</strong> {a.connect[answers.connect]}</li>}
+        {answers.profile && <li><strong>{copy.admin.review.answerLabels.profile}:</strong> {a.profile[answers.profile]}</li>}
+      </ul>
+    </>
+  )}
+</section>
+
+<script>
+  // Copy buttons: copy the named field's text and say so on the button.
+  for (const btn of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+    const label = btn.textContent;
+    btn.addEventListener("click", async () => {
+      const field = document.querySelector<HTMLInputElement | HTMLTextAreaElement>(btn.dataset.copy!);
+      if (!field) return;
+      try {
+        await navigator.clipboard.writeText(field.value);
+        btn.textContent = "Copied";
+      } catch {
+        // Older copy method, for browsers that block the clipboard API here.
+        field.select();
+        btn.textContent = document.execCommand("copy") ? "Copied" : "Press Cmd+C";
+      }
+      setTimeout(() => (btn.textContent = label), 2000);
+    });
+  }
+</script>

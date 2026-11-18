@@ -680,3 +680,119 @@
   font-size: 14px;
   color: var(--muted);
 }
+
+/* ---- Organizers box on a group's page */
+
+.org-box {
+  margin-top: 28px;
+}
+
+.org-box h2 {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.org-box h3 {
+  margin: 22px 0 10px;
+  font-size: 18px;
+}
+
+.org-people {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.org-draft,
+.org-invite,
+.org-link {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 640px;
+}
+
+.org-draft {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border-radius: 4px;
+  background: var(--fabric);
+}
+
+.org-draft label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.org-draft input,
+.org-draft textarea,
+.org-link input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 4px;
+  background: #fff;
+  font: 400 15px/1.45 var(--sans);
+  color: var(--ink);
+}
+
+.org-invite {
+  margin-bottom: 16px;
+}
+
+.org-invite .gf-field {
+  margin-bottom: 4px;
+}
+
+.org-invite button {
+  align-self: flex-start;
+}
+
+/* ---- What organizers need (/admin/answers) */
+
+.ans-counts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px 32px;
+  margin: 8px 0 28px;
+}
+
+.ans-counts h2,
+.ans-list h2 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.ans-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 12px;
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.ans-bar .ans-track {
+  grid-column: 1 / -1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--fabric);
+  overflow: hidden;
+}
+
+.ans-bar .ans-fill {
+  height: 100%;
+  background: var(--ink);
+}
+
+.ans-bar .ans-n {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.ans-list {
+  margin-top: 24px;
+}
+
+.ans-list ul {
+  margin: 0;
+  padding-left: 20px;
+}

@@ -1,0 +1,121 @@
+---
+// Admin: what organizers said in "help me help groups like yours".
+// Each organizer counts once per group (their latest answers).
+import { env } from "cloudflare:workers";
+import Admin from "../../layouts/Admin.astro";
+import { copy } from "../../copy";
+import { CHAT, CONNECT, PROFILE, STRUGGLES, type Answers } from "../../organizers/answers";
+import { countAnswers } from "../../organizers/invite-email";
+
+export const prerender = false;
+
+const t = copy.admin.answersPage;
+const a = copy.yours.about;
+
+type Row = {
+  person_id: string; org_id: string | null; submission_id: string; created_at: string;
+  struggles: string; struggle_other: string | null; hand_off: string | null;
+  chat: string | null; connect: string | null; profile: string | null;
+  person: string; email: string; org_name: string | null; proposed_name: string | null;
+};
+
+const { results } = await env.DB.prepare(
+  `SELECT a.*, p.name AS person, p.email, o.name AS org_name, json_extract(s.proposed, '$.name') AS proposed_name
+   FROM org_answers a
+   JOIN people p ON p.id = a.person_id
+   JOIN submissions s ON s.id = a.submission_id
+   LEFT JOIN orgs o ON o.id = a.org_id
+   ORDER BY a.created_at DESC`,
+).all<Row>();
+
+// Latest answers per organizer and group.
+const seen = new Set<string>();
+const rows = results.filter((r) => {
+  const key = `${r.person_id}|${r.org_id ?? r.submission_id}`;
+  if (seen.has(key)) return false;
+  seen.add(key);
+  return true;
+});
+
+const answers: Answers[] = rows.map((r) => ({
+  struggles: JSON.parse(r.struggles),
+  struggleOther: r.struggle_other ?? "",
+  handOff: r.hand_off ?? "",
+  chat: r.chat as Answers["chat"],
+  connect: r.connect as Answers["connect"],
+  profile: r.profile as Answers["profile"],
+}));
+const counts = countAnswers(answers);
+const total = rows.length;
+const group = (r: Row) => r.org_name ?? r.proposed_name ?? "";
+
+const sections = [
+  { title: a.strugglesQ, items: STRUGGLES.map((k) => ({ label: a.struggles[k][0], n: counts[`struggles.${k}`] ?? 0 })) },
+  { title: a.chatQ, items: CHAT.map((k) => ({ label: a.chat[k], n: counts[`chat.${k}`] ?? 0 })) },
+  { title: a.connectQ, items: CONNECT.map((k) => ({ label: a.connect[k], n: counts[`connect.${k}`] ?? 0 })) },
+  { title: a.profileQ, items: PROFILE.map((k) => ({ label: a.profile[k], n: counts[`profile.${k}`] ?? 0 })) },
+];
+
+const handOffs = rows.filter((r) => r.hand_off);
+const others = rows.filter((r) => r.struggle_other);
+const chats = rows.filter((r) => r.chat === "yes");
+const connects = rows.filter((r) => r.connect && r.connect !== "no");
+---
+
+<Admin title={t.heading} section="answers">
+  <section class="admin-sheet" aria-labelledby="answers-heading">
+    <div class="admin-head">
+      <div class="admin-title"><h1 id="answers-heading">{t.heading}</h1></div>
+      <p class="admin-muted">{t.intro}</p>
+    </div>
+
+    {total === 0 ? (
+      <p class="admin-empty">{t.empty}</p>
+    ) : (
+      <>
+        <div class="ans-counts">
+          {sections.map((sec) => (
+            <div>
+              <h2>{sec.title}</h2>
+              {sec.items.map((it) => (
+                <div class="ans-bar">
+                  <span>{it.label}</span>
+                  <span class="ans-n">{t.of(it.n, total)}</span>
+                  <span class="ans-track" aria-hidden="true"><span class="ans-fill" style={`display:block;width:${Math.round((it.n / total) * 100)}%`}></span></span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        <div class="ans-list">
+          <h2>{t.chatHeading}</h2>
+          {chats.length ? (
+            <ul>{chats.map((r) => <li>{r.person} · <a href={`mailto:${r.email}`}>{r.email}</a> · {group(r)}</li>)}</ul>
+          ) : <p class="admin-muted">{t.none}</p>}
+        </div>
+
+        <div class="ans-list">
+          <h2>{t.connectHeading}</h2>
+          {connects.length ? (
+            <ul>{connects.map((r) => <li>{r.person} · <a href={`mailto:${r.email}`}>{r.email}</a> · {group(r)} · <span class="admin-muted">{a.connect[r.connect!]}</span></li>)}</ul>
+          ) : <p class="admin-muted">{t.none}</p>}
+        </div>
+
+        <div class="ans-list">
+          <h2>{t.handOffHeading}</h2>
+          {handOffs.length ? (
+            <ul>{handOffs.map((r) => <li>"{r.hand_off}" <span class="admin-muted">({group(r)})</span></li>)}</ul>
+          ) : <p class="admin-muted">{t.none}</p>}
+        </div>
+
+        {others.length > 0 && (
+          <div class="ans-list">
+            <h2>{t.otherHeading}</h2>
+            <ul>{others.map((r) => <li>"{r.struggle_other}" <span class="admin-muted">({group(r)})</span></li>)}</ul>
+          </div>
+        )}
+      </>
+    )}
+  </section>
+</Admin>

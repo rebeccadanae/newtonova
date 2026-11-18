@@ -8,7 +8,7 @@ import { pendingCount } from "../admin/review";
 
 interface Props {
   title: string;
-  section?: "groups" | "events" | "review";
+  section?: "groups" | "events" | "review" | "answers";
 }
 
 const { title, section = "groups" } = Astro.props;
@@ -38,6 +38,7 @@ const waiting = await pendingCount(env.DB);
           <a href="/admin/review/" aria-current={section === "review" ? "page" : undefined}>
             {copy.admin.review.nav}{waiting > 0 && <span class="admin-count">{waiting}</span>}
           </a>
+          <a href="/admin/answers/" aria-current={section === "answers" ? "page" : undefined}>{copy.admin.answersPage.nav}</a>
         </nav>
         <p class="admin-who">
           {email && <span>{copy.admin.signedInAs} {email}</span>}

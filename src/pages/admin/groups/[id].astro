@@ -6,6 +6,7 @@ import Admin from "../../../layouts/Admin.astro";
 import GroupFields from "../../../components/GroupFields.astro";
 import AdminGroupFields from "../../../components/AdminGroupFields.astro";
 import ReviewPanel from "../../../components/ReviewPanel.astro";
+import OrganizersBox from "../../../components/OrganizersBox.astro";
 import { copy } from "../../../copy";
 import { emptyGroup, fromRow, readAdmin, readDetails, saveGroup, type Errors, type Group, type GroupDetails, type OrgRow } from "../../../admin/groups";
 import { approveWithGroup, changedFields, getSubmission, reviewValues } from "../../../admin/review";
@@ -114,4 +115,13 @@ const errorCount = Object.keys(errors).length;
       </form>
     )}
   </section>
+
+  {existing && !review && (
+    <OrganizersBox
+      org={existing}
+      origin={Astro.url.origin}
+      link={Astro.url.searchParams.get("link") ?? ""}
+      first={Astro.url.searchParams.get("first") ?? ""}
+    />
+  )}
 </Admin>
