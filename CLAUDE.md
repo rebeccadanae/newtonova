@@ -36,6 +36,7 @@ A free directory of Northern Virginia groups that welcome new people: creative c
   - Spec: `docs/superpowers/specs/2026-11-18-organizer-flow-design.md`. Plan: `docs/superpowers/plans/2026-11-18-organizer-flow.md`. Mockups: https://claude.ai/artifact/E2TEX4227MFkLJam7beiyH.
   - Block 1 (Vitest, `npm test`, and the organizer tables in `0003_organizers.sql`) was done 2026-11-18.
   - Block 2 was done 2026-11-18: `src/organizers/` (people, invites, submissions), the shared `Flyer.astro` (styles in `flyer.css`), and `/yours/<code>` (check and thanks steps; layout `Organizer.astro`, which has no Umami; `Steps.astro`, `WhoFields.astro`; styles in `yours.css`; copy in `copy.yours`).
+  - Block 3 was done 2026-11-18: `?step=fix` (`OwnerGroupFields.astro`, same field names as the admin form) and `?step=remove`, both sending through `WhoSend.astro`.
   - To try organizer pages locally without the Notion import, use the `astro-dev-nofetch` launch config (port 4322) and add an invite row to the local D1.
   - It comes before phase 2 block 5.
   - Tally stays live until plan task 10 retires it.
