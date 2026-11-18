@@ -1,0 +1,38 @@
+---
+// /admin: who sent a submission, their note and their "help me help" answers.
+// Admin only: this is the one place organizer contact details are shown.
+import { copy } from "../copy";
+import type { Submission } from "../admin/review";
+
+interface Props {
+  s: Submission;
+}
+
+const { s } = Astro.props;
+const t = copy.admin.review;
+const a = copy.yours.about;
+const when = new Date(s.createdAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "America/New_York" });
+const struggles = s.answers
+  ? s.answers.struggles.map((k) => (k === "other" && s.answers!.struggleOther ? `${a.struggles.other[0]} (${s.answers!.struggleOther})` : a.struggles[k]?.[0] ?? k))
+  : [];
+---
+
+<div class="rv-panel">
+  <p>
+    <strong>{t.sentBy}:</strong> {s.person.name}{s.person.role && ` (${s.person.role})`} · <a href={`mailto:${s.person.email}`}>{s.person.email}</a>
+  </p>
+  <p class="admin-muted">{t.via[s.via]} · {when}</p>
+  {s.note && <p><strong>{t.note}:</strong> {s.note}</p>}
+  {s.answers && (
+    <>
+      <h2>{t.answers}</h2>
+      <ul class="rv-answers">
+        {struggles.length > 0 && <li><strong>{t.answerLabels.struggles}:</strong> {struggles.join(", ")}</li>}
+        {s.answers.handOff && <li><strong>{t.answerLabels.handOff}:</strong> {s.answers.handOff}</li>}
+        {s.answers.chat && <li><strong>{t.answerLabels.chat}:</strong> {a.chat[s.answers.chat]}</li>}
+        {s.answers.connect && <li><strong>{t.answerLabels.connect}:</strong> {a.connect[s.answers.connect]}</li>}
+        {s.answers.profile && <li><strong>{t.answerLabels.profile}:</strong> {a.profile[s.answers.profile]}</li>}
+      </ul>
+    </>
+  )}
+</div>

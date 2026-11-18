@@ -5,8 +5,10 @@ import { env } from "cloudflare:workers";
 import Admin from "../../../layouts/Admin.astro";
 import GroupFields from "../../../components/GroupFields.astro";
 import AdminGroupFields from "../../../components/AdminGroupFields.astro";
+import ReviewPanel from "../../../components/ReviewPanel.astro";
 import { copy } from "../../../copy";
-import { emptyGroup, fromRow, readAdmin, readDetails, saveGroup, type Errors, type Group, type OrgRow } from "../../../admin/groups";
+import { emptyGroup, fromRow, readAdmin, readDetails, saveGroup, type Errors, type Group, type GroupDetails, type OrgRow } from "../../../admin/groups";
+import { approveWithGroup, changedFields, getSubmission, reviewValues } from "../../../admin/review";
 
 export const prerender = false;
 
@@ -20,7 +22,20 @@ if (!isNew) {
   if (!existing) return new Response(t.notFound, { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
 }
 
-let values: Group = existing ? fromRow(existing) : emptyGroup();
+// Reviewing an organizer's change (?review=<submission id>) or a group they added:
+// the form starts from their proposal, and saving approves it.
+const rv = copy.admin.review;
+const reviewId = Astro.url.searchParams.get("review");
+const found = reviewId ? await getSubmission(env.DB, reviewId) : null;
+const review =
+  found && found.status === "pending" && ((found.kind === "change" && found.orgId === id) || (found.kind === "new" && isNew))
+    ? found
+    : null;
+
+let values: Group = review ? reviewValues(review, existing) : existing ? fromRow(existing) : emptyGroup();
+// Compared with the group as it is now, so edits made since they sent it don't show as theirs.
+const was: GroupDetails | undefined = review && existing ? fromRow(existing) : undefined;
+const changed = review && was ? changedFields(was, values) : [];
 let errors: Errors = {};
 let saveError = "";
 
@@ -34,6 +49,10 @@ if (Astro.request.method === "POST") {
 
   if (Object.keys(errors).length === 0) {
     try {
+      if (review) {
+        await approveWithGroup(env.DB, review, isNew ? null : id, values);
+        return Astro.redirect(`/admin/review/?done=approved&name=${encodeURIComponent(values.name)}`, 303);
+      }
       const savedId = await saveGroup(env.DB, isNew ? null : id, values);
       return Astro.redirect(`/admin/?saved=${encodeURIComponent(savedId)}`, 303);
     } catch (e) {
@@ -44,15 +63,23 @@ if (Astro.request.method === "POST") {
   }
 }
 
-const heading = isNew ? t.newHeading : values.name || existing?.name || t.editHeading;
+const heading = review
+  ? review.kind === "new" ? rv.newHeading(review.proposed?.name ?? "") : rv.changeHeading(existing?.name ?? "")
+  : isNew ? t.newHeading : values.name || existing?.name || t.editHeading;
 const errorCount = Object.keys(errors).length;
 ---
 
-<Admin title={heading} section="groups">
-  <p class="admin-back"><a href="/admin/">{t.backToGroups}</a></p>
+<Admin title={heading} section={review ? "review" : "groups"}>
+  <p class="admin-back">{review ? <a href="/admin/review/">{rv.back}</a> : <a href="/admin/">{t.backToGroups}</a>}</p>
 
   <section class="admin-sheet gf-sheet" aria-labelledby="group-heading">
-    <h1 id="group-heading">{isNew ? t.newHeading : existing?.name}</h1>
+    <h1 id="group-heading">{review ? heading : isNew ? t.newHeading : existing?.name}</h1>
+    {review && (
+      <>
+        <p class="gf-meta">{review.kind === "new" ? rv.newBody : rv.changedCount(changed.length)}</p>
+        <ReviewPanel s={review} />
+      </>
+    )}
     {existing && (
       <p class="admin-muted gf-meta">
         {t.lastSaved}{" "}
@@ -70,12 +97,21 @@ const errorCount = Object.keys(errors).length;
     )}
 
     <form method="post" class="gf-form" novalidate>
-      <GroupFields values={values} errors={errors} />
+      <GroupFields values={values} errors={errors} changed={changed} was={was} />
       <AdminGroupFields values={values} errors={errors} />
       <div class="gf-actions">
-        <button class="ink-btn" type="submit">{isNew ? t.addButton : t.saveButton}</button>
-        <a href="/admin/">{t.cancel}</a>
+        <button class="ink-btn" type="submit">{review ? rv.approveSave : isNew ? t.addButton : t.saveButton}</button>
+        {review ? (
+          <button class="paper-btn" type="submit" form="decline-form">{rv.decline}</button>
+        ) : (
+          <a href="/admin/">{t.cancel}</a>
+        )}
       </div>
     </form>
+    {review && (
+      <form id="decline-form" method="post" action={`/admin/review/${review.id}`} hidden>
+        <input type="hidden" name="action" value="decline" />
+      </form>
+    )}
   </section>
 </Admin>

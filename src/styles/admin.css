@@ -590,3 +590,93 @@
   margin: 0;
   padding-left: 1.2em;
 }
+
+/* ---- To review (organizer submissions) */
+
+.admin-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: var(--fabric);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.rv-kind {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 3px;
+  background: var(--fabric);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.rv-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border-radius: 4px;
+  background: var(--fabric);
+  font-size: 15px;
+}
+
+.rv-panel h2 {
+  font-size: 17px;
+}
+
+.rv-panel p {
+  margin: 0;
+}
+
+.rv-answers {
+  margin: 4px 0 0;
+  padding-left: 20px;
+}
+
+.rv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.rv-actions form {
+  margin: 0;
+}
+
+.rv-group {
+  margin: 0 0 16px;
+  font-size: 15px;
+}
+
+/* Fields the organizer changed: a yellow badge, a pale wash, and today's value underneath */
+.gf-changed-badge {
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: 3px;
+  background: #f6d44a;
+  font-size: 12px;
+  font-weight: 800;
+  vertical-align: 1px;
+}
+
+.gf-changed input[type="text"],
+.gf-changed input[type="url"],
+.gf-changed textarea {
+  background: #fff8d6;
+}
+
+.gf-was {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}

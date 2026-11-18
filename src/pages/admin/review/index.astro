@@ -1,0 +1,65 @@
+---
+// Admin: everything organizers sent that's waiting for Becca, newest first.
+import { env } from "cloudflare:workers";
+import Admin from "../../../layouts/Admin.astro";
+import { copy } from "../../../copy";
+import { listPending } from "../../../admin/review";
+
+export const prerender = false;
+
+const t = copy.admin.review;
+const rows = await listPending(env.DB);
+
+// Where each kind is reviewed: changes and new groups in the group form itself.
+const href = (r: (typeof rows)[number]) =>
+  r.kind === "change" && r.orgId
+    ? `/admin/groups/${r.orgId}?review=${r.id}`
+    : r.kind === "new"
+      ? `/admin/groups/new?review=${r.id}`
+      : `/admin/review/${r.id}`;
+
+const day = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "America/New_York" });
+
+// After approving or declining, say what happened.
+const done = Astro.url.searchParams.get("done");
+const doneName = Astro.url.searchParams.get("name") ?? "";
+const doneMsg = done === "approved" ? t.done(t.approved, doneName) : done === "declined" ? t.done(t.declinedMsg, doneName) : "";
+---
+
+<Admin title={t.heading} section="review">
+  {doneMsg && <p class="admin-saved" role="status">{doneMsg}</p>}
+  <section class="admin-sheet" aria-labelledby="review-heading">
+    <div class="admin-head">
+      <div class="admin-title">
+        <h1 id="review-heading">{t.heading}</h1>
+      </div>
+      <p class="admin-muted">{t.intro}</p>
+    </div>
+
+    {rows.length === 0 ? (
+      <p class="admin-empty">{t.empty}</p>
+    ) : (
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th scope="col">{t.columns.group}</th>
+            <th scope="col">{t.columns.kind}</th>
+            <th scope="col">{t.columns.who}</th>
+            <th scope="col">{t.columns.when}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <th scope="row" data-label={t.columns.group}><a href={href(r)}>{r.orgName}</a></th>
+              <td data-label={t.columns.kind}><span class="rv-kind">{t.kinds[r.kind]}</span></td>
+              <td data-label={t.columns.who}>{r.personName} <span class="admin-muted">{t.via[r.via]}</span></td>
+              <td data-label={t.columns.when}><time datetime={r.createdAt}>{day(r.createdAt)}</time></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </section>
+</Admin>

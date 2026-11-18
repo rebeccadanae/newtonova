@@ -1,0 +1,66 @@
+---
+// Admin: review one submission. "Looks good" and "Take off" are approved here;
+// changes and new groups are reviewed in the group form (?review=<id>), which
+// posts its Decline back here.
+import { env } from "cloudflare:workers";
+import Admin from "../../../layouts/Admin.astro";
+import ReviewPanel from "../../../components/ReviewPanel.astro";
+import { copy } from "../../../copy";
+import { approveConfirm, approveRemove, decide, getSubmission } from "../../../admin/review";
+
+export const prerender = false;
+
+const t = copy.admin.review;
+const s = await getSubmission(env.DB, Astro.params.id ?? "");
+if (!s) return new Response(t.notFound, { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
+
+const org = s.orgId
+  ? await env.DB.prepare("SELECT name, area, category, status FROM orgs WHERE id = ?1").bind(s.orgId).first<{ name: string; area: string; category: string; status: string }>()
+  : null;
+const name = org?.name ?? s.proposed?.name ?? "";
+
+if (Astro.request.method === "POST" && s.status === "pending") {
+  const action = String((await Astro.request.formData()).get("action") ?? "");
+  if (action === "decline") {
+    await decide(env.DB, s.id, "declined");
+    return Astro.redirect(`/admin/review/?done=declined&name=${encodeURIComponent(name)}`, 303);
+  }
+  if (action === "approve" && s.kind === "confirm") await approveConfirm(env.DB, s);
+  else if (action === "approve" && s.kind === "remove") await approveRemove(env.DB, s);
+  else return Astro.redirect(`/admin/review/${s.id}`, 303);
+  return Astro.redirect(`/admin/review/?done=approved&name=${encodeURIComponent(name)}`, 303);
+}
+
+// Changes and new groups are reviewed in the group form.
+if (s.status === "pending" && s.kind === "change" && s.orgId) return Astro.redirect(`/admin/groups/${s.orgId}?review=${s.id}`, 302);
+if (s.status === "pending" && s.kind === "new") return Astro.redirect(`/admin/groups/new?review=${s.id}`, 302);
+
+const heading = s.kind === "remove" ? t.removeHeading(name) : s.kind === "confirm" ? t.confirmHeading(name) : name;
+const body = s.kind === "remove" ? t.removeBody : t.confirmBody;
+const list = (json?: string) => (json ? (JSON.parse(json) as string[]).join(", ") : "");
+---
+
+<Admin title={heading} section="review">
+  <p class="admin-back"><a href="/admin/review/">{t.back}</a></p>
+  <section class="admin-sheet" aria-labelledby="rv-heading">
+    <h1 id="rv-heading">{heading}</h1>
+    {org && (
+      <p class="rv-group">
+        <a href={`/admin/groups/${s.orgId}`}>{org.name}</a> · {list(org.area)} · {list(org.category)} · <span class="admin-status">{org.status}</span>
+      </p>
+    )}
+    <ReviewPanel s={s} />
+
+    {s.status !== "pending" ? (
+      <p class="admin-muted">{t.notPending}</p>
+    ) : (
+      <>
+        <p>{body}</p>
+        <div class="rv-actions">
+          <form method="post"><input type="hidden" name="action" value="approve" /><button class="ink-btn" type="submit">{t.approve}</button></form>
+          <form method="post"><input type="hidden" name="action" value="decline" /><button class="paper-btn" type="submit">{t.decline}</button></form>
+        </div>
+      </>
+    )}
+  </section>
+</Admin>
