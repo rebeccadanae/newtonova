@@ -38,6 +38,7 @@ A free directory of Northern Virginia groups that welcome new people: creative c
   - Block 2 was done 2026-11-18: `src/organizers/` (people, invites, submissions), the shared `Flyer.astro` (styles in `flyer.css`), and `/yours/<code>` (check and thanks steps; layout `Organizer.astro`, which has no Umami; `Steps.astro`, `WhoFields.astro`; styles in `yours.css`; copy in `copy.yours`).
   - Block 3 was done 2026-11-18: `?step=fix` (`OwnerGroupFields.astro`, same field names as the admin form) and `?step=remove`, both sending through `WhoSend.astro`.
   - Block 4 was done 2026-11-18: `?step=about` ("help me help", optional) between sending and thanks; answers in `org_answers` via `src/organizers/answers.ts`.
+  - Block 5 was done 2026-11-18: **To review** (`/admin/review/`, logic in `src/admin/review.ts`). Looks good and Take off are approved on `/admin/review/<id>`; changes and new groups open in the group form with `?review=<id>` (changed fields marked, compared with the group as it is now). Approving marks the group verified; new groups start as Ready. `ReviewPanel.astro` shows who sent it, their note and answers (admin only).
   - To try organizer pages locally without the Notion import, use the `astro-dev-nofetch` launch config (port 4322) and add an invite row to the local D1.
   - It comes before phase 2 block 5.
   - Tally stays live until plan task 10 retires it.
