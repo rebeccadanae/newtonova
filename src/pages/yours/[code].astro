@@ -1,0 +1,164 @@
+---
+// Organizer page for a personal link: /yours/<code>.
+// Steps (?step=): check (default) and thanks. fix, remove and about come in
+// the next blocks (see docs/superpowers/plans/2026-11-18-organizer-flow.md).
+// Nothing here changes a group: every submission waits for Becca in /admin.
+import { env } from "cloudflare:workers";
+import Organizer from "../../layouts/Organizer.astro";
+import Flyer from "../../components/Flyer.astro";
+import Steps from "../../components/Steps.astro";
+import WhoFields from "../../components/WhoFields.astro";
+import { copy } from "../../copy";
+import { findInvite } from "../../organizers/invites";
+import { readWho, savePerson, linkPerson, type Who, type WhoErrors } from "../../organizers/people";
+import { createSubmission, lastPending, submissionForInvite } from "../../organizers/submissions";
+import { isUpcoming, whenShort } from "../../event-dates";
+import type { FlyerOrg, NextEvent } from "../../flyer";
+
+export const prerender = false;
+
+const t = copy.yours;
+const code = Astro.params.code ?? "";
+const invite = await findInvite(env.DB, code);
+
+// Unknown or revoked link, or a group that isn't on the list right now.
+const gone = !invite || invite.orgStatus !== "Live";
+if (gone) Astro.response.status = 404;
+
+let org: FlyerOrg | null = null;
+let next: NextEvent[] = [];
+if (!gone) {
+  const row = await env.DB.prepare("SELECT id, name, website, category, area, blurb FROM orgs WHERE id = ?1")
+    .bind(invite.orgId)
+    .first<{ id: string; name: string; website: string | null; category: string; area: string; blurb: string | null }>();
+  if (row) {
+    org = {
+      id: row.id,
+      name: row.name,
+      website: row.website ?? "",
+      category: JSON.parse(row.category),
+      area: JSON.parse(row.area),
+      blurb: row.blurb ?? "",
+    };
+    const events = await env.DB.prepare(
+      `SELECT name, start, "end", all_day, link FROM events WHERE org_id = ?1 AND status = 'Live' ORDER BY start LIMIT 20`,
+    )
+      .bind(row.id)
+      .all<{ name: string; start: string; end: string | null; all_day: number; link: string | null }>();
+    next = events.results
+      .map((e) => ({ name: e.name, start: e.start, end: e.end, allDay: Boolean(e.all_day), link: e.link ?? "" }))
+      .filter((e) => isUpcoming(e))
+      .slice(0, 3)
+      .map((e) => ({ ...e, when: whenShort(e) }));
+  }
+}
+
+const step = Astro.url.searchParams.get("step") === "thanks" ? "thanks" : "check";
+const knownName = invite?.personName ?? "";
+const emailKnown = Boolean(invite?.personEmail);
+
+let who: Who = { name: knownName, email: "", role: "" };
+let whoErrors: WhoErrors = {};
+
+if (!gone && org && Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const read = readWho(form, { emailKnown });
+  who = read.values;
+  whoErrors = read.errors;
+  if (Object.keys(whoErrors).length === 0) {
+    const personId = await savePerson(env.DB, { name: who.name, email: who.email || invite!.personEmail! });
+    await linkPerson(env.DB, org.id, personId, who.role);
+    const id = await createSubmission(env.DB, {
+      kind: "confirm",
+      orgId: org.id,
+      personId,
+      via: "invite",
+      inviteCode: code,
+      proposed: null,
+      note: "",
+    });
+    return Astro.redirect(`/yours/${code}?step=thanks&s=${id}`, 303);
+  }
+  Astro.response.status = 400;
+}
+
+// "Who's sending" opens by itself when there's no name to show, or something needs fixing.
+const whoOpen = !knownName || Object.keys(whoErrors).length > 0;
+
+const pending = !gone && org && step === "check" ? await lastPending(env.DB, org.id) : null;
+const pendingDate = pending
+  ? new Date(pending.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "America/New_York" })
+  : "";
+
+// Thanks: who sent it and what kind, read back from the submission (it must belong to this link).
+let thanks: { name: string; kind: string } | null = null;
+if (!gone && step === "thanks") {
+  const s = await submissionForInvite(env.DB, Astro.url.searchParams.get("s") ?? "", code);
+  if (s) {
+    const p = await env.DB.prepare("SELECT name FROM people WHERE id = ?1").bind(s.person_id).first<{ name: string }>();
+    thanks = { name: p?.name ?? "", kind: s.kind };
+  }
+}
+const thanksBody = thanks?.kind === "change" ? t.thanksChange : thanks?.kind === "remove" ? t.thanksRemove : t.thanksConfirm;
+---
+
+<Organizer>
+  {gone || !org ? (
+    <section class="yours-sheet">
+      <h1>{t.goneHeading}</h1>
+      <p class="yours-muted">{t.gone}</p>
+    </section>
+  ) : step === "thanks" ? (
+    <>
+      <Steps current={3} />
+      <section class="yours-thanks">
+        <span class="pin" aria-hidden="true"></span>
+        <h1>{thanks?.name ? t.thanksHeading(thanks.name) : t.thanksNoName}</h1>
+        <p>{thanksBody}</p>
+        <p class="yours-muted">{t.signoff}</p>
+      </section>
+      <a class="yours-btn paper" href={`/#org-${org.id}`}>{t.seeFlyer}</a>
+      <p class="yours-small" style="text-align: center">{t.later}</p>
+    </>
+  ) : (
+    <>
+      <Steps current={1} />
+      <div class="yours-intro">
+        <h1>{t.hello} <span class="hl">{org.name}</span> {t.onSite}</h1>
+        <p>{t.intro}</p>
+      </div>
+
+      <Flyer org={org} index={0} next={next} as="div" headingLevel={2} nextLabel={t.nextLabel} />
+
+      <section class="yours-sheet" aria-labelledby="question">
+        <h2 id="question">{t.question}</h2>
+        {pending && <p class="yours-note">{t.pending(pendingDate)}</p>}
+
+        <form method="post" class="yours-form" novalidate>
+          {knownName ? (
+            <>
+              <button class="yours-btn ink" type="submit">{t.looksGood}</button>
+              <details class="who" open={whoOpen}>
+                <summary>
+                  <span>{t.sendingAs(knownName)}</span>
+                  <span class="who-toggle">{t.notYou(knownName)}</span>
+                </summary>
+                <WhoFields who={who} errors={whoErrors} emailKnown={emailKnown} />
+              </details>
+            </>
+          ) : (
+            <>
+              <WhoFields who={who} errors={whoErrors} emailKnown={emailKnown} />
+              <button class="yours-btn ink" type="submit">{t.looksGood}</button>
+            </>
+          )}
+        </form>
+
+        <a class="yours-btn paper" href={`/yours/${code}?step=fix`}>{t.fix}</a>
+        <p class="yours-quiet-link"><a href={`/yours/${code}?step=remove`}>{t.remove}</a></p>
+      </section>
+
+      <p class="yours-small">{t.footnote}</p>
+    </>
+  )}
+</Organizer>

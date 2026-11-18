@@ -6,7 +6,18 @@ import { checkAccess } from "./admin/access";
 
 const isAdminPath = (path: string) => path === "/admin" || path.startsWith("/admin/");
 
+const isYoursPath = (path: string) => path === "/yours" || path.startsWith("/yours/");
+
 export const onRequest = defineMiddleware(async (context, next) => {
+  // Organizer pages are public (the personal code is the key) but never cached or indexed.
+  if (isYoursPath(context.url.pathname)) {
+    const response = await next();
+    response.headers.set("cache-control", "no-store");
+    response.headers.set("x-robots-tag", "noindex");
+    response.headers.set("referrer-policy", "no-referrer");
+    return response;
+  }
+
   if (!isAdminPath(context.url.pathname)) return next();
 
   // Local `npm run dev` has no Access in front of it.

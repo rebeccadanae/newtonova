@@ -45,16 +45,19 @@
   margin-top: 1px;
 }
 
-.flyer h3 {
+.flyer h3,
+.flyer h2 {
   font-size: 28px;
   line-height: 1.06;
 }
 
-.flyer h3 a {
+.flyer h3 a,
+.flyer h2 a {
   text-decoration: none;
 }
 
-.flyer h3 a:hover {
+.flyer h3 a:hover,
+.flyer h2 a:hover {
   text-decoration: underline;
   text-decoration-color: var(--ink);
   text-decoration-thickness: 2px;

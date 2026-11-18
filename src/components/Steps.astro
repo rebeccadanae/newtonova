@@ -1,0 +1,25 @@
+---
+// Progress line at the top of each organizer page: Your flyer · A few questions · Done.
+import { copy } from "../copy";
+
+interface Props {
+  current: 1 | 2 | 3;
+}
+
+const { current } = Astro.props;
+const t = copy.yours.steps;
+---
+
+<ol class="steps" aria-label={t.label}>
+  {t.items.map((label, i) => {
+    const n = i + 1;
+    const state = n < current ? "done" : n === current ? "now" : undefined;
+    return (
+      <li class={state} aria-current={n === current ? "step" : undefined}>
+        <span class="steps-dot" aria-hidden="true"></span>
+        {label}
+        {n === current && <span class="visually-hidden">, {t.of(n)}</span>}
+      </li>
+    );
+  })}
+</ol>

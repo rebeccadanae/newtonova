@@ -1,0 +1,314 @@
+/* Organizer pages (/yours): one narrow column on the fabric, built phone-first.
+   Pinboard pieces (flyer, sheet, pins) come from global.css and flyer.css. */
+
+.yours-header .wrap {
+  min-height: 64px;
+}
+
+.yours-header .logo {
+  font-size: 24px;
+}
+
+.yours {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.yours h1 {
+  font-size: clamp(30px, 6vw, 40px);
+  line-height: 1.08;
+}
+
+.yours-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.yours-intro p,
+.yours-muted {
+  margin: 0;
+  color: var(--muted);
+}
+
+.yours-small {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* The flyer on its own: same paper as the board, a little inset so its tilt has room */
+.yours .flyer {
+  margin: 8px 6px 0;
+}
+
+.yours .flyer h2 {
+  font-size: 28px;
+  line-height: 1.06;
+}
+
+/* A plain white sheet for the choices and forms (no tilt: it's the working surface) */
+.yours-sheet {
+  position: relative;
+  padding: 24px 20px 20px;
+  background: #fff;
+  box-shadow: var(--lift);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.yours-sheet h2 {
+  margin-bottom: 4px;
+  font-size: 26px;
+  line-height: 1.1;
+}
+
+/* Full-width buttons, big enough for a thumb */
+.yours-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 54px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 4px;
+  font: 700 17px/1.2 var(--sans);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.yours-btn.ink {
+  background: var(--ink);
+  color: #fff;
+}
+
+.yours-btn.ink:hover {
+  background: #2f4249;
+}
+
+.yours-btn.paper {
+  background: #fff;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.yours-btn.paper:hover {
+  background: var(--fabric);
+}
+
+.yours-quiet-link {
+  display: flex;
+  justify-content: center;
+  margin: 2px 0 0;
+  font-size: 15px;
+}
+
+.yours-quiet-link a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.yours-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* "Sending as Sam. Not Sam?" — a native disclosure, so it works without scripts */
+.who {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.who summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 6px;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.who summary::-webkit-details-marker {
+  display: none;
+}
+
+.who-toggle {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--link-underline);
+  text-underline-offset: 3px;
+}
+
+.who summary:hover .who-toggle {
+  text-decoration-color: var(--ink);
+}
+
+.who-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 6px 0 10px;
+}
+
+/* Fields: DESIGN.md inputs (2px ink border, 50px, yellow focus ring) */
+.yf {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--ink);
+}
+
+.yf label {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.yf .yf-opt {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.yf .yf-hint {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.yf input,
+.yf textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 14px;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+  font: 400 17px/1.4 var(--sans);
+}
+
+.yf input {
+  height: 50px;
+}
+
+.yf textarea {
+  padding: 12px 14px;
+}
+
+.yf input::placeholder,
+.yf textarea::placeholder {
+  color: var(--muted);
+}
+
+.yf input[aria-invalid="true"],
+.yf textarea[aria-invalid="true"] {
+  border-color: #b3261e;
+}
+
+.yf-error {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #b3261e;
+}
+
+.yours :focus-visible {
+  outline: 3px solid #f6d44a;
+  outline-offset: 2px;
+}
+
+.yours input:focus-visible,
+.yours textarea:focus-visible {
+  outline-offset: 1px;
+}
+
+/* A note pinned above the choices (e.g. changes already waiting) */
+.yours-note {
+  margin: 0;
+  padding: 12px 14px;
+  background: var(--fabric);
+  border-radius: 4px;
+  font-size: 15px;
+}
+
+/* Progress line */
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--muted);
+}
+
+.steps li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.steps li + li::before {
+  content: "";
+  width: 16px;
+  height: 2px;
+  background: rgb(29 42 47 / 0.35);
+}
+
+.steps-dot {
+  flex: none;
+  width: 13px;
+  height: 13px;
+  box-sizing: border-box;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: #fff;
+}
+
+.steps .done,
+.steps .now {
+  color: var(--ink);
+}
+
+.steps .now {
+  font-weight: 800;
+}
+
+.steps .done .steps-dot,
+.steps .now .steps-dot {
+  background: var(--ink);
+}
+
+/* Thanks: a pinned note in Becca's voice */
+.yours-thanks {
+  position: relative;
+  padding: 34px 24px 28px;
+  background: #fff;
+  transform: rotate(0.8deg);
+  box-shadow: var(--lift);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.yours-thanks p {
+  margin: 0;
+}
+
+.yours-thanks .pin {
+  --pin: #1e9e57;
+}

@@ -20,6 +20,17 @@
         "4330"
       ],
       "port": 4330
+    },
+    {
+      "name": "astro-dev-nofetch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "astro",
+        "dev",
+        "--port",
+        "4322"
+      ],
+      "port": 4322
     }
   ]
 }

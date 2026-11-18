@@ -1,0 +1,51 @@
+---
+// "Who's sending this": name, email, role. Used on every organizer step that sends.
+// Field names carry a who_ prefix (see src/organizers/people.ts).
+import { copy } from "../copy";
+import type { Who, WhoErrors } from "../organizers/people";
+
+interface Props {
+  who: Who;
+  errors: WhoErrors;
+  /** The invite already has an email: the field becomes optional and the address is never shown. */
+  emailKnown: boolean;
+}
+
+const { who, errors, emailKnown } = Astro.props;
+const t = copy.yours;
+const describe = (...ids: (string | false)[]) => ids.filter(Boolean).join(" ") || undefined;
+---
+
+<div class="who-fields">
+  <div class="yf">
+    <label for="who_name">{t.whoName}</label>
+    <input
+      id="who_name"
+      name="who_name"
+      autocomplete="name"
+      value={who.name}
+      aria-invalid={errors.name ? "true" : undefined}
+      aria-describedby={describe(!!errors.name && "who_name-error")}
+    />
+    {errors.name && <p class="yf-error" id="who_name-error">{errors.name}</p>}
+  </div>
+  <div class="yf">
+    <label for="who_email">{t.whoEmail}{emailKnown && <span class="yf-opt"> {t.optional}</span>}</label>
+    {emailKnown && <p class="yf-hint" id="who_email-hint">{t.whoEmailKnown}</p>}
+    <input
+      id="who_email"
+      name="who_email"
+      type="email"
+      autocomplete="email"
+      value={who.email}
+      aria-invalid={errors.email ? "true" : undefined}
+      aria-describedby={describe(emailKnown && "who_email-hint", !!errors.email && "who_email-error")}
+    />
+    {errors.email && <p class="yf-error" id="who_email-error">{errors.email}</p>}
+  </div>
+  <div class="yf">
+    <label for="who_role">{t.whoRole} <span class="yf-opt">{t.optional}</span></label>
+    <input id="who_role" name="who_role" value={who.role} placeholder={t.rolePlaceholder} />
+    {errors.role && <p class="yf-error">{errors.role}</p>}
+  </div>
+</div>
