@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import Base from "../layouts/Base.astro";
+import Flyer from "../components/Flyer.astro";
 import { copy, TALLY_URL } from "../copy";
 import { categories } from "../categories";
 import { wideAreas } from "../areas";
@@ -68,9 +69,6 @@ const routed = new Set([...routes.flatMap((r) => r.towns), ...wideAreas]);
 const unrouted = [...new Set(orgs.flatMap((o) => o.area).filter((a) => !routed.has(a)))];
 if (unrouted.length) console.warn(`[routes] Towns not in any route group: ${unrouted.join(", ")}`);
 
-// Slight, repeatable tilts and pin colours so the board looks hand-pinned.
-const tilts = [-1.4, 0.8, -0.4, 1.3, -0.9, 0.3, 1.0, -1.1];
-const pins = ["#E2402F", "#1F6FD1", "#1E9E57", "#F2B705", "#7A4FD6"];
 ---
 
 <Base current="groups">
@@ -196,63 +194,7 @@ const pins = ["#E2402F", "#1F6FD1", "#1E9E57", "#F2B705", "#7A4FD6"];
       {orgs.map((o, i) => {
         const next = nextFor(o);
         return (
-          <li
-            class="flyer"
-            id={`org-${o.id}`}
-            data-categories={o.category.join("|")}
-            data-areas={o.area.join("|")}
-            data-search={[o.name, o.blurb, ...o.category, ...o.area].join(" ").toLowerCase()}
-            data-next={JSON.stringify(next)}
-            style={`--paper:${placeColor(o.area)}; --tilt:${tilts[i % tilts.length]}deg; --pin:${pins[i % pins.length]}`}
-          >
-            <span class="pin" aria-hidden="true"></span>
-            <h3>
-              {o.website
-                ? <a href={o.website} target="_blank" rel="noopener">{o.name}<span class="visually-hidden"> {copy.listing.newTab}</span></a>
-                : o.name}
-            </h3>
-            <p class="meta">
-              {o.area.length > 0 && (
-                <span class="place">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"></path>
-                    <circle cx="12" cy="9" r="2.5"></circle>
-                  </svg>
-                  {o.area.join(", ")}
-                </span>
-              )}
-              <span class="kinds">{o.category.join(" + ")}</span>
-            </p>
-            <p class="blurb">{o.blurb}</p>
-            <div class="tabs">
-              <a
-                class="tab tab-next"
-                href={next[0]?.link ?? o.website}
-                target="_blank"
-                rel="noopener"
-                hidden={!next[0]}
-                data-next-tab
-              >
-                <span class="tab-k">{copy.listing.nextLabel}</span>
-                <span data-next-when>{next[0]?.when}</span>
-                <span class="visually-hidden" data-next-name>: {next[0]?.name}, {o.name} {copy.listing.newTab}</span>
-              </a>
-              <span class="tab tab-quiet" hidden={!!next[0]} data-next-none>
-                <span class="tab-k">{copy.listing.nextLabel}</span>
-                <span>{copy.listing.nextNone}</span>
-              </span>
-              {o.website && (
-                <a class="tab" href={o.website} target="_blank" rel="noopener">
-                  <span class="tab-k">{copy.listing.visitTab[0]}</span>
-                  <span>{copy.listing.visitTab[1]}<span class="visually-hidden">: {o.name} {copy.listing.newTab}</span></span>
-                </a>
-              )}
-              <a class="tab" href={claimHref(o)} target="_blank" rel="noopener">
-                <span class="tab-k">{copy.listing.claimTab[0]}</span>
-                <span>{copy.listing.claimTab[1]}<span class="visually-hidden">: {o.name} {copy.listing.newTab}</span></span>
-              </a>
-            </div>
-          </li>
+          <Flyer org={o} index={i} next={next} claimHref={claimHref(o)} />
         );
       })}
     </ul>

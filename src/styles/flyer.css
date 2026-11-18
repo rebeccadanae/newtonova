@@ -1,0 +1,129 @@
+/* A group's flyer: coloured paper, pin, name, place and kinds, blurb, tear-off tabs.
+   Used on Groups and on the organizer pages (/yours). Colour means place (src/routes.ts). */
+
+.flyer {
+  position: relative;
+  padding: 24px 22px 0;
+  background: var(--paper);
+  transform: rotate(var(--tilt));
+  box-shadow: var(--lift);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  scroll-margin-top: 24px;
+}
+
+.flyer:hover,
+.flyer:focus-within,
+.flyer:target {
+  transform: rotate(0deg) translateY(-3px);
+}
+
+.flyer:target {
+  outline: 3px solid var(--ink);
+  outline-offset: 4px;
+}
+
+/* Under each name: where (bold) and what kind. Ink, not grey: these sit on colour. */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  margin: 8px 0 12px;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.place {
+  display: inline-flex;
+  gap: 5px;
+  align-items: flex-start;
+  font-weight: 800;
+}
+
+.place svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.flyer h3 {
+  font-size: 28px;
+  line-height: 1.06;
+}
+
+.flyer h3 a {
+  text-decoration: none;
+}
+
+.flyer h3 a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--ink);
+  text-decoration-thickness: 2px;
+}
+
+.kinds {
+  font-weight: 400;
+}
+
+.flyer .blurb {
+  margin: 0 0 16px;
+  font-size: 15.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+/* Tear-off tabs: the flyer's links */
+.tabs {
+  display: flex;
+  margin: 0 -22px;
+  border-top: 2px dashed rgb(29 42 47 / 0.5);
+}
+
+.tab {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  min-height: 58px;
+  padding: 8px 10px;
+  font-size: 13.5px;
+  line-height: 1.2;
+  text-decoration: none;
+  border-left: 2px dashed rgb(29 42 47 / 0.5);
+  transform-origin: top center;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s;
+}
+
+/* The Next tab (or its "See their site" stand-in) always comes first. */
+.tab-next,
+.tab-quiet {
+  flex-grow: 1.3;
+  border-left: 0;
+}
+
+.tab-next {
+  background: rgb(255 255 255 / 0.5);
+}
+
+.tab-quiet {
+  color: var(--ink);
+}
+
+.tab-k {
+  font-weight: 800;
+  font-size: 13px;
+}
+
+a.tab:hover,
+a.tab:focus-visible {
+  transform: rotate(-4deg) translateY(3px);
+  background: rgb(255 255 255 / 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flyer,
+  .tab {
+    transition: none;
+  }
+}
