@@ -18,11 +18,12 @@ const describe = (...ids: (string | false)[]) => ids.filter(Boolean).join(" ") |
 
 <div class="who-fields">
   <div class="yf">
-    <label for="who_name">{t.whoName}</label>
+    <label for="who_name">{t.whoName} <span class="yf-opt">{t.required}</span></label>
     <input
       id="who_name"
       name="who_name"
       autocomplete="name"
+      aria-required="true"
       value={who.name}
       aria-invalid={errors.name ? "true" : undefined}
       aria-describedby={describe(!!errors.name && "who_name-error")}
@@ -30,13 +31,14 @@ const describe = (...ids: (string | false)[]) => ids.filter(Boolean).join(" ") |
     {errors.name && <p class="yf-error" id="who_name-error">{errors.name}</p>}
   </div>
   <div class="yf">
-    <label for="who_email">{t.whoEmail}{emailKnown && <span class="yf-opt"> {t.optional}</span>}</label>
+    <label for="who_email">{t.whoEmail} <span class="yf-opt">{emailKnown ? t.optional : t.required}</span></label>
     {emailKnown && <p class="yf-hint" id="who_email-hint">{t.whoEmailKnown}</p>}
     <input
       id="who_email"
       name="who_email"
       type="email"
       autocomplete="email"
+      aria-required={emailKnown ? undefined : "true"}
       value={who.email}
       aria-invalid={errors.email ? "true" : undefined}
       aria-describedby={describe(emailKnown && "who_email-hint", !!errors.email && "who_email-error")}

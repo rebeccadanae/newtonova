@@ -32,8 +32,8 @@ const tick = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke
 ---
 
 <div class="yf">
-  <label for="of-name">{t.name}</label>
-  <input id="of-name" name="name" maxlength="200" value={values.name}
+  <label for="of-name">{t.name} <span class="yf-opt">{copy.yours.required}</span></label>
+  <input id="of-name" name="name" maxlength="200" value={values.name} aria-required="true"
     aria-invalid={errors.name ? "true" : undefined} aria-describedby={err("name")} />
   {errors.name && <p class="yf-error" id="name-error">{errors.name}</p>}
 </div>

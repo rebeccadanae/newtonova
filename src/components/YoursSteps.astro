@@ -29,7 +29,8 @@ const isPublic = turnstileKey !== null;
 const t = copy.yours;
 const p = copy.yours.public;
 const { step, org, who, whoErrors, details, detailErrors, note, next, pendingDate, sent, saidYesToChat, notHuman } = state;
-const formErrors = Object.keys(detailErrors).length > 0;
+// Any field to fix, including "who's sending" at the bottom of a long form.
+const formErrors = Object.keys(detailErrors).length > 0 || Object.keys(whoErrors).length > 0;
 const thanksBody =
   sent?.kind === "change" ? t.thanksChange
   : sent?.kind === "remove" ? t.thanksRemove
