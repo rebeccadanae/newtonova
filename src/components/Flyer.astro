@@ -77,9 +77,9 @@ const H = `h${headingLevel}` as "h2" | "h3";
       </a>
     )}
     {claimHref && (
-      <a class="tab" href={claimHref} target="_blank" rel="noopener">
+      <a class="tab" href={claimHref}>
         <span class="tab-k">{copy.listing.claimTab[0]}</span>
-        <span>{copy.listing.claimTab[1]}<span class="visually-hidden">: {o.name} {copy.listing.newTab}</span></span>
+        <span>{copy.listing.claimTab[1]}<span class="visually-hidden">: {o.name}</span></span>
       </a>
     )}
   </div>

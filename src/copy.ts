@@ -1,7 +1,8 @@
 // All site copy lives here. Everything is placeholder until rewritten.
 
-// "Your group on newtonova" Tally form: claim, update, suggest or remove a group.
-export const TALLY_URL = "https://tally.so/r/RWK9Pd";
+// The organizer page: find your group to check, fix or take it down, or add one.
+// Each flyer links to it with ?org=<id> (see src/pages/yours/index.astro).
+export const ORGANIZER_URL = "/yours/";
 
 export const copy = {
   siteTitle: "new to nova",
@@ -165,7 +166,7 @@ export const copy = {
       heading: "Running something open to newcomers?",
       body: "Verified groups can send their events to be listed here. Free.",
       button: "Verify your listing",
-      href: TALLY_URL,
+      href: ORGANIZER_URL,
     },
   },
 
@@ -173,7 +174,7 @@ export const copy = {
     heading: "Run a group that welcomes new people?",
     body: "Check your listing, keep it current and send me your events. I review each one by hand. Free.",
     button: "Check your listing",
-    href: TALLY_URL,
+    href: ORGANIZER_URL,
   },
 
   // About page copy is final (Becca's own words), not placeholder.
@@ -197,7 +198,7 @@ export const copy = {
     // Placeholder wording for the organizers bullet, until Becca rewrites it.
     orgLead: "Run a group or business on the list?",
     orgBefore: "I add groups from public information, so some details may be out of date. Use",
-    orgLink: "this form",
+    orgLink: "this page",
     orgAfter: "to update your listing and mark it as current, ask me to take it down, or suggest a group that's missing.",
 
     hiHeading: "Say hi",
@@ -217,7 +218,7 @@ export const copy = {
   footer: {
     site: "newtonova.org",
     suggest: "Suggest a group",
-    suggestHref: TALLY_URL,
+    suggestHref: ORGANIZER_URL,
   },
 
   // /admin, seen only by Becca.

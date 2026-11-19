@@ -2,7 +2,7 @@
 import { Image } from "astro:assets";
 import Base from "../layouts/Base.astro";
 import Flyer from "../components/Flyer.astro";
-import { copy, TALLY_URL } from "../copy";
+import { copy, ORGANIZER_URL } from "../copy";
 import { categories } from "../categories";
 import { wideAreas } from "../areas";
 import { routes, placeColor, anywhereColor } from "../routes";
@@ -26,7 +26,7 @@ type Org = {
 type Ev = { id: string; name: string; start: string; end: string | null; allDay: boolean; link: string; orgId: string | null; area: string[] };
 
 // Prefills the form's hidden org and org_id fields; URLSearchParams handles encoding.
-const claimHref = (o: Org) => `${TALLY_URL}?${new URLSearchParams({ org: o.name, org_id: o.id })}`;
+const claimHref = (o: Org) => `${ORGANIZER_URL}?${new URLSearchParams({ org: o.id })}`;
 
 const orgs = (orgsData as Org[])
   .filter((o) => o.status === "Live")
@@ -201,7 +201,7 @@ if (unrouted.length) console.warn(`[routes] Towns not in any route group: ${unro
     <div class="board-empty" id="empty" hidden={orgs.length > 0}>
       <p>{copy.listing.empty}</p>
       <button type="button" class="ink-btn" data-reset>{copy.listing.clear}</button>
-      <a class="paper-btn" href={TALLY_URL}>{copy.listing.suggest}</a>
+      <a class="paper-btn" href={ORGANIZER_URL}>{copy.listing.suggest}</a>
     </div>
   </section>
 

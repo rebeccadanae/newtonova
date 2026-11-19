@@ -194,7 +194,7 @@ export async function saveGroup(db: D1Database, id: string | null, g: Group): Pr
     return id;
   }
 
-  // Same shape as Notion page ids, so links and the Tally prefill work unchanged.
+  // Same shape as Notion page ids, so existing links (/#org-<id>, /yours/?org=<id>, .ics) keep working.
   const newId = crypto.randomUUID();
   await db
     .prepare(

@@ -31,7 +31,7 @@ Success, a year out:
 
 - Visitors search, filter by category and area, and click through to each group's own site. The site never hosts sign-ups for groups.
 - Events: week and month views, "This weekend", add-to-calendar (Google link, or an .ics download for Apple Calendar and Outlook). Each event links to the group's own page for current details.
-- Organizers use one Tally form ("Your group on newtonova") to claim or update a listing, suggest a group, or ask for removal. Becca reviews every submission by hand and enters changes in `/admin`.
+- Organizers check, fix or take down their listing, or add a new group, at `/yours/` (a personal link from Becca's email, or the public page where they find their group). Everything they send waits in To review in `/admin` until Becca approves it.
 - Being built as its replacement (spec `docs/superpowers/specs/2026-11-18-organizer-flow-design.md`):
   - Becca emails each organizer a personal link that opens on their own flyer: "Is this right?", then Looks good, Fix something, or Take us off.
   - An optional "help me help groups like yours" step follows.

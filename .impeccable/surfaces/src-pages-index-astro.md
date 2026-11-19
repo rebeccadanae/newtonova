@@ -9,7 +9,7 @@ related_targets: []
 
 Scope: the Groups homepage, `src/pages/index.astro`, first surface of a replacement visual world that later carries to Events, About and Join. Mode: Operate (browse, filter, pick a group), with a Persuade first impression.
 
-Audience and job: newcomers to Northern Virginia, often on a phone, deciding which group they could walk into; organizers checking their own listing. Action: find a group near you and go (their site, next event); organizers: "Check your listing" (Tally).
+Audience and job: newcomers to Northern Virginia, often on a phone, deciding which group they could walk into; organizers checking their own listing. Action: find a group near you and go (their site, next event); organizers: "Check your listing" (`/yours/`).
 
 Proof and content: ~40 Live groups from Notion, upcoming events from Notion (next event per group, "Coming up"), Becca's photo and her own words. "I've been" marks only once a real Notion field exists; until then, none ship.
 

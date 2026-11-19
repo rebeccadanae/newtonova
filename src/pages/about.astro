@@ -1,7 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import Base from "../layouts/Base.astro";
-import { copy, TALLY_URL } from "../copy";
+import { copy, ORGANIZER_URL } from "../copy";
 import photo from "../assets/becca.jpg";
 import "../styles/pages.css";
 
@@ -30,7 +30,7 @@ const a = copy.about;
         <h2 id="how">{a.howHeading}</h2>
         <ul>
           <li>{a.howFree}</li>
-          <li><strong>{a.orgLead}</strong> {a.orgBefore} <a href={TALLY_URL}>{a.orgLink}</a> {a.orgAfter}</li>
+          <li><strong>{a.orgLead}</strong> {a.orgBefore} <a href={ORGANIZER_URL}>{a.orgLink}</a> {a.orgAfter}</li>
         </ul>
       </section>
 
