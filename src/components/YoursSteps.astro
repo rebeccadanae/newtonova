@@ -1,0 +1,245 @@
+---
+// The organizer steps' screens, shared by the personal link (/yours/<code>)
+// and the public path (/yours/). The logic is in src/organizers/flow.ts; the
+// page passes in its state and its links.
+//   check: the flyer, "Looks good", Fix something, Take us off
+//   fix / remove / new: a form, then "who's sending"
+//   about: "help me help" (optional), then thanks
+// On the public path (turnstileKey set) each send form carries the Turnstile
+// widget and email is required.
+import Flyer from "./Flyer.astro";
+import Steps from "./Steps.astro";
+import WhoSend from "./WhoSend.astro";
+import OwnerGroupFields from "./OwnerGroupFields.astro";
+import { copy } from "../copy";
+import { STRUGGLES, CHAT, CONNECT, PROFILE } from "../organizers/answers";
+import type { FlowState, Links } from "../organizers/flow";
+
+interface Props {
+  state: FlowState;
+  links: Links;
+  knownName: string;
+  emailKnown: boolean;
+  // Public path only.
+  turnstileKey?: string | null;
+}
+
+const { state, links, knownName, emailKnown, turnstileKey = null } = Astro.props;
+const isPublic = turnstileKey !== null;
+const t = copy.yours;
+const p = copy.yours.public;
+const { step, org, who, whoErrors, details, detailErrors, note, next, pendingDate, sent, saidYesToChat, notHuman } = state;
+const formErrors = Object.keys(detailErrors).length > 0;
+const thanksBody =
+  sent?.kind === "change" ? t.thanksChange
+  : sent?.kind === "remove" ? t.thanksRemove
+  : sent?.kind === "new" ? p.thanksNew
+  : t.thanksConfirm;
+const showFlyerLink = sent?.orgId && sent.kind !== "remove" && sent.kind !== "new";
+const needsWidget = isPublic && (step === "check" || step === "fix" || step === "remove" || step === "new");
+---
+
+{needsWidget && turnstileKey && (
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+)}
+
+{step === "thanks" ? (
+  <>
+    <Steps current={3} />
+    <section class="yours-thanks">
+      <span class="pin" aria-hidden="true"></span>
+      <h1>{sent?.name ? t.thanksHeading(sent.name) : t.thanksNoName}</h1>
+      <p>{thanksBody}</p>
+      {saidYesToChat && <p>{t.thanksChat}</p>}
+      <p class="yours-muted">{t.signoff}</p>
+    </section>
+    {showFlyerLink && <a class="yours-btn paper" href={`/#org-${sent!.orgId}`}>{t.seeFlyer}</a>}
+    <p class="yours-small yours-center">{isPublic ? p.later : t.later}</p>
+  </>
+) : step === "about" ? (
+  <>
+    <Steps current={2} />
+    <p class="yours-sent" role="status">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>
+      {t.about.sent(sent?.name ?? "")}
+    </p>
+    <div class="yours-intro">
+      <h1>{t.about.heading}</h1>
+      <p>{t.about.intro}</p>
+    </div>
+    <form method="post" action={links.after("about", sent?.id ?? "")} class="yours-sheet yours-taped yours-questions">
+      <span class="tape" aria-hidden="true"></span>
+
+      <fieldset class="q">
+        <legend>{t.about.strugglesQ}<span class="q-sub">{t.about.pickAny}</span></legend>
+        <div class="rows">
+          {STRUGGLES.map((key) => {
+            const [label, sub] = t.about.struggles[key];
+            return (
+              <label class="row" data-other={key === "other" ? "" : undefined}>
+                <input class="visually-hidden" type="checkbox" name="struggles" value={key} />
+                <span class="row-box" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg></span>
+                <span>{label}{sub && <small>{sub}</small>}</span>
+              </label>
+            );
+          })}
+        </div>
+        <div class="yf row-other">
+          <label for="struggle_other">{t.about.otherLabel}</label>
+          <input id="struggle_other" name="struggle_other" maxlength="1000" />
+        </div>
+      </fieldset>
+
+      <div class="q yf">
+        <label for="hand_off" class="q-label">{t.about.handOffQ}</label>
+        <textarea id="hand_off" name="hand_off" rows="3" maxlength="1000"></textarea>
+      </div>
+
+      <fieldset class="q">
+        <legend>{t.about.chatQ}</legend>
+        <div class="seg" data-clearable>
+          {CHAT.map((key) => (
+            <label><input class="visually-hidden" type="radio" name="chat" value={key} />{t.about.chat[key]}</label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend>{t.about.connectQ}</legend>
+        <div class="rows" data-clearable>
+          {CONNECT.map((key) => (
+            <label class="row">
+              <input class="visually-hidden" type="radio" name="connect" value={key} />
+              <span class="row-ring" aria-hidden="true"></span>
+              <span>{t.about.connect[key]}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset class="q">
+        <legend>{t.about.profileQ}</legend>
+        <div class="seg" data-clearable>
+          {PROFILE.map((key) => (
+            <label><input class="visually-hidden" type="radio" name="profile" value={key} />{t.about.profile[key]}</label>
+          ))}
+        </div>
+        <p class="yours-small q-clear">{t.about.clearHint}</p>
+      </fieldset>
+
+      <button class="yours-btn ink" type="submit">{t.about.send}</button>
+      <p class="yours-quiet-link"><a href={links.after("thanks", sent?.id ?? "")}>{t.about.skip}</a></p>
+    </form>
+    <p class="yours-small">{t.about.private}</p>
+    <script>
+      // Tapping a picked answer again clears it (every question here is optional).
+      for (const group of document.querySelectorAll<HTMLElement>("[data-clearable]")) {
+        let wasChecked: HTMLInputElement | null = null;
+        group.addEventListener("pointerdown", (e) => {
+          const input = (e.target as HTMLElement).closest("label")?.querySelector("input");
+          wasChecked = input?.checked ? input : null;
+        });
+        group.addEventListener("click", (e) => {
+          const input = (e.target as HTMLElement).closest("label")?.querySelector("input");
+          if (input && input === wasChecked && e.detail > 0) {
+            e.preventDefault();
+            input.checked = false;
+            wasChecked = null;
+          }
+        });
+      }
+    </script>
+  </>
+) : step === "new" ? (
+  <>
+    <Steps current={1} />
+    <p class="yours-back"><a href={links.step("check")}>← {p.backToSearch}</a></p>
+    <div class="yours-intro">
+      <h1>{p.newHeading}</h1>
+      <p>{p.newIntro}</p>
+    </div>
+    {formErrors && <p class="yours-alert" role="alert">{t.fixErrors}</p>}
+    {notHuman && <p class="yours-alert" role="alert">{p.notHuman}</p>}
+    <form method="post" action={links.step("new")} class="yours-sheet yours-fields" novalidate>
+      <OwnerGroupFields values={details!} errors={detailErrors} />
+      <div class="yf">
+        <label for="of-note">{t.fix.note} <span class="yf-opt">{t.optional}</span></label>
+        <textarea id="of-note" name="note" rows="2">{note}</textarea>
+      </div>
+      <WhoSend knownName={knownName} who={who} errors={whoErrors} emailKnown={emailKnown}>
+        {turnstileKey && <div class="cf-turnstile yours-human" data-sitekey={turnstileKey}></div>}
+        <button class="yours-btn ink" type="submit">{p.newSend}</button>
+      </WhoSend>
+    </form>
+  </>
+) : step === "fix" ? (
+  <>
+    <Steps current={1} />
+    <p class="yours-back"><a href={links.step("check")}>← {t.back}</a></p>
+    <div class="yours-intro">
+      <h1>{t.fix.heading}</h1>
+      <p>{t.fix.intro}</p>
+    </div>
+    {formErrors && <p class="yours-alert" role="alert">{t.fixErrors}</p>}
+    {notHuman && <p class="yours-alert" role="alert">{p.notHuman}</p>}
+    <form method="post" action={links.step("fix")} class="yours-sheet yours-fields" novalidate>
+      <OwnerGroupFields values={details!} errors={detailErrors} />
+      <div class="yf">
+        <label for="of-note">{t.fix.note} <span class="yf-opt">{t.optional}</span></label>
+        <textarea id="of-note" name="note" rows="2">{note}</textarea>
+      </div>
+      <WhoSend knownName={knownName} who={who} errors={whoErrors} emailKnown={emailKnown}>
+        {turnstileKey && <div class="cf-turnstile yours-human" data-sitekey={turnstileKey}></div>}
+        <button class="yours-btn ink" type="submit">{t.fix.send}</button>
+      </WhoSend>
+    </form>
+  </>
+) : step === "remove" ? (
+  <>
+    <Steps current={1} />
+    <p class="yours-back"><a href={links.step("check")}>← {t.back}</a></p>
+    <div class="yours-intro">
+      <h1>{t.remove.heading}</h1>
+      <p>{t.remove.intro}</p>
+    </div>
+    {notHuman && <p class="yours-alert" role="alert">{p.notHuman}</p>}
+    <form method="post" action={links.step("remove")} class="yours-sheet yours-fields" novalidate>
+      <div class="yf">
+        <label for="rm-note">{t.remove.why} <span class="yf-opt">{t.optional}</span></label>
+        <textarea id="rm-note" name="note" rows="3">{note}</textarea>
+      </div>
+      <WhoSend knownName={knownName} who={who} errors={whoErrors} emailKnown={emailKnown}>
+        {turnstileKey && <div class="cf-turnstile yours-human" data-sitekey={turnstileKey}></div>}
+        <button class="yours-btn ink" type="submit">{t.remove.send}</button>
+      </WhoSend>
+      <p class="yours-quiet-link"><a href={links.step("check")}>{t.remove.keep}</a></p>
+    </form>
+  </>
+) : org && (
+  <>
+    <Steps current={1} />
+    {isPublic && <p class="yours-back"><a href="/yours/">← {p.backToSearch}</a></p>}
+    <div class="yours-intro">
+      <h1>{t.hello} <span class="hl">{org.name}</span> {t.onSite}</h1>
+      <p>{t.intro}</p>
+    </div>
+
+    <Flyer org={org} index={0} next={next} as="div" headingLevel={2} nextLabel={t.nextLabel} />
+
+    <section class="yours-sheet" aria-labelledby="question">
+      <h2 id="question">{t.question}</h2>
+      {pendingDate && <p class="yours-note">{t.pending(pendingDate)}</p>}
+      {notHuman && <p class="yours-alert" role="alert">{p.notHuman}</p>}
+      <form method="post" action={links.step("check")} novalidate>
+        <WhoSend knownName={knownName} who={who} errors={whoErrors} emailKnown={emailKnown}>
+          {turnstileKey && <div class="cf-turnstile yours-human" data-sitekey={turnstileKey}></div>}
+          <button class="yours-btn ink" type="submit">{t.looksGood}</button>
+        </WhoSend>
+      </form>
+      <a class="yours-btn paper" href={links.step("fix")}>{t.fixButton}</a>
+      <p class="yours-quiet-link"><a href={links.step("remove")}>{t.removeLink}</a></p>
+    </section>
+
+    <p class="yours-small">{isPublic ? p.footnote : t.footnote}</p>
+  </>
+)}

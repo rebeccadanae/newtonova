@@ -1,0 +1,136 @@
+---
+// The public organizer path, for organizers I haven't emailed: /yours/.
+//   no ?org and no ?step: "Is your group on new to nova?", a list of Live groups
+//     with a search box, and "Add your group"
+//   ?org=<id>: the same steps as a personal link, for that Live group
+//   ?step=new: a blank group form, sent as a "new" submission
+// Every send carries the Turnstile check, and email is required. Submissions
+// are marked via "public" so Becca checks the person before approving.
+import { env } from "cloudflare:workers";
+import Organizer from "../../layouts/Organizer.astro";
+import YoursSteps from "../../components/YoursSteps.astro";
+import { copy } from "../../copy";
+import type { OrgRow } from "../../admin/groups";
+import { readStep, runFlow, type Links } from "../../organizers/flow";
+import { TOKEN_FIELD, verifyTurnstile } from "../../organizers/turnstile";
+
+export const prerender = false;
+
+const t = copy.yours.public;
+const orgId = Astro.url.searchParams.get("org") ?? "";
+const step = readStep(Astro.url, true);
+const afterSending = step === "about" || step === "thanks";
+
+// Each step's own address. About and thanks find their group from the submission.
+const at = (params: Record<string, string>) => `/yours/?${new URLSearchParams(params)}`;
+const links: Links = {
+  step: (s) =>
+    s === "new" ? at({ step: "new" })
+    : !orgId ? "/yours/"
+    : s === "check" ? at({ org: orgId })
+    : at({ org: orgId, step: s }),
+  after: (s, id) => at({ step: s, s: id }),
+};
+
+const row = orgId && !afterSending && step !== "new"
+  ? await env.DB.prepare("SELECT * FROM orgs WHERE id = ?1 AND status = 'Live'").bind(orgId).first<OrgRow>()
+  : null;
+const showSteps = Boolean(row) || step === "new" || afterSending;
+const gone = Boolean(orgId) && !showSteps;
+if (gone) Astro.response.status = 404;
+
+const siteKey = env.TURNSTILE_SITE_KEY ?? "";
+const result = showSteps
+  ? await runFlow({
+      db: env.DB,
+      request: Astro.request,
+      url: Astro.url,
+      step: row || afterSending ? step : "new",
+      row,
+      via: "public",
+      inviteCode: null,
+      knownName: "",
+      knownEmail: null,
+      links,
+      checkHuman: (form) =>
+        verifyTurnstile(
+          String(form.get(TOKEN_FIELD) ?? ""),
+          (env as unknown as { TURNSTILE_SECRET?: string }).TURNSTILE_SECRET ?? "",
+          Astro.request.headers.get("cf-connecting-ip"),
+        ),
+    })
+  : null;
+if (result && "redirect" in result) return Astro.redirect(result.redirect, 303);
+const state = result;
+if (state && (Object.keys(state.whoErrors).length > 0 || Object.keys(state.detailErrors).length > 0 || state.notHuman)) {
+  Astro.response.status = 400;
+}
+
+// The list: every Live group, by name (search runs in the browser).
+const groups = showSteps || gone
+  ? []
+  : (
+      await env.DB.prepare("SELECT id, name, area FROM orgs WHERE status = 'Live' ORDER BY name COLLATE NOCASE").all<{
+        id: string;
+        name: string;
+        area: string | null;
+      }>()
+    ).results.map((g) => ({ id: g.id, name: g.name, towns: (JSON.parse(g.area ?? "[]") as string[]).join(", ") }));
+---
+
+<Organizer>
+  {gone ? (
+    <section class="yours-sheet">
+      <h1>{t.goneHeading}</h1>
+      <p class="yours-muted">{t.gone}</p>
+      <a class="yours-btn paper" href="/yours/">{t.backToSearch}</a>
+    </section>
+  ) : state ? (
+    <YoursSteps state={state} links={links} knownName="" emailKnown={false} turnstileKey={siteKey} />
+  ) : (
+    <>
+      <div class="yours-intro">
+        <h1>{t.heading}</h1>
+        <p>{t.intro}</p>
+      </div>
+      <section class="yours-sheet yours-find">
+        <div class="yf">
+          <label for="find">{t.searchLabel}</label>
+          <input id="find" type="search" autocomplete="off" placeholder={t.searchPlaceholder} aria-controls="find-list" />
+        </div>
+        <p class="yours-small" id="find-count" role="status">{t.count(groups.length)}</p>
+        <ul class="find-list" id="find-list">
+          {groups.map((g) => (
+            <li data-name={g.name.toLowerCase()}>
+              <a href={`/yours/?org=${encodeURIComponent(g.id)}`}>
+                <span class="find-name">{g.name}</span>
+                {g.towns && <span class="find-towns">{g.towns}</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="yours-muted" id="find-none" hidden>{t.noMatch}</p>
+        <a class="yours-btn ink" href="/yours/?step=new">{t.addGroup}</a>
+      </section>
+      <p class="yours-small">{t.footnote}</p>
+      <script define:vars={{ one: t.count(1), many: t.count(99).replace("99", "{n}") }}>
+        // Filters the list as you type (names only).
+        const input = document.getElementById("find");
+        const items = [...document.querySelectorAll("#find-list li")];
+        const none = document.getElementById("find-none");
+        const count = document.getElementById("find-count");
+        input.addEventListener("input", () => {
+          const q = input.value.trim().toLowerCase();
+          let shown = 0;
+          for (const li of items) {
+            const match = !q || li.dataset.name.includes(q);
+            li.hidden = !match;
+            if (match) shown++;
+          }
+          none.hidden = shown > 0;
+          count.textContent = shown === 1 ? one : many.replace("{n}", String(shown));
+        });
+      </script>
+    </>
+  )}
+</Organizer>

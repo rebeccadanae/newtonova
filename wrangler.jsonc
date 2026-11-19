@@ -8,7 +8,11 @@
   // Not secret. Empty means /admin refuses everyone.
   "vars": {
     "ACCESS_TEAM_DOMAIN": "still-unit-07fd.cloudflareaccess.com",
-    "ACCESS_AUD": "59c4f4ecc9beaa8390210d8ab5779e21c342923e865431313720442d0f1187db"
+    "ACCESS_AUD": "59c4f4ecc9beaa8390210d8ab5779e21c342923e865431313720442d0f1187db",
+    // Turnstile widget on the public organizer forms (/yours/). The site key is
+    // public; the secret is TURNSTILE_SECRET (wrangler secret put). Empty means
+    // the public forms refuse every send.
+    "TURNSTILE_SITE_KEY": ""
   },
   "d1_databases": [
     {
@@ -27,7 +31,8 @@
       // No Access on staging, so /admin refuses everyone there.
       "vars": {
         "ACCESS_TEAM_DOMAIN": "",
-        "ACCESS_AUD": ""
+        "ACCESS_AUD": "",
+        "TURNSTILE_SITE_KEY": ""
       },
       "d1_databases": [
         {

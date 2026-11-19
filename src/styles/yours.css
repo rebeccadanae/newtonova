@@ -731,3 +731,47 @@
   background: var(--ink);
   color: #fff;
 }
+
+/* Public path (/yours/): the list of groups to pick from */
+.find-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 420px;
+  overflow-y: auto;
+  border-top: 1px solid rgb(29 42 47 / 0.14);
+}
+
+.find-list li {
+  border-bottom: 1px solid rgb(29 42 47 / 0.14);
+}
+
+.find-list a {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-height: 52px;
+  padding: 8px 4px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.find-list a:hover,
+.find-list a:focus-visible {
+  background: var(--fabric);
+}
+
+.find-name {
+  font-weight: 700;
+}
+
+.find-towns {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* Turnstile's box sits just above the send button */
+.yours-human {
+  min-height: 65px;
+}

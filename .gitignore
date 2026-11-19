@@ -8,6 +8,8 @@ node_modules/
 # secrets: NOTION_TOKEN lives here, never commit
 .env
 .env.*
+.dev.vars
+.dev.vars.*
 
 # Notion exports (contain internal "Found via" links)
 sample_orgs/

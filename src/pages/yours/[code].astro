@@ -1,33 +1,22 @@
 ---
 // Organizer page for a personal link: /yours/<code>.
 // Steps (?step=): check (default), fix, remove, then about ("help me help",
-// optional) and thanks. Plan: docs/superpowers/plans/2026-11-18-organizer-flow.md.
-// Nothing here changes a group: every submission waits for Becca in /admin.
+// optional) and thanks. The steps are shared with the public path (/yours/):
+// logic in src/organizers/flow.ts, screens in YoursSteps.astro.
+// Plan: docs/superpowers/plans/2026-11-18-organizer-flow.md.
 import { env } from "cloudflare:workers";
 import Organizer from "../../layouts/Organizer.astro";
-import Flyer from "../../components/Flyer.astro";
-import Steps from "../../components/Steps.astro";
-import WhoSend from "../../components/WhoSend.astro";
-import OwnerGroupFields from "../../components/OwnerGroupFields.astro";
+import YoursSteps from "../../components/YoursSteps.astro";
 import { copy } from "../../copy";
-import { fromRow, readDetails, type Errors, type GroupDetails, type OrgRow } from "../../admin/groups";
+import type { OrgRow } from "../../admin/groups";
 import { findInvite } from "../../organizers/invites";
-import { readWho, savePerson, linkPerson, type Who, type WhoErrors } from "../../organizers/people";
-import { createSubmission, lastPending, submissionForInvite, type Kind } from "../../organizers/submissions";
-import { STRUGGLES, CHAT, CONNECT, PROFILE, readAnswers, isEmpty, saveAnswers, answersFor } from "../../organizers/answers";
-import { isUpcoming, whenShort } from "../../event-dates";
-import type { FlyerOrg, NextEvent } from "../../flyer";
+import { readStep, runFlow, type Links } from "../../organizers/flow";
 
 export const prerender = false;
 
 const t = copy.yours;
 const code = Astro.params.code ?? "";
 const invite = await findInvite(env.DB, code);
-
-const STEPS = ["check", "fix", "remove", "about", "thanks"] as const;
-type Step = (typeof STEPS)[number];
-const asked = Astro.url.searchParams.get("step");
-const step: Step = (STEPS as readonly string[]).includes(asked ?? "") ? (asked as Step) : "check";
 
 // The group, as stored (only Live groups get a working link).
 const row =
@@ -37,279 +26,41 @@ const row =
 const gone = !invite || !row;
 if (gone) Astro.response.status = 404;
 
-const current: GroupDetails | null = row ? fromRow(row) : null;
-const org: FlyerOrg | null = row && current
-  ? { id: row.id, name: current.name, website: current.website, category: current.category, area: current.area, blurb: current.blurb }
-  : null;
+const base = `/yours/${code}`;
+const links: Links = {
+  step: (step) => (step === "check" ? base : `${base}?step=${step}`),
+  after: (step, id) => `${base}?step=${step}&s=${id}`,
+};
 
 const knownName = invite?.personName ?? "";
-const emailKnown = Boolean(invite?.personEmail);
-
-let who: Who = { name: knownName, email: "", role: "" };
-let whoErrors: WhoErrors = {};
-let details: GroupDetails | null = current;
-let detailErrors: Errors = {};
-let note = "";
-
-if (!gone && Astro.request.method === "POST" && (step === "check" || step === "fix" || step === "remove")) {
-  const form = await Astro.request.formData();
-  const read = readWho(form, { emailKnown });
-  who = read.values;
-  whoErrors = read.errors;
-  note = String(form.get("note") ?? "").trim().slice(0, 2000);
-
-  let kind: Kind = "confirm";
-  let proposed: GroupDetails | null = null;
-  if (step === "fix") {
-    const d = readDetails(form, { category: current!.category, area: current!.area });
-    details = d.values;
-    detailErrors = d.errors;
-    kind = "change";
-    proposed = d.values;
-  } else if (step === "remove") {
-    kind = "remove";
-  }
-
-  if (Object.keys(whoErrors).length === 0 && Object.keys(detailErrors).length === 0) {
-    const personId = await savePerson(env.DB, { name: who.name, email: who.email || invite!.personEmail! });
-    await linkPerson(env.DB, row!.id, personId, who.role);
-    const id = await createSubmission(env.DB, {
-      kind,
-      orgId: row!.id,
-      personId,
+const result = gone
+  ? null
+  : await runFlow({
+      db: env.DB,
+      request: Astro.request,
+      url: Astro.url,
+      step: readStep(Astro.url, false),
+      row,
       via: "invite",
       inviteCode: code,
-      proposed,
-      note,
+      knownName,
+      knownEmail: invite?.personEmail ?? null,
+      links,
     });
-    return Astro.redirect(`/yours/${code}?step=about&s=${id}`, 303);
-  }
+if (result && "redirect" in result) return Astro.redirect(result.redirect, 303);
+const state = result;
+if (state && (Object.keys(state.whoErrors).length > 0 || Object.keys(state.detailErrors).length > 0)) {
   Astro.response.status = 400;
 }
-
-// The flyer's next events (step check only).
-let next: NextEvent[] = [];
-if (!gone && step === "check") {
-  const events = await env.DB.prepare(
-    `SELECT name, start, "end", all_day, link FROM events WHERE org_id = ?1 AND status = 'Live' ORDER BY start LIMIT 20`,
-  )
-    .bind(row!.id)
-    .all<{ name: string; start: string; end: string | null; all_day: number; link: string | null }>();
-  next = events.results
-    .map((e) => ({ name: e.name, start: e.start, end: e.end, allDay: Boolean(e.all_day), link: e.link ?? "" }))
-    .filter((e) => isUpcoming(e))
-    .slice(0, 3)
-    .map((e) => ({ ...e, when: whenShort(e) }));
-}
-
-const pending = !gone && step === "check" ? await lastPending(env.DB, row!.id) : null;
-const pendingDate = pending
-  ? new Date(pending.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "America/New_York" })
-  : "";
-
-// About and thanks: what was sent and by whom, read back from the submission
-// (it must belong to this link).
-let sent: { id: string; name: string; kind: Kind; orgId: string | null; personId: string } | null = null;
-if (!gone && (step === "about" || step === "thanks")) {
-  const s = await submissionForInvite(env.DB, Astro.url.searchParams.get("s") ?? "", code);
-  if (s) {
-    const p = await env.DB.prepare("SELECT name FROM people WHERE id = ?1").bind(s.person_id).first<{ name: string }>();
-    sent = { id: s.id, name: p?.name ?? "", kind: s.kind, orgId: s.org_id, personId: s.person_id };
-  }
-}
-
-// About: the answers are optional; an untouched form saves nothing.
-if (!gone && step === "about" && Astro.request.method === "POST") {
-  if (!sent) return Astro.redirect(`/yours/${code}`, 303);
-  const answers = readAnswers(await Astro.request.formData());
-  if (!isEmpty(answers)) {
-    await saveAnswers(env.DB, answers, { orgId: sent.orgId, personId: sent.personId, submissionId: sent.id });
-  }
-  return Astro.redirect(`/yours/${code}?step=thanks&s=${sent.id}`, 303);
-}
-
-const thanks = sent;
-const saidYesToChat = step === "thanks" && sent ? (await answersFor(env.DB, sent.id))?.chat === "yes" : false;
-const thanksBody = thanks?.kind === "change" ? t.thanksChange : thanks?.kind === "remove" ? t.thanksRemove : t.thanksConfirm;
-const formErrors = Object.keys(detailErrors).length > 0;
-const base = `/yours/${code}`;
 ---
 
 <Organizer>
-  {gone || !org ? (
+  {!state ? (
     <section class="yours-sheet">
       <h1>{t.goneHeading}</h1>
       <p class="yours-muted">{t.gone}</p>
     </section>
-  ) : step === "thanks" ? (
-    <>
-      <Steps current={3} />
-      <section class="yours-thanks">
-        <span class="pin" aria-hidden="true"></span>
-        <h1>{thanks?.name ? t.thanksHeading(thanks.name) : t.thanksNoName}</h1>
-        <p>{thanksBody}</p>
-        {saidYesToChat && <p>{t.thanksChat}</p>}
-        <p class="yours-muted">{t.signoff}</p>
-      </section>
-      {thanks?.kind !== "remove" && <a class="yours-btn paper" href={`/#org-${org.id}`}>{t.seeFlyer}</a>}
-      <p class="yours-small yours-center">{t.later}</p>
-    </>
-  ) : step === "about" ? (
-    <>
-      <Steps current={2} />
-      <p class="yours-sent" role="status">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>
-        {t.about.sent(sent?.name ?? "")}
-      </p>
-      <div class="yours-intro">
-        <h1>{t.about.heading}</h1>
-        <p>{t.about.intro}</p>
-      </div>
-      <form method="post" action={`${base}?step=about&s=${sent?.id ?? ""}`} class="yours-sheet yours-taped yours-questions">
-        <span class="tape" aria-hidden="true"></span>
-
-        <fieldset class="q">
-          <legend>{t.about.strugglesQ}<span class="q-sub">{t.about.pickAny}</span></legend>
-          <div class="rows">
-            {STRUGGLES.map((key) => {
-              const [label, sub] = t.about.struggles[key];
-              return (
-                <label class="row" data-other={key === "other" ? "" : undefined}>
-                  <input class="visually-hidden" type="checkbox" name="struggles" value={key} />
-                  <span class="row-box" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg></span>
-                  <span>{label}{sub && <small>{sub}</small>}</span>
-                </label>
-              );
-            })}
-          </div>
-          <div class="yf row-other">
-            <label for="struggle_other">{t.about.otherLabel}</label>
-            <input id="struggle_other" name="struggle_other" maxlength="1000" />
-          </div>
-        </fieldset>
-
-        <div class="q yf">
-          <label for="hand_off" class="q-label">{t.about.handOffQ}</label>
-          <textarea id="hand_off" name="hand_off" rows="3" maxlength="1000"></textarea>
-        </div>
-
-        <fieldset class="q">
-          <legend>{t.about.chatQ}</legend>
-          <div class="seg" data-clearable>
-            {CHAT.map((key) => (
-              <label><input class="visually-hidden" type="radio" name="chat" value={key} />{t.about.chat[key]}</label>
-            ))}
-          </div>
-        </fieldset>
-
-        <fieldset class="q">
-          <legend>{t.about.connectQ}</legend>
-          <div class="rows" data-clearable>
-            {CONNECT.map((key) => (
-              <label class="row">
-                <input class="visually-hidden" type="radio" name="connect" value={key} />
-                <span class="row-ring" aria-hidden="true"></span>
-                <span>{t.about.connect[key]}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
-        <fieldset class="q">
-          <legend>{t.about.profileQ}</legend>
-          <div class="seg" data-clearable>
-            {PROFILE.map((key) => (
-              <label><input class="visually-hidden" type="radio" name="profile" value={key} />{t.about.profile[key]}</label>
-            ))}
-          </div>
-          <p class="yours-small q-clear">{t.about.clearHint}</p>
-        </fieldset>
-
-        <button class="yours-btn ink" type="submit">{t.about.send}</button>
-        <p class="yours-quiet-link"><a href={`${base}?step=thanks&s=${sent?.id ?? ""}`}>{t.about.skip}</a></p>
-      </form>
-      <p class="yours-small">{t.about.private}</p>
-      <script>
-        // Tapping a picked answer again clears it (every question here is optional).
-        for (const group of document.querySelectorAll<HTMLElement>("[data-clearable]")) {
-          let wasChecked: HTMLInputElement | null = null;
-          group.addEventListener("pointerdown", (e) => {
-            const input = (e.target as HTMLElement).closest("label")?.querySelector("input");
-            wasChecked = input?.checked ? input : null;
-          });
-          group.addEventListener("click", (e) => {
-            const input = (e.target as HTMLElement).closest("label")?.querySelector("input");
-            if (input && input === wasChecked && e.detail > 0) {
-              e.preventDefault();
-              input.checked = false;
-              wasChecked = null;
-            }
-          });
-        }
-      </script>
-    </>
-  ) : step === "fix" ? (
-    <>
-      <Steps current={1} />
-      <p class="yours-back"><a href={base}>← {t.back}</a></p>
-      <div class="yours-intro">
-        <h1>{t.fix.heading}</h1>
-        <p>{t.fix.intro}</p>
-      </div>
-      {formErrors && <p class="yours-alert" role="alert">{t.fixErrors}</p>}
-      <form method="post" action={`${base}?step=fix`} class="yours-sheet yours-fields" novalidate>
-        <OwnerGroupFields values={details!} errors={detailErrors} />
-        <div class="yf">
-          <label for="of-note">{t.fix.note} <span class="yf-opt">{t.optional}</span></label>
-          <textarea id="of-note" name="note" rows="2">{note}</textarea>
-        </div>
-        <WhoSend knownName={knownName} who={who} errors={whoErrors} emailKnown={emailKnown}>
-          <button class="yours-btn ink" type="submit">{t.fix.send}</button>
-        </WhoSend>
-      </form>
-    </>
-  ) : step === "remove" ? (
-    <>
-      <Steps current={1} />
-      <p class="yours-back"><a href={base}>← {t.back}</a></p>
-      <div class="yours-intro">
-        <h1>{t.remove.heading}</h1>
-        <p>{t.remove.intro}</p>
-      </div>
-      <form method="post" action={`${base}?step=remove`} class="yours-sheet yours-fields" novalidate>
-        <div class="yf">
-          <label for="rm-note">{t.remove.why} <span class="yf-opt">{t.optional}</span></label>
-          <textarea id="rm-note" name="note" rows="3">{note}</textarea>
-        </div>
-        <WhoSend knownName={knownName} who={who} errors={whoErrors} emailKnown={emailKnown}>
-          <button class="yours-btn ink" type="submit">{t.remove.send}</button>
-        </WhoSend>
-        <p class="yours-quiet-link"><a href={base}>{t.remove.keep}</a></p>
-      </form>
-    </>
   ) : (
-    <>
-      <Steps current={1} />
-      <div class="yours-intro">
-        <h1>{t.hello} <span class="hl">{org.name}</span> {t.onSite}</h1>
-        <p>{t.intro}</p>
-      </div>
-
-      <Flyer org={org} index={0} next={next} as="div" headingLevel={2} nextLabel={t.nextLabel} />
-
-      <section class="yours-sheet" aria-labelledby="question">
-        <h2 id="question">{t.question}</h2>
-        {pending && <p class="yours-note">{t.pending(pendingDate)}</p>}
-        <form method="post" action={base} novalidate>
-          <WhoSend knownName={knownName} who={who} errors={whoErrors} emailKnown={emailKnown}>
-            <button class="yours-btn ink" type="submit">{t.looksGood}</button>
-          </WhoSend>
-        </form>
-        <a class="yours-btn paper" href={`${base}?step=fix`}>{t.fixButton}</a>
-        <p class="yours-quiet-link"><a href={`${base}?step=remove`}>{t.removeLink}</a></p>
-      </section>
-
-      <p class="yours-small">{t.footnote}</p>
-    </>
+    <YoursSteps state={state} links={links} knownName={knownName} emailKnown={Boolean(invite?.personEmail)} />
   )}
 </Organizer>

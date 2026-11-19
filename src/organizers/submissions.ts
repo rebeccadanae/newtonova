@@ -14,8 +14,9 @@ export type NewSubmission = {
 };
 
 // Saves a submission and returns its id. A newer pending one of the same kind
-// from the same link replaces the older one, so a refresh or a second try
-// leaves a single item for Becca to review.
+// from the same link (or, on the public path, from the same person about the
+// same group) replaces the older one, so a refresh or a second try leaves a
+// single item for Becca to review.
 export async function createSubmission(db: D1Database, s: NewSubmission): Promise<string> {
   const id = crypto.randomUUID();
   const stmts: D1PreparedStatement[] = [];
@@ -24,6 +25,24 @@ export async function createSubmission(db: D1Database, s: NewSubmission): Promis
       db
         .prepare("DELETE FROM submissions WHERE invite_code = ?1 AND kind = ?2 AND status = 'pending'")
         .bind(s.inviteCode, s.kind),
+    );
+  } else if (s.orgId) {
+    stmts.push(
+      db
+        .prepare(
+          "DELETE FROM submissions WHERE invite_code IS NULL AND person_id = ?1 AND org_id = ?2 AND kind = ?3 AND status = 'pending'",
+        )
+        .bind(s.personId, s.orgId, s.kind),
+    );
+  } else if (s.proposed) {
+    // A new group: the same person sending the same name again.
+    stmts.push(
+      db
+        .prepare(
+          `DELETE FROM submissions WHERE invite_code IS NULL AND person_id = ?1 AND org_id IS NULL AND kind = 'new'
+             AND status = 'pending' AND lower(json_extract(proposed, '$.name')) = lower(?2)`,
+        )
+        .bind(s.personId, s.proposed.name),
     );
   }
   stmts.push(
@@ -47,10 +66,12 @@ export async function lastPending(db: D1Database, orgId: string): Promise<{ crea
   return row ? { createdAt: row.created_at } : null;
 }
 
-// A submission, checked to belong to this link (used by the steps after sending).
-export async function submissionForInvite(db: D1Database, id: string, code: string) {
-  return db
-    .prepare("SELECT id, kind, org_id, person_id FROM submissions WHERE id = ?1 AND invite_code = ?2")
-    .bind(id, code)
-    .first<{ id: string; kind: Kind; org_id: string | null; person_id: string }>();
+// A submission, checked to belong to this link (used by the steps after
+// sending). With no code, only public-path submissions match.
+export async function findSubmission(db: D1Database, id: string, code: string | null) {
+  const sql = code
+    ? "SELECT id, kind, org_id, person_id FROM submissions WHERE id = ?1 AND invite_code = ?2"
+    : "SELECT id, kind, org_id, person_id FROM submissions WHERE id = ?1 AND invite_code IS NULL AND via = 'public'";
+  const stmt = db.prepare(sql);
+  return (code ? stmt.bind(id, code) : stmt.bind(id)).first<{ id: string; kind: Kind; org_id: string | null; person_id: string }>();
 }
