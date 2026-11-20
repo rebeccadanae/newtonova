@@ -22,6 +22,10 @@
       "migrations_dir": "db/migrations"
     }
   ],
+  // Emails Becca about each organizer submission (src/organizers/notify.ts).
+  // The address is the NOTIFY_TO secret (wrangler secret put), never in this file;
+  // it must be a verified Email Routing destination. Empty secret = no emails.
+  "send_email": [{ "name": "NOTIFY_EMAIL" }],
   // Staging: a second Worker built from the `staging` branch, with its own
   // database, so changes can be checked before they reach newtonova.org.
   // Build it with CLOUDFLARE_ENV=staging. Nothing here is inherited from above.
@@ -41,7 +45,8 @@
           "database_id": "7c7e820c-45db-467e-a521-8f7240506d75",
           "migrations_dir": "db/migrations"
         }
-      ]
+      ],
+      "send_email": [{ "name": "NOTIFY_EMAIL" }]
     }
   }
 }

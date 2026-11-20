@@ -66,7 +66,13 @@ A free directory of Northern Virginia groups that welcome new people: creative c
     - The flyer tab reads "Your group? Verify it", or "Update it" once verified.
     - Confirmed groups show "Confirmed by the group, Nov 2026", from `orgs.verified_at`.
     - **Migration `0004_verified_at.sql` is applied to local and staging only. Apply it to the real database (`npm run db:migrate`) before merging to `main`, or the build's fetch step fails on the missing column.**
-  - Next: email Becca when an organizer sends something (BACKLOG.md), then phase 2 block 5.
+  - Email alerts, done 2026-11-19 on `staging`:
+    - Each organizer submission emails Becca from alerts@newtonova.org, with the kind, the group, the sender's name and role (never their email), the start of their note, and a link to `/admin/review/<id>`.
+    - Code in `src/organizers/notify.ts`; called from `flow.ts` after the submission is saved. A failed send is only logged.
+    - Sent through Cloudflare's `send_email` binding `NOTIFY_EMAIL` (in `wrangler.jsonc`, top level and `env.staging`) to the `NOTIFY_TO` secret. That address must be a verified Email Routing destination. An empty secret means no emails.
+    - Staging subjects start with "[staging]".
+    - Locally, wrangler saves the email under `.wrangler/tmp/email/` instead of sending it.
+  - Next: phase 2 block 5.
 - **Email signup: Kit** (free plan), on its own page at `/join` (`src/pages/join.astro`). The form is our own HTML form posting to Kit form 10076200 ("Mills form", `https://app.kit.com/forms/10076200/subscriptions`), not Kit's JavaScript embed, so it has visible labels and the site's look. Fields: `email_address` (required), `fields[interests]` (what they're looking for) and `fields[source]` (how they heard about the site), both optional free text saved as Kit custom fields. Answers stay in Kit, never in this repo or Notion. After signing up, Kit redirects to `/join/thanks/` (set in the form's settings in Kit). The homepage signup sheet links to `/join`. Questions will become dropdowns once patterns show up in the answers. Labels and page copy are in `copy.join` and `copy.joinThanks` in `src/copy.ts`.
 
 - **Analytics: Umami Cloud** (free Hobby plan), cookieless, so no banner. One script tag in `src/layouts/Base.astro` with `data-domains="newtonova.org"`, so local and workers.dev visits aren't counted.

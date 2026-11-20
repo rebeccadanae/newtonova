@@ -11,6 +11,7 @@ import { copy, ORGANIZER_URL } from "../../copy";
 import type { OrgRow } from "../../admin/groups";
 import { findInvite } from "../../organizers/invites";
 import { readStep, runFlow, type Links } from "../../organizers/flow";
+import { sendAlert } from "../../organizers/notify";
 
 export const prerender = false;
 
@@ -46,6 +47,8 @@ const result = gone
       knownName,
       knownEmail: invite?.personEmail ?? null,
       links,
+      notify: (alert) =>
+        sendAlert(env.NOTIFY_EMAIL, (env as unknown as { NOTIFY_TO?: string }).NOTIFY_TO, { ...alert, staging: __STAGING__ }),
     });
 if (result && "redirect" in result) return Astro.redirect(result.redirect, 303);
 const state = result;

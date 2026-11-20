@@ -7,6 +7,7 @@ import { readWho, savePerson, linkPerson, type Who, type WhoErrors } from "./peo
 import { createSubmission, lastPending, findSubmission, type Kind } from "./submissions";
 import { readAnswers, isEmpty, saveAnswers, answersFor } from "./answers";
 import { isUpcoming, whenShort } from "../event-dates";
+import type { AlertInput } from "./notify";
 import type { FlyerOrg, NextEvent } from "../flyer";
 
 export const STEPS = ["check", "confirm", "fix", "remove", "new", "about", "thanks"] as const;
@@ -41,6 +42,8 @@ export type FlowSetup = {
   links: Links;
   // Public path only: checks the Turnstile token on each send.
   checkHuman?: (form: FormData) => Promise<boolean>;
+  // Emails Becca about each new submission (src/organizers/notify.ts). Never throws.
+  notify?: (alert: Omit<AlertInput, "staging">) => Promise<void>;
 };
 
 export type Sent = { id: string; name: string; kind: Kind; orgId: string | null; personId: string };
@@ -126,6 +129,14 @@ export async function runFlow(s: FlowSetup): Promise<{ redirect: string } | Flow
         via: s.via,
         inviteCode: s.inviteCode,
         proposed,
+        note: state.note,
+      });
+      await s.notify?.({
+        kind,
+        submissionId: id,
+        groupName: (proposed?.name || current?.name) ?? "",
+        via: s.via,
+        who: state.who,
         note: state.note,
       });
       // Someone taking their group off skips the "help me help" questions.

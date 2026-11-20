@@ -13,6 +13,7 @@ import { copy } from "../../copy";
 import { placeColor } from "../../routes";
 import type { OrgRow } from "../../admin/groups";
 import { readStep, runFlow, type Links } from "../../organizers/flow";
+import { sendAlert } from "../../organizers/notify";
 import { TOKEN_FIELD, verifyTurnstile } from "../../organizers/turnstile";
 
 export const prerender = false;
@@ -53,6 +54,8 @@ const result = showSteps
       knownName: "",
       knownEmail: null,
       links,
+      notify: (alert) =>
+        sendAlert(env.NOTIFY_EMAIL, (env as unknown as { NOTIFY_TO?: string }).NOTIFY_TO, { ...alert, staging: __STAGING__ }),
       checkHuman: (form) =>
         verifyTurnstile(
           String(form.get(TOKEN_FIELD) ?? ""),
