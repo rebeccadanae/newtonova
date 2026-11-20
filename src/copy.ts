@@ -225,7 +225,7 @@ export const copy = {
   // Organizer pages (/yours). Placeholder wording until Becca rewrites it.
   yours: {
     pageTitle: "Your group on new to nova",
-    steps: { label: "Progress", items: ["Your flyer", "A few questions", "Done"], of: (n: number) => `step ${n} of 3` },
+    steps: { label: "Progress", items: ["Your flyer", "A few questions", "Done"], newFirst: "Your group", of: (n: number) => `step ${n} of 3` },
     hello: "Hi! This is",
     onSite: "on new to nova.",
     intro: "It's a free list where people new to Northern Virginia find groups to join. This is your flyer, as they see it.",

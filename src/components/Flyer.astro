@@ -18,16 +18,20 @@ interface Props {
   /** li on the board (inside a ul), div on its own. */
   as?: "li" | "div";
   nextLabel?: string;
+  /** "mini": just the name and place line (no link, blurb or tabs), to show
+   *  which group an organizer step is about. */
+  size?: "full" | "mini";
 }
 
-const { org: o, index: i, next, claimHref, headingLevel = 3, as = "li", nextLabel = copy.listing.nextLabel } = Astro.props;
+const { org: o, index: i, next, claimHref, headingLevel = 3, as = "li", nextLabel = copy.listing.nextLabel, size = "full" } = Astro.props;
+const mini = size === "mini";
 const Tag = as;
 const H = `h${headingLevel}` as "h2" | "h3";
 ---
 
 <Tag
-  class="flyer"
-  id={`org-${o.id}`}
+  class:list={["flyer", { "flyer-mini": mini }]}
+  id={mini ? undefined : `org-${o.id}`}
   data-categories={o.category.join("|")}
   data-areas={o.area.join("|")}
   data-search={[o.name, o.blurb, ...o.category, ...o.area].join(" ").toLowerCase()}
@@ -36,7 +40,7 @@ const H = `h${headingLevel}` as "h2" | "h3";
 >
   <span class="pin" aria-hidden="true"></span>
   <H>
-    {o.website
+    {o.website && !mini
       ? <a href={o.website} target="_blank" rel="noopener">{o.name}<span class="visually-hidden"> {copy.listing.newTab}</span></a>
       : o.name}
   </H>
@@ -52,8 +56,8 @@ const H = `h${headingLevel}` as "h2" | "h3";
     )}
     <span class="kinds">{o.category.join(" + ")}</span>
   </p>
-  <p class="blurb">{o.blurb}</p>
-  <div class="tabs">
+  {!mini && <p class="blurb">{o.blurb}</p>}
+  {!mini && <div class="tabs">
     <a
       class="tab tab-next"
       href={next[0]?.link ?? o.website}
@@ -82,5 +86,5 @@ const H = `h${headingLevel}` as "h2" | "h3";
         <span>{copy.listing.claimTab[1]}<span class="visually-hidden">: {o.name}</span></span>
       </a>
     )}
-  </div>
+  </div>}
 </Tag>

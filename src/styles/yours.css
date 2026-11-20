@@ -592,6 +592,64 @@
   padding-top: 30px;
 }
 
+/* Every working sheet is taped to the board (the questions sheet has its own
+   strip in the markup). Straight, not tilted: it's where people type. */
+.yours-sheet:not(.yours-taped)::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  width: 96px;
+  height: 26px;
+  margin-left: -48px;
+  background: rgb(255 255 255 / 0.6);
+  border: 1px solid rgb(0 0 0 / 0.05);
+  transform: rotate(-3deg);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+  pointer-events: none;
+}
+
+.yours-sheet:not(.yours-taped) {
+  padding-top: 30px;
+}
+
+/* The place-colour dot before each group in the list, as on its flyer */
+.find-name .swatch {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin: 0;
+}
+
+.find-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.find-towns {
+  padding-left: 20px;
+}
+
+/* The small flyer on confirm, fix and remove: which group this is, as paper */
+.yours .flyer-mini {
+  align-self: center;
+  width: min(100%, 360px);
+  margin: 12px 6px 0;
+}
+
+.yours .flyer-mini {
+  padding-bottom: 16px;
+}
+
+.yours .flyer-mini h2 {
+  font-size: 22px;
+}
+
+.yours .flyer-mini .meta {
+  margin-bottom: 0;
+}
+
 .yours-questions {
   gap: 22px;
 }

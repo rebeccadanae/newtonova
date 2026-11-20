@@ -57,7 +57,11 @@ A free directory of Northern Virginia groups that welcome new people: creative c
       - Remove names the group and says they can come back.
       - A dead personal link has "Find your group" and a mailto.
       - The thanks post-it is at most 440px wide.
-    - Still to do: the board look (tape on the working sheets, place-colour dots in the list, the flyer on fix and remove).
+    - Part 3, the board look, was done 2026-11-19 on `staging`. That finishes 8b; phase 2 block 5 is next.
+      - Every working sheet (`.yours-sheet`) has a strip of tape (CSS) but stays straight.
+      - The list has a place-colour dot per group.
+      - Confirm, fix and remove show a mini flyer (`Flyer.astro` `size="mini"`: name and place line only).
+      - On Add your group, the progress line starts with "Your group".
 - **Email signup: Kit** (free plan), on its own page at `/join` (`src/pages/join.astro`). The form is our own HTML form posting to Kit form 10076200 ("Mills form", `https://app.kit.com/forms/10076200/subscriptions`), not Kit's JavaScript embed, so it has visible labels and the site's look. Fields: `email_address` (required), `fields[interests]` (what they're looking for) and `fields[source]` (how they heard about the site), both optional free text saved as Kit custom fields. Answers stay in Kit, never in this repo or Notion. After signing up, Kit redirects to `/join/thanks/` (set in the form's settings in Kit). The homepage signup sheet links to `/join`. Questions will become dropdowns once patterns show up in the answers. Labels and page copy are in `copy.join` and `copy.joinThanks` in `src/copy.ts`.
 
 - **Analytics: Umami Cloud** (free Hobby plan), cookieless, so no banner. One script tag in `src/layouts/Base.astro` with `data-domains="newtonova.org"`, so local and workers.dev visits aren't counted.

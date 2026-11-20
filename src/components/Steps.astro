@@ -4,14 +4,17 @@ import { copy } from "../copy";
 
 interface Props {
   current: 1 | 2 | 3;
+  /** Adding a group has no flyer yet, so its first step reads "Your group". */
+  isNew?: boolean;
 }
 
-const { current } = Astro.props;
+const { current, isNew = false } = Astro.props;
 const t = copy.yours.steps;
+const items = isNew ? [t.newFirst, ...t.items.slice(1)] : t.items;
 ---
 
 <ol class="steps" aria-label={t.label}>
-  {t.items.map((label, i) => {
+  {items.map((label, i) => {
     const n = i + 1;
     const state = n < current ? "done" : n === current ? "now" : undefined;
     return (

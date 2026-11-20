@@ -46,3 +46,4 @@
 - Sign up for customized feeds
 - A way for people to suggest an organization
 - A web clipper that saves straight to newtonova
+- Organizer fix form: a flyer that updates live as you type, so editing feels like changing your own paper on the board

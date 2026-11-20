@@ -10,6 +10,7 @@ import { env } from "cloudflare:workers";
 import Organizer from "../../layouts/Organizer.astro";
 import YoursSteps from "../../components/YoursSteps.astro";
 import { copy } from "../../copy";
+import { placeColor } from "../../routes";
 import type { OrgRow } from "../../admin/groups";
 import { readStep, runFlow, type Links } from "../../organizers/flow";
 import { TOKEN_FIELD, verifyTurnstile } from "../../organizers/turnstile";
@@ -75,7 +76,10 @@ const groups = showSteps || gone
         name: string;
         area: string | null;
       }>()
-    ).results.map((g) => ({ id: g.id, name: g.name, towns: (JSON.parse(g.area ?? "[]") as string[]).join(", ") }));
+    ).results.map((g) => {
+      const areas = JSON.parse(g.area ?? "[]") as string[];
+      return { id: g.id, name: g.name, towns: areas.join(", "), color: placeColor(areas) };
+    });
 ---
 
 <Organizer>
@@ -106,7 +110,7 @@ const groups = showSteps || gone
           {groups.map((g) => (
             <li data-search={`${g.name} ${g.towns}`.toLowerCase()}>
               <a href={`/yours/?org=${encodeURIComponent(g.id)}`}>
-                <span class="find-name">{g.name}</span>
+                <span class="find-name"><span class="swatch" style={`--where:${g.color}`} aria-hidden="true"></span>{g.name}</span>
                 {g.towns && <span class="find-towns">{g.towns}</span>}
               </a>
             </li>
