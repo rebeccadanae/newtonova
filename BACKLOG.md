@@ -10,11 +10,11 @@
 
 ## Next
 - [S] Flyer tab on Groups: label "Next" → "Next event" (`copy.listing.nextLabel`), and check the tab still fits at phone width
-- [S] Optional organizer block: email Becca on each new organizer submission (Cloudflare Email Routing send, free)
-- [L] Phase 2 block 5, the switch off Notion, on `staging` first: pick the publish option (Publish button + nightly rebuild via a Deploy Hook recommended), run one last import, then take the Notion import and `NOTION_TOKEN` out of the build
-- [M] Nightly rebuild: a scheduled GitHub Action that POSTs to a Workers Builds Deploy Hook (part of block 5 if the recommended option is picked)
+- [M] Phase 2 block 5B, the rest of the switch off Notion, on `staging` first: run one last import, then take the Notion import and `NOTION_TOKEN` out of the build (block A, the Publish button, done 2026-11-20)
+- [S] Nightly rebuild: a scheduled GitHub Action that POSTs to its own Workers Builds Deploy Hook on `newtonova` (part of block 5B)
 - [L] Phase 3: owner and member accounts with Better Auth on D1 (email code sign-in, Becca as admin), claims, an edit queue Becca approves, and a verification process
 - [L] Phase 4: owners add events
+- [L] Event scraper: a scheduled job pulls new events from groups' events pages into a review queue in `/admin`; nothing goes Live until Becca approves it
 - [S] Reset / show-all button beside the result count once area or type filters are applied
 - [S] Click a tag or location on a card to apply that filter
 - [S] Make most of each card tappable as the link to the group (mobile users expect it)

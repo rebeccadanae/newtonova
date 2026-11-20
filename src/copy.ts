@@ -425,7 +425,7 @@ export const copy = {
     review: {
       nav: "To review",
       heading: "To review",
-      intro: "What organizers sent through their links. Nothing changes on a group until you approve it, and approved changes show on the site after the next rebuild.",
+      intro: "What organizers sent through their links. Nothing changes on a group until you approve it, and approved changes show on the site once you publish.",
       empty: "Nothing waiting. Nice.",
       kinds: { confirm: "Looks good", change: "Changes", remove: "Take off", new: "New group" } as Record<string, string>,
       via: { invite: "via your link", public: "from the site" } as Record<string, string>,
@@ -459,11 +459,22 @@ export const copy = {
     },
     signedInAs: "Signed in as",
     viewSite: "View the site",
+    // The Publish bar under the admin header (src/admin/publish.ts)
+    publish: {
+      button: "Publish",
+      off: "Publishing isn't set up here (no Deploy Hook). Saved changes show after the next build.",
+      publishing: (time: string) => `Publishing, started ${time}. The site updates in about 2 minutes.`,
+      waiting: (n: number) => `${n} ${n === 1 ? "edit isn't" : "edits aren't"} on the site yet.`,
+      unknown: "Saved changes show on the site once you publish.",
+      upToDate: "The site is up to date.",
+      lastBuilt: (when: string) => `Last published ${when}.`,
+      failed: "Publishing didn't start. Try again in a minute; if it keeps failing, check the Deploy Hook in Cloudflare.",
+    },
     notionNote:
-      "Groups can be edited here now. Each build still copies Notion in, but a group edited here keeps this version unless it's edited in Notion afterwards, so once you've changed a group here, keep editing it here. Changes show on the site after the next rebuild.",
+      "Groups can be edited here now. Each build still copies Notion in, but a group edited here keeps this version unless it's edited in Notion afterwards, so once you've changed a group here, keep editing it here. Changes show on the site once you publish.",
     groupsHeading: "Groups",
     newGroup: "New group",
-    saved: (name: string) => `Saved ${name}. It shows on the site after the next rebuild.`,
+    saved: (name: string) => `Saved ${name}. It shows on the site once you publish.`,
     website: "Website",
     // Edit and new group pages
     newHeading: "New group",
@@ -511,7 +522,7 @@ export const copy = {
     events: {
       heading: "Events",
       newEvent: "New event",
-      saved: (name: string) => `Saved ${name}. It shows on the site after the next rebuild.`,
+      saved: (name: string) => `Saved ${name}. It shows on the site once you publish.`,
       searchLabel: "Search events",
       searchPlaceholder: "Event or group",
       upcoming: "Upcoming",
@@ -525,8 +536,8 @@ export const copy = {
       notFound: "No event with that id.",
       backToEvents: "← All events",
       copy: "Copy as new event",
-      seriesAdded: (n: number, name: string) => `Added ${n} ${n === 1 ? "date" : "dates"} of ${name}. They show on the site after the next rebuild.`,
-      seriesChanged: (n: number, name: string) => `Saved ${n} ${n === 1 ? "date" : "dates"} of ${name}. They show on the site after the next rebuild.`,
+      seriesAdded: (n: number, name: string) => `Added ${n} ${n === 1 ? "date" : "dates"} of ${name}. They show on the site once you publish.`,
+      seriesChanged: (n: number, name: string) => `Saved ${n} ${n === 1 ? "date" : "dates"} of ${name}. They show on the site once you publish.`,
       endingHeading: "Repeats running out",
       endingItem: (last: string) => `last date ${last}`,
       endingLink: "Add more dates",

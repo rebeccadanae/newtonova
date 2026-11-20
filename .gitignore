@@ -21,6 +21,7 @@ npm-debug.log*
 # generated from D1 at build time (scripts/fetch-from-d1.mjs)
 src/data/orgs.json
 src/data/events.json
+src/data/read-at.txt
 
 # local copy of the D1 database (wrangler --local)
 .wrangler/

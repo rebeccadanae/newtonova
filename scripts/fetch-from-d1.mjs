@@ -11,6 +11,9 @@ import { writeFileSync, mkdirSync } from "node:fs";
 import { query, DATABASE } from "./d1.mjs";
 
 const target = process.argv.includes("--local") ? "--local" : "--remote";
+// When this build read D1. scripts/record-build.mjs saves it once the build
+// passes, so /admin can count edits made after it ("not on the site yet").
+const readAt = new Date().toISOString();
 // Organizer contact details live in D1 (people table) but must never reach the
 // public JSON. Stop the build if a field that looks like one ever slips in.
 const CONTACTISH = /email|phone|person|people/i;
@@ -84,5 +87,6 @@ for (const e of events) {
   if (!e.link) console.warn(`fetch: "${e.name}" has no Link`);
 }
 write("events.json", events);
+writeFileSync(new URL("../src/data/read-at.txt", import.meta.url), readAt + "\n");
 
 console.log(`fetch: wrote ${orgs.length} Live groups and ${events.length} upcoming Live events (skipped ${past} past) from D1 (${DATABASE})`);

@@ -5,6 +5,7 @@ import "../styles/admin.css";
 import { env } from "cloudflare:workers";
 import { copy } from "../copy";
 import { pendingCount } from "../admin/review";
+import { publishState } from "../admin/publish";
 
 interface Props {
   title: string;
@@ -13,7 +14,20 @@ interface Props {
 
 const { title, section = "groups" } = Astro.props;
 const email = Astro.locals.adminEmail;
-const waiting = await pendingCount(env.DB);
+const [waiting, pub] = await Promise.all([
+  pendingCount(env.DB),
+  publishState(env.DB, (env as unknown as { DEPLOY_HOOK_URL?: string }).DEPLOY_HOOK_URL),
+]);
+const p = copy.admin.publish;
+const publishFailed = Astro.url.searchParams.get("publish") === "failed";
+// After publishing, come back here (without the failure note).
+const backParams = new URLSearchParams(Astro.url.search);
+backParams.delete("publish");
+const back = Astro.url.pathname + (backParams.size ? `?${backParams}` : "");
+const nyTime = (iso: string) =>
+  new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York" }).toLowerCase().replace(" ", "");
+const nyWhen = (iso: string) =>
+  `${new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "America/New_York" })}, ${nyTime(iso)}`;
 ---
 
 <!doctype html>
@@ -47,6 +61,23 @@ const waiting = await pendingCount(env.DB);
       </div>
     </header>
     <main class="wrap admin-main">
+      <form class="admin-publish" method="post" action="/admin/publish" data-state={pub.kind}>
+        <p role="status">
+          {publishFailed && <strong class="admin-publish-failed">{p.failed} </strong>}
+          {pub.kind === "off" && p.off}
+          {pub.kind === "publishing" && p.publishing(nyTime(pub.since))}
+          {pub.kind === "waiting" && (pub.lastBuilt ? (
+            <>{pub.edits > 0 ? p.waiting(pub.edits) : p.unknown} <span>{p.lastBuilt(nyWhen(pub.lastBuilt))}</span></>
+          ) : p.unknown)}
+          {pub.kind === "upToDate" && <>{p.upToDate} <span>{p.lastBuilt(nyWhen(pub.lastBuilt))}</span></>}
+        </p>
+        {pub.kind !== "off" && pub.kind !== "publishing" && (
+          <>
+            <input type="hidden" name="back" value={back} />
+            <button class={pub.kind === "waiting" ? "ink-btn" : "paper-btn"} type="submit">{p.button}</button>
+          </>
+        )}
+      </form>
       <slot />
     </main>
   </body>

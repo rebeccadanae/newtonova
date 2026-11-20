@@ -9,6 +9,7 @@
     "dev": "wrangler types >/dev/null && astro dev",
     "prebuild": "npm run fetch",
     "build": "astro build",
+    "postbuild": "node --env-file-if-exists=.env scripts/record-build.mjs",
     "preview": "astro preview",
     "db:migrate:local": "wrangler d1 migrations apply newtonova --local",
     "db:migrate": "wrangler d1 migrations apply newtonova --remote",
