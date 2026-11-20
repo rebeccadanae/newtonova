@@ -73,7 +73,12 @@ A free directory of Northern Virginia groups that welcome new people: creative c
     - Staging subjects start with "[staging]".
     - Locally, wrangler saves the email under `.wrangler/tmp/email/` instead of sending it.
   - Live since 2026-11-19: block 8b, the verified mark and email alerts (`main` fast-forwarded to `staging` at 545d877). `NOTIFY_TO` is set on both Workers, and a staging alert was confirmed to arrive.
-  - Organizers box, added 2026-11-19: each linked person has **Edit** (name and email everywhere, role for this group; refuses an email another person already has) and **Remove from this group** (unlinks them here and from the personal link; nothing is deleted). Logic in `readPersonEdit` (`src/organizers/people.ts`) and `/admin/groups/<id>/organizers`.
+  - Organizers box, reworked 2026-11-19. It reads top to bottom:
+    - Each linked person is one row, with **Draft invite** (uses their saved first name; their details don't change) and **Edit**. Edit is a link to `?edit=<id>` that opens name, email everywhere, and role for this group under the row; it refuses an email another person already has. **Remove from this group** sits in that form: it unlinks them here and from the link, and deletes nothing.
+    - "link greets them" marks who the link greets by name.
+    - **Add an organizer** (collapsed): name and email, then "Add and draft invite".
+    - **Group link**: the one shared link with Copy, New and Switch off.
+    - Logic: `readPersonEdit` (`src/organizers/people.ts`) and `/admin/groups/<id>/organizers`.
   - Next: phase 2 block 5.
 - **Email signup: Kit** (free plan), on its own page at `/join` (`src/pages/join.astro`). The form is our own HTML form posting to Kit form 10076200 ("Mills form", `https://app.kit.com/forms/10076200/subscriptions`), not Kit's JavaScript embed, so it has visible labels and the site's look. Fields: `email_address` (required), `fields[interests]` (what they're looking for) and `fields[source]` (how they heard about the site), both optional free text saved as Kit custom fields. Answers stay in Kit, never in this repo or Notion. After signing up, Kit redirects to `/join/thanks/` (set in the form's settings in Kit). The homepage signup sheet links to `/join`. Questions will become dropdowns once patterns show up in the answers. Labels and page copy are in `copy.join` and `copy.joinThanks` in `src/copy.ts`.
 

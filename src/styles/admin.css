@@ -699,28 +699,60 @@
 
 .org-people {
   margin: 0;
-  padding-left: 20px;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid rgb(29 42 47 / 0.14);
 }
 
-.org-people li + li {
-  margin-top: 8px;
+.org-people > li {
+  border-bottom: 1px solid rgb(29 42 47 / 0.14);
 }
 
-/* Edit and remove a linked organizer: a plain disclosure under their name */
-.org-edit summary {
+/* One organizer per row: who on the left, their actions on the right */
+.org-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  padding: 12px 0;
+}
+
+.org-who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.org-meta {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.org-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.org-actions form {
+  margin: 0;
+}
+
+/* Edit opens under the row (server-side, ?edit=<id>) */
+.org-edit {
+  margin: 0 0 16px;
+  padding: 16px;
+  border: 1px solid rgb(29 42 47 / 0.2);
+  border-radius: 4px;
+}
+
+.org-cancel {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
   font-weight: 700;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.org-edit[open] {
-  margin: 4px 0 16px;
-  padding: 16px;
-  border: 1px solid rgb(29 42 47 / 0.2);
-  border-radius: 4px;
 }
 
 .org-remove {
@@ -731,6 +763,25 @@
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px dashed rgb(29 42 47 / 0.3);
+}
+
+/* "Add an organizer": closed until needed */
+.org-add {
+  margin-top: 16px;
+}
+
+.org-add summary {
+  display: inline-flex;
+  list-style: none;
+  cursor: pointer;
+}
+
+.org-add summary::-webkit-details-marker {
+  display: none;
+}
+
+.org-add[open] summary {
+  margin-bottom: 12px;
 }
 
 .org-draft,

@@ -41,6 +41,11 @@ const answers = await env.DB.prepare(
   .first<{ struggles: string; struggle_other: string | null; hand_off: string | null; chat: string | null; connect: string | null; profile: string | null; created_at: string; name: string }>();
 
 const code = await activeInvite(env.DB, org.id);
+const greets = code
+  ? (await env.DB.prepare("SELECT person_id FROM invites WHERE code = ?1").bind(code).first<{ person_id: string | null }>())?.person_id ?? null
+  : null;
+const action = `/admin/groups/${org.id}/organizers`;
+const here = `/admin/groups/${org.id}`;
 const url = code ? `${origin}/yours/${code}` : "";
 const draft =
   code && link === "draft"
@@ -62,99 +67,125 @@ const notice = t.notices[link as keyof typeof t.notices];
   <h2 id="organizers-heading">{t.heading}</h2>
   {notice && <p class="admin-saved" role="status">{notice}</p>}
 
+  {draft && (
+    <div class="org-draft">
+      <label for="invite-subject">{t.subject}</label>
+      <input id="invite-subject" readonly value={draft.subject} />
+      <label for="invite-body">{t.body}</label>
+      <textarea id="invite-body" rows="16" readonly>{draft.body}</textarea>
+      <div class="rv-actions">
+        <button class="ink-btn" type="button" data-copy="#invite-body">{t.copyEmail}</button>
+        <button class="paper-btn" type="button" data-copy="#invite-subject">{t.copySubject}</button>
+      </div>
+      <p class="admin-muted">{t.draftHint}</p>
+    </div>
+  )}
+
   {people.length === 0 ? (
     <p class="admin-muted">{t.nobody}</p>
   ) : (
     <ul class="org-people">
       {people.map((p) => (
-        <li>
-          <strong>{p.name}</strong>{p.role && ` (${p.role})`} · <a href={`mailto:${p.email}`}>{p.email}</a>
-          {p.last_sent && <span class="admin-muted"> · {t.lastSent(day(p.last_sent))}</span>}
-          <details class="org-edit" open={edit === p.id}>
-            <summary>{t.edit}<span class="visually-hidden"> {p.name}</span></summary>
-            <form method="post" action={`/admin/groups/${org.id}/organizers`} class="org-invite">
-              <input type="hidden" name="action" value="edit-person" />
-              <input type="hidden" name="person" value={p.id} />
-              <div class="gf-field">
-                <label for={`edit-name-${p.id}`}>{t.editName}</label>
-                <input id={`edit-name-${p.id}`} name="name" type="text" value={p.name} autocomplete="off" required />
-              </div>
-              <div class="gf-field">
-                <label for={`edit-email-${p.id}`}>{t.editEmail}</label>
-                <input id={`edit-email-${p.id}`} name="email" type="text" inputmode="email" value={p.email} autocomplete="off" required />
-              </div>
-              <div class="gf-field">
-                <label for={`edit-role-${p.id}`}>{t.editRole}</label>
-                <input id={`edit-role-${p.id}`} name="role" type="text" value={p.role ?? ""} autocomplete="off" />
-              </div>
-              <div class="rv-actions">
-                <button class="ink-btn" type="submit">{t.save}</button>
-              </div>
-            </form>
-            <form method="post" action={`/admin/groups/${org.id}/organizers`} class="org-remove">
-              <input type="hidden" name="action" value="remove-person" />
-              <input type="hidden" name="person" value={p.id} />
-              <button class="paper-btn" type="submit">{t.remove}</button>
-              <p class="gf-hint">{t.removeHint}</p>
-            </form>
-          </details>
+        <li id={`person-${p.id}`}>
+          <div class="org-row">
+            <div class="org-who">
+              <span><strong>{p.name}</strong>{p.role && ` (${p.role})`}</span>
+              <span class="org-meta">
+                <a href={`mailto:${p.email}`}>{p.email}</a>
+                {p.last_sent && <span class="admin-muted"> · {t.lastSent(day(p.last_sent))}</span>}
+                {p.id === greets && <span class="admin-muted"> · {t.greets}</span>}
+              </span>
+            </div>
+            <div class="org-actions">
+              {live && (
+                <form method="post" action={action}>
+                  <input type="hidden" name="action" value="draft-person" />
+                  <input type="hidden" name="person" value={p.id} />
+                  <button class="paper-btn" type="submit">{t.draftFor}<span class="visually-hidden"> {p.name}</span></button>
+                </form>
+              )}
+              {edit !== p.id && (
+                <a class="paper-btn" href={`${here}?edit=${encodeURIComponent(p.id)}#person-${p.id}`}>{t.edit}<span class="visually-hidden"> {p.name}</span></a>
+              )}
+            </div>
+          </div>
+          {edit === p.id && (
+            <div class="org-edit">
+              <form method="post" action={action} class="org-invite">
+                <input type="hidden" name="action" value="edit-person" />
+                <input type="hidden" name="person" value={p.id} />
+                <div class="gf-field">
+                  <label for={`edit-name-${p.id}`}>{t.editName}</label>
+                  <input id={`edit-name-${p.id}`} name="name" type="text" value={p.name} autocomplete="off" required />
+                </div>
+                <div class="gf-field">
+                  <label for={`edit-email-${p.id}`}>{t.editEmail}</label>
+                  <input id={`edit-email-${p.id}`} name="email" type="text" inputmode="email" value={p.email} autocomplete="off" required />
+                </div>
+                <div class="gf-field">
+                  <label for={`edit-role-${p.id}`}>{t.editRole}</label>
+                  <input id={`edit-role-${p.id}`} name="role" type="text" value={p.role ?? ""} autocomplete="off" />
+                </div>
+                <div class="rv-actions">
+                  <button class="ink-btn" type="submit">{t.save}</button>
+                  <a class="org-cancel" href={`${here}#organizers`}>{t.cancel}</a>
+                </div>
+              </form>
+              <form method="post" action={action} class="org-remove">
+                <input type="hidden" name="action" value="remove-person" />
+                <input type="hidden" name="person" value={p.id} />
+                <button class="paper-btn" type="submit">{t.remove}</button>
+                <p class="gf-hint">{t.removeHint}</p>
+              </form>
+            </div>
+          )}
         </li>
       ))}
     </ul>
   )}
 
-  <h3>{t.linkHeading}</h3>
-  {!live ? (
-    <p class="admin-muted">{t.liveOnly}</p>
-  ) : (
-    <>
-      {draft && (
-        <div class="org-draft">
-          <label for="invite-subject">{t.subject}</label>
-          <input id="invite-subject" readonly value={draft.subject} />
-          <label for="invite-body">{t.body}</label>
-          <textarea id="invite-body" rows="16" readonly>{draft.body}</textarea>
-          <div class="rv-actions">
-            <button class="ink-btn" type="button" data-copy="#invite-body">{t.copyEmail}</button>
-            <button class="paper-btn" type="button" data-copy="#invite-subject">{t.copySubject}</button>
-          </div>
-          <p class="admin-muted">{t.draftHint}</p>
-        </div>
-      )}
-
-      <form method="post" action={`/admin/groups/${org.id}/organizers`} class="org-invite">
+  {live && (
+    <details class="org-add" open={link === "bad-email" && !edit}>
+      <summary class="paper-btn">{t.add}</summary>
+      <form method="post" action={action} class="org-invite">
         <input type="hidden" name="action" value="invite" />
         <div class="gf-field">
-          <label for="invite-first">{t.firstName}</label>
-          <input id="invite-first" name="first" type="text" value={first} autocomplete="off" />
+          <label for="invite-name">{t.addName}</label>
+          <input id="invite-name" name="name" type="text" value={link === "bad-email" ? first : ""} autocomplete="off" />
         </div>
         <div class="gf-field">
           <label for="invite-email">{t.email}</label>
           <input id="invite-email" name="email" type="text" inputmode="email" autocomplete="off" />
           <p class="gf-hint">{t.emailHint}</p>
         </div>
-        <button class="ink-btn" type="submit">{t.copyInvite}</button>
-      </form>
-
-      {code ? (
-        <div class="org-link">
-          <input id="invite-url" readonly value={url} aria-label={t.linkLabel} />
-          <div class="rv-actions">
-            <button class="paper-btn" type="button" data-copy="#invite-url">{t.copyLink}</button>
-            <form method="post" action={`/admin/groups/${org.id}/organizers`}>
-              <input type="hidden" name="action" value="new-link" />
-              <button class="paper-btn" type="submit">{t.newLink}</button>
-            </form>
-            <form method="post" action={`/admin/groups/${org.id}/organizers`}>
-              <input type="hidden" name="action" value="revoke" />
-              <button class="paper-btn" type="submit">{t.revoke}</button>
-            </form>
-          </div>
+        <div class="rv-actions">
+          <button class="ink-btn" type="submit">{t.addSend}</button>
         </div>
-      ) : (
-        <p class="admin-muted">{t.noLink}</p>
-      )}
-    </>
+      </form>
+    </details>
+  )}
+
+  <h3>{t.linkHeading}</h3>
+  {!live ? (
+    <p class="admin-muted">{t.liveOnly}</p>
+  ) : code ? (
+    <div class="org-link">
+      <p class="admin-muted">{t.linkShared}</p>
+      <input id="invite-url" readonly value={url} aria-label={t.linkLabel} />
+      <div class="rv-actions">
+        <button class="paper-btn" type="button" data-copy="#invite-url">{t.copyLink}</button>
+        <form method="post" action={action}>
+          <input type="hidden" name="action" value="new-link" />
+          <button class="paper-btn" type="submit">{t.newLink}</button>
+        </form>
+        <form method="post" action={action}>
+          <input type="hidden" name="action" value="revoke" />
+          <button class="paper-btn" type="submit">{t.revoke}</button>
+        </form>
+      </div>
+    </div>
+  ) : (
+    <p class="admin-muted">{t.noLink}</p>
   )}
 
   {answers && (

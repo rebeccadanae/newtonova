@@ -1,6 +1,8 @@
 // Admin: the Organizers box on a group's page posts here.
-//   action=invite  (first, email optional): saves the person if there's an email,
-//                  links them, and makes sure the group has a personal link
+//   action=invite  (name, email optional): adds an organizer if there's an email,
+//                  links them, and drafts the invite with the group's one link
+//   action=draft-person (person): drafts the invite for someone already linked,
+//                  using their saved first name (their saved details don't change)
 //   action=new-link: replaces the group's link (the old one stops working)
 //   action=revoke:   switches the group's link off
 //   action=edit-person (person, name, email, role): fixes a typo in a linked
@@ -17,6 +19,19 @@ export const prerender = false;
 
 const looksLikeEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s) && s.length <= 200;
 
+const firstName = (name: string) => name.trim().split(/\s+/)[0] ?? "";
+
+// One link per group: reuse it (so links already sent keep working), and
+// attach the person if the link doesn't greet anyone yet.
+async function ensureLink(orgId: string, personId: string | null): Promise<void> {
+  const code = await activeInvite(env.DB, orgId);
+  if (!code) {
+    await makeInvite(env.DB, orgId, personId);
+  } else if (personId) {
+    await env.DB.prepare("UPDATE invites SET person_id = ?1 WHERE code = ?2 AND person_id IS NULL").bind(personId, code).run();
+  }
+}
+
 export const POST: APIRoute = async ({ params, request, redirect }) => {
   const id = params.id ?? "";
   const org = await env.DB.prepare("SELECT id, status FROM orgs WHERE id = ?1").bind(id).first<{ id: string; status: string }>();
@@ -27,12 +42,19 @@ export const POST: APIRoute = async ({ params, request, redirect }) => {
   const action = String(form.get("action") ?? "");
 
   // Editing and removing work on any group, Live or not, but only on someone linked to it.
-  if (action === "edit-person" || action === "remove-person") {
+  if (action === "edit-person" || action === "remove-person" || action === "draft-person") {
     const personId = String(form.get("person") ?? "");
     const linked = await env.DB.prepare("SELECT 1 FROM org_people WHERE org_id = ?1 AND person_id = ?2")
       .bind(id, personId)
       .first();
     if (!linked) return back("link=person-gone");
+
+    if (action === "draft-person") {
+      if (org.status !== "Live") return back("link=not-live");
+      const p = await env.DB.prepare("SELECT name FROM people WHERE id = ?1").bind(personId).first<{ name: string }>();
+      await ensureLink(id, personId);
+      return back(`first=${encodeURIComponent(firstName(p?.name ?? ""))}&link=draft`);
+    }
 
     if (action === "remove-person") {
       await env.DB.batch([
@@ -68,26 +90,18 @@ export const POST: APIRoute = async ({ params, request, redirect }) => {
   }
 
   if (action === "invite") {
-    const first = String(form.get("first") ?? "").trim().slice(0, 100);
+    const name = String(form.get("name") ?? form.get("first") ?? "").trim().slice(0, 100);
+    const first = firstName(name);
     const email = String(form.get("email") ?? "").trim().toLowerCase();
     if (email && !looksLikeEmail(email)) return back(`first=${encodeURIComponent(first)}&link=bad-email`);
 
     let personId: string | null = null;
     if (email) {
-      personId = await savePerson(env.DB, { name: first || email.split("@")[0], email });
+      personId = await savePerson(env.DB, { name: name || email.split("@")[0], email });
       await linkPerson(env.DB, id, personId, "");
     }
 
-    // One link per group: reuse it (so links already sent keep working), and
-    // attach the person if the link doesn't have one yet.
-    const code = await activeInvite(env.DB, id);
-    if (code) {
-      if (personId) {
-        await env.DB.prepare("UPDATE invites SET person_id = ?1 WHERE code = ?2 AND person_id IS NULL").bind(personId, code).run();
-      }
-    } else {
-      await makeInvite(env.DB, id, personId);
-    }
+    await ensureLink(id, personId);
     return back(`first=${encodeURIComponent(first)}&link=draft`);
   }
 
