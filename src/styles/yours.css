@@ -42,8 +42,11 @@
   color: var(--muted);
 }
 
-/* The flyer on its own: same paper as the board, a little inset so its tilt has room */
+/* The flyer on its own, at the width it has on the Groups board (308–367px),
+   so it keeps its near-square shape: as newcomers see it, not a banner */
 .yours .flyer {
+  align-self: center;
+  width: min(100% - 12px, 340px);
   margin: 8px 6px 0;
 }
 
@@ -629,25 +632,6 @@
 
 .find-towns {
   padding-left: 20px;
-}
-
-/* The small flyer on confirm, fix and remove: which group this is, as paper */
-.yours .flyer-mini {
-  align-self: center;
-  width: min(100%, 360px);
-  margin: 12px 6px 0;
-}
-
-.yours .flyer-mini {
-  padding-bottom: 16px;
-}
-
-.yours .flyer-mini h2 {
-  font-size: 22px;
-}
-
-.yours .flyer-mini .meta {
-  margin-bottom: 0;
 }
 
 .yours-questions {

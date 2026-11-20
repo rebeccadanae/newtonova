@@ -181,7 +181,6 @@ const needsWidget = isPublic && (step === "confirm" || step === "fix" || step ==
       <h1>{p.confirmHeading} <span class="hl">{org.name}</span></h1>
       <p>{p.confirmIntro}</p>
     </div>
-    {org && <Flyer org={org} index={0} next={[]} as="div" headingLevel={2} size="mini" />}
     <ErrorSummary detailErrors={detailErrors} whoErrors={whoErrors} />
     {notHuman && <p class="yours-alert" role="alert">{p.notHuman}</p>}
     <form method="post" action={links.step("confirm")} class="yours-sheet yours-fields" novalidate>
@@ -199,7 +198,6 @@ const needsWidget = isPublic && (step === "confirm" || step === "fix" || step ==
       <h1>{t.fix.heading}</h1>
       <p>{t.fix.intro}</p>
     </div>
-    {org && <Flyer org={org} index={0} next={[]} as="div" headingLevel={2} size="mini" />}
     <ErrorSummary detailErrors={detailErrors} whoErrors={whoErrors} />
     {notHuman && <p class="yours-alert" role="alert">{p.notHuman}</p>}
     <form method="post" action={links.step("fix")} class="yours-sheet yours-fields" novalidate>
@@ -223,7 +221,6 @@ const needsWidget = isPublic && (step === "confirm" || step === "fix" || step ==
       <p>{t.remove.intro}</p>
       <p>{t.remove.comeBack}</p>
     </div>
-    {org && <Flyer org={org} index={0} next={[]} as="div" headingLevel={2} size="mini" />}
     <ErrorSummary detailErrors={detailErrors} whoErrors={whoErrors} />
     {notHuman && <p class="yours-alert" role="alert">{p.notHuman}</p>}
     <form method="post" action={links.step("remove")} class="yours-sheet yours-fields" novalidate>

@@ -60,7 +60,7 @@ A free directory of Northern Virginia groups that welcome new people: creative c
     - Part 3, the board look, was done 2026-11-19 on `staging`. That finishes 8b; phase 2 block 5 is next.
       - Every working sheet (`.yours-sheet`) has a strip of tape (CSS) but stays straight.
       - The list has a place-colour dot per group.
-      - Confirm, fix and remove show a mini flyer (`Flyer.astro` `size="mini"`: name and place line only).
+      - The check step's flyer is shown at its board width (at most 340px), so it keeps the near-square shape it has on Groups. A mini flyer on confirm, fix and remove was tried and taken out (it looked like a sticker, and the headings already name the group).
       - On Add your group, the progress line starts with "Your group".
 - **Email signup: Kit** (free plan), on its own page at `/join` (`src/pages/join.astro`). The form is our own HTML form posting to Kit form 10076200 ("Mills form", `https://app.kit.com/forms/10076200/subscriptions`), not Kit's JavaScript embed, so it has visible labels and the site's look. Fields: `email_address` (required), `fields[interests]` (what they're looking for) and `fields[source]` (how they heard about the site), both optional free text saved as Kit custom fields. Answers stay in Kit, never in this repo or Notion. After signing up, Kit redirects to `/join/thanks/` (set in the form's settings in Kit). The homepage signup sheet links to `/join`. Questions will become dropdowns once patterns show up in the answers. Labels and page copy are in `copy.join` and `copy.joinThanks` in `src/copy.ts`.
 

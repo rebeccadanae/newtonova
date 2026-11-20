@@ -27,6 +27,8 @@
 - [M] Move the search bar down and make it actually work
 - [S] More text for search
 - [M] Try design tools on the site: Impeccable (https://impeccable.style/) and the design-for-ai Claude Code plugin (https://github.com/ryanthedev/design-for-ai)
+- [M] Flyer tab "Yours? Check it" becomes "Your group? Verify it" ("Update it" once verified), plus a verified mark on the flyer with the month it was approved. Wording: "confirmed", "approved" or "reviewed", not "checked". Needs a verified-on date from the review queue
+- [M] Email Becca when an organizer sends something (Cloudflare `send_email` binding to her own verified address): what kind, which group, a link to /admin/review/<id>; no organizer email in it
 
 ## Someday
 - Organizer community, picked by what the help-me-help answers show: in-depth group profiles, connecting organizers (online or in person), resources for small groups and businesses, help for groups without a website
