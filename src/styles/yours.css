@@ -296,6 +296,10 @@
 /* Thanks: a pinned note in Becca's voice */
 .yours-thanks {
   position: relative;
+  /* A note, not a banner: narrower than the column on desktop */
+  width: 100%;
+  max-width: 440px;
+  margin-inline: auto;
   padding: 34px 24px 28px;
   background: #fff;
   transform: rotate(0.8deg);
@@ -326,6 +330,42 @@
   display: inline-flex;
   align-items: center;
   min-height: 44px;
+}
+
+/* Error summary: each problem links to its field; it takes focus on load */
+.yours-errors {
+  padding: 14px 16px 6px;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: inset 0 0 0 2px #b3261e;
+  color: #b3261e;
+}
+
+.yours-errors:focus-visible,
+.yours-errors:focus {
+  outline: 3px solid #f6d44a;
+  outline-offset: 2px;
+}
+
+.yours-errors h2 {
+  margin: 0 0 2px;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.yours-errors ul {
+  margin: 0;
+  padding: 0 0 0 18px;
+}
+
+.yours-errors li a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #b3261e;
+  font-weight: 700;
+  text-decoration-color: currentColor;
 }
 
 .yours-alert {

@@ -243,7 +243,7 @@ export const copy = {
     optional: "(optional)",
     required: "(required)",
     rolePlaceholder: "Organizer, owner, volunteer…",
-    fixErrors: "Please check the highlighted fields.",
+    errorsHeading: "A few things to fix",
     pending: (date: string) => `You sent me an update on ${date}. It's waiting for me to look at it.`,
     footnote: "I check every change by hand before it goes on the site. Questions? Just reply to my email.",
     thanksHeading: (name: string) => `Thanks, ${name}.`,
@@ -288,7 +288,11 @@ export const copy = {
     },
     remove: {
       heading: "Take your group off the list?",
+      // "Take <group name> off the list?"
+      headingBefore: "Take",
+      headingAfter: "off the list?",
       intro: "No problem. I'll take it down this week. Your group won't show on new to nova after that.",
+      comeBack: "Changed your mind later? Come back here and add it again.",
       why: "Mind telling me why?",
       send: "Take us off the list",
       keep: "Never mind, keep us on",
@@ -350,7 +354,9 @@ export const copy = {
       gone: "It may have come off the list. Find it again, or add it.",
     },
     goneHeading: "This link doesn't work anymore",
-    gone: "It may be old, or the group may not be on the list right now. Just reply to my email if you have questions, or write to hello@newtonova.org.",
+    gone: "It may be old, or the group may not be on the list right now. You can still find your group, or add it.",
+    goneAsk: "Questions? Reply to my email, or write to",
+    findGroup: "Find your group",
   },
 
   admin: {

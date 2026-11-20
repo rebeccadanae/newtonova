@@ -11,6 +11,7 @@
 import Flyer from "./Flyer.astro";
 import Steps from "./Steps.astro";
 import WhoSend from "./WhoSend.astro";
+import ErrorSummary from "./ErrorSummary.astro";
 import OwnerGroupFields from "./OwnerGroupFields.astro";
 import { copy } from "../copy";
 import { STRUGGLES, CHAT, CONNECT, PROFILE } from "../organizers/answers";
@@ -30,8 +31,6 @@ const isPublic = turnstileKey !== null;
 const t = copy.yours;
 const p = copy.yours.public;
 const { step, org, who, whoErrors, details, detailErrors, note, next, pendingDate, sent, saidYesToChat, notHuman } = state;
-// Any field to fix, including "who's sending" at the bottom of a long form.
-const formErrors = Object.keys(detailErrors).length > 0 || Object.keys(whoErrors).length > 0;
 const thanksBody =
   sent?.kind === "change" ? t.thanksChange
   : sent?.kind === "remove" ? t.thanksRemove
@@ -160,7 +159,7 @@ const needsWidget = isPublic && (step === "confirm" || step === "fix" || step ==
       <h1>{p.newHeading}</h1>
       <p>{p.newIntro}</p>
     </div>
-    {formErrors && <p class="yours-alert" role="alert">{t.fixErrors}</p>}
+    <ErrorSummary detailErrors={detailErrors} whoErrors={whoErrors} />
     {notHuman && <p class="yours-alert" role="alert">{p.notHuman}</p>}
     <form method="post" action={links.step("new")} class="yours-sheet yours-fields" novalidate>
       <OwnerGroupFields values={details!} errors={detailErrors} />
@@ -182,7 +181,7 @@ const needsWidget = isPublic && (step === "confirm" || step === "fix" || step ==
       <h1>{p.confirmHeading} <span class="hl">{org.name}</span></h1>
       <p>{p.confirmIntro}</p>
     </div>
-    {formErrors && <p class="yours-alert" role="alert">{t.fixErrors}</p>}
+    <ErrorSummary detailErrors={detailErrors} whoErrors={whoErrors} />
     {notHuman && <p class="yours-alert" role="alert">{p.notHuman}</p>}
     <form method="post" action={links.step("confirm")} class="yours-sheet yours-fields" novalidate>
       <WhoSend knownName={knownName} who={who} errors={whoErrors} emailKnown={emailKnown}>
@@ -199,7 +198,7 @@ const needsWidget = isPublic && (step === "confirm" || step === "fix" || step ==
       <h1>{t.fix.heading}</h1>
       <p>{t.fix.intro}</p>
     </div>
-    {formErrors && <p class="yours-alert" role="alert">{t.fixErrors}</p>}
+    <ErrorSummary detailErrors={detailErrors} whoErrors={whoErrors} />
     {notHuman && <p class="yours-alert" role="alert">{p.notHuman}</p>}
     <form method="post" action={links.step("fix")} class="yours-sheet yours-fields" novalidate>
       <OwnerGroupFields values={details!} errors={detailErrors} />
@@ -218,9 +217,11 @@ const needsWidget = isPublic && (step === "confirm" || step === "fix" || step ==
     <Steps current={1} />
     <p class="yours-back"><a href={links.step("check")}>← {t.back}</a></p>
     <div class="yours-intro">
-      <h1>{t.remove.heading}</h1>
+      <h1>{org ? <>{t.remove.headingBefore} <span class="hl">{org.name}</span> {t.remove.headingAfter}</> : t.remove.heading}</h1>
       <p>{t.remove.intro}</p>
+      <p>{t.remove.comeBack}</p>
     </div>
+    <ErrorSummary detailErrors={detailErrors} whoErrors={whoErrors} />
     {notHuman && <p class="yours-alert" role="alert">{p.notHuman}</p>}
     <form method="post" action={links.step("remove")} class="yours-sheet yours-fields" novalidate>
       <div class="yf">

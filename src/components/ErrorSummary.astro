@@ -1,0 +1,53 @@
+---
+// The error summary at the top of an organizer form (/yours, steps confirm,
+// fix, new and remove). It lists each problem, in form order, as a link to its
+// field, and takes focus when the page loads so the problems are seen and read
+// out first. Field ids come from OwnerGroupFields.astro (of-<key>) and
+// WhoFields.astro (who_<key>).
+import { copy } from "../copy";
+import type { Errors } from "../admin/groups";
+import type { WhoErrors } from "../organizers/people";
+
+interface Props {
+  detailErrors: Errors;
+  whoErrors: WhoErrors;
+}
+
+const { detailErrors, whoErrors } = Astro.props;
+
+// The order the fields appear in, so the list reads top to bottom.
+const detailOrder = ["name", "website", "blurb", "category", "area", "schedule", "cost", "first_time", "ages", "accessibility", "where_text"] as const;
+const whoOrder = ["name", "email", "role"] as const;
+
+const items = [
+  ...detailOrder.filter((k) => detailErrors[k]).map((k) => ({ href: `#of-${k}`, text: detailErrors[k]! })),
+  ...whoOrder.filter((k) => whoErrors[k]).map((k) => ({ href: `#who_${k}`, text: whoErrors[k]! })),
+];
+---
+
+{items.length > 0 && (
+  <div class="yours-errors" id="error-summary" tabindex="-1" role="alert" aria-labelledby="error-summary-title">
+    <h2 id="error-summary-title">{copy.yours.errorsHeading}</h2>
+    <ul>
+      {items.map((i) => <li><a href={i.href}>{i.text}</a></li>)}
+    </ul>
+  </div>
+)}
+
+<script>
+  // Focus the summary on load, and move focus to a field when its link is used
+  // (a plain #link scrolls but leaves focus behind). Kinds and towns open first.
+  const summary = document.getElementById("error-summary");
+  if (summary) {
+    summary.focus();
+    summary.addEventListener("click", (e) => {
+      const link = (e.target as HTMLElement).closest("a");
+      const target = link && document.getElementById(link.hash.slice(1));
+      if (!target) return;
+      e.preventDefault();
+      target.closest("details")?.setAttribute("open", "");
+      target.scrollIntoView({ block: "center" });
+      target.focus({ preventScroll: true });
+    });
+  }
+</script>

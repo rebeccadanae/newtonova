@@ -7,7 +7,7 @@
 import { env } from "cloudflare:workers";
 import Organizer from "../../layouts/Organizer.astro";
 import YoursSteps from "../../components/YoursSteps.astro";
-import { copy } from "../../copy";
+import { copy, ORGANIZER_URL } from "../../copy";
 import type { OrgRow } from "../../admin/groups";
 import { findInvite } from "../../organizers/invites";
 import { readStep, runFlow, type Links } from "../../organizers/flow";
@@ -59,6 +59,8 @@ if (state && (Object.keys(state.whoErrors).length > 0 || Object.keys(state.detai
     <section class="yours-sheet">
       <h1>{t.goneHeading}</h1>
       <p class="yours-muted">{t.gone}</p>
+      <a class="yours-btn ink" href={ORGANIZER_URL}>{t.findGroup}</a>
+      <p class="yours-small">{t.goneAsk} <a href="mailto:hello@newtonova.org">hello@newtonova.org</a>.</p>
     </section>
   ) : (
     <YoursSteps state={state} links={links} knownName={knownName} emailKnown={Boolean(invite?.personEmail)} />

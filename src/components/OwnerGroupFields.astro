@@ -55,7 +55,7 @@ const tick = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke
 
 <div class="picks">
   <details class="pick" data-pick open={!!errors.category}>
-    <summary>
+    <summary id="of-category">
       <span class="pick-text">
         <strong>{t.kinds}</strong>
         <span class="pick-now" data-pick-now data-empty={t.none}>{values.category.join(", ") || t.none}</span>
@@ -78,7 +78,7 @@ const tick = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke
   </details>
 
   <details class="pick" data-pick open={!!errors.area}>
-    <summary>
+    <summary id="of-area">
       <span class="pick-text">
         <strong>{t.where}</strong>
         <span class="pick-now" data-pick-now data-empty={t.none}>{values.area.join(", ") || t.none}</span>
