@@ -3,11 +3,15 @@
 //                  links them, and makes sure the group has a personal link
 //   action=new-link: replaces the group's link (the old one stops working)
 //   action=revoke:   switches the group's link off
+//   action=edit-person (person, name, email, role): fixes a typo in a linked
+//                  organizer's name or email (everywhere), and their role here
+//   action=remove-person (person): unlinks them from this group and its link.
+//                  The person row stays; nothing is deleted.
 // Then it goes back to the group's page, which shows the drafted email.
 import type { APIRoute } from "astro";
 import { env } from "cloudflare:workers";
 import { activeInvite, makeInvite, revokeInvite } from "../../../../organizers/invites";
-import { linkPerson, savePerson } from "../../../../organizers/people";
+import { linkPerson, readPersonEdit, savePerson } from "../../../../organizers/people";
 
 export const prerender = false;
 
@@ -21,6 +25,34 @@ export const POST: APIRoute = async ({ params, request, redirect }) => {
 
   const form = await request.formData();
   const action = String(form.get("action") ?? "");
+
+  // Editing and removing work on any group, Live or not, but only on someone linked to it.
+  if (action === "edit-person" || action === "remove-person") {
+    const personId = String(form.get("person") ?? "");
+    const linked = await env.DB.prepare("SELECT 1 FROM org_people WHERE org_id = ?1 AND person_id = ?2")
+      .bind(id, personId)
+      .first();
+    if (!linked) return back("link=person-gone");
+
+    if (action === "remove-person") {
+      await env.DB.batch([
+        env.DB.prepare("DELETE FROM org_people WHERE org_id = ?1 AND person_id = ?2").bind(id, personId),
+        env.DB.prepare("UPDATE invites SET person_id = NULL WHERE org_id = ?1 AND person_id = ?2 AND revoked_at IS NULL").bind(id, personId),
+      ]);
+      return back("link=person-removed");
+    }
+
+    const { values, error } = readPersonEdit(form);
+    if (error) return back(`link=${error}&edit=${encodeURIComponent(personId)}`);
+    const taken = await env.DB.prepare("SELECT 1 FROM people WHERE email = ?1 AND id != ?2").bind(values.email, personId).first();
+    if (taken) return back(`link=email-taken&edit=${encodeURIComponent(personId)}`);
+    await env.DB.batch([
+      env.DB.prepare("UPDATE people SET name = ?1, email = ?2, updated_at = ?3 WHERE id = ?4")
+        .bind(values.name, values.email, new Date().toISOString(), personId),
+      env.DB.prepare("UPDATE org_people SET role = ?1 WHERE org_id = ?2 AND person_id = ?3").bind(values.role || null, id, personId),
+    ]);
+    return back("link=person-saved");
+  }
 
   if (action === "revoke") {
     await revokeInvite(env.DB, id);

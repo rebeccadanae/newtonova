@@ -59,3 +59,17 @@ export async function linkPerson(db: D1Database, orgId: string, personId: string
     .bind(orgId, personId, role || null)
     .run();
 }
+
+// Admin: correcting a linked organizer (a typo in their name or email, or their
+// role with one group). Returns the cleaned values, or the first problem.
+export type PersonEdit = { name: string; email: string; role: string };
+export function readPersonEdit(form: FormData): { values: PersonEdit; error: "" | "bad-name" | "bad-email" } {
+  const values: PersonEdit = {
+    name: str(form, "name").slice(0, MAX),
+    email: str(form, "email").toLowerCase(),
+    role: str(form, "role").slice(0, MAX),
+  };
+  if (!values.name) return { values, error: "bad-name" };
+  if (!looksLikeEmail(values.email) || values.email.length > MAX) return { values, error: "bad-email" };
+  return { values, error: "" };
+}

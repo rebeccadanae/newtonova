@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { readWho } from "./people";
+import { readPersonEdit, readWho } from "./people";
 
 const form = (fields: Record<string, string>) => {
   const f = new FormData();
@@ -29,4 +29,19 @@ test("readWho rejects an address without a domain", () => {
 
 test("a different email typed over a known one is still checked", () => {
   expect(readWho(form({ who_name: "Sam", who_email: "nope" }), { emailKnown: true }).errors.email).toBeTruthy();
+});
+
+test("readPersonEdit cleans a corrected name and email", () => {
+  const { values, error } = readPersonEdit(form({ name: " Sam ", email: " Sam@Example.org ", role: " Organizer " }));
+  expect(error).toBe("");
+  expect(values).toEqual({ name: "Sam", email: "sam@example.org", role: "Organizer" });
+});
+
+test("readPersonEdit still catches a typo in the email", () => {
+  expect(readPersonEdit(form({ name: "Sam", email: "sam@example" })).error).toBe("bad-email");
+  expect(readPersonEdit(form({ name: "Sam", email: "" })).error).toBe("bad-email");
+});
+
+test("readPersonEdit needs a name", () => {
+  expect(readPersonEdit(form({ name: " ", email: "sam@example.org" })).error).toBe("bad-name");
 });

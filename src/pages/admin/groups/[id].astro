@@ -122,6 +122,7 @@ const errorCount = Object.keys(errors).length;
       origin={Astro.url.origin}
       link={Astro.url.searchParams.get("link") ?? ""}
       first={Astro.url.searchParams.get("first") ?? ""}
+      edit={Astro.url.searchParams.get("edit") ?? ""}
     />
   )}
 </Admin>

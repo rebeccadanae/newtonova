@@ -14,21 +14,23 @@ interface Props {
   /** From the query after an action: what happened, and the first name for the draft. */
   link: string;
   first: string;
+  /** A person whose edit didn't save: their form opens again. */
+  edit?: string;
 }
 
-const { org, origin, link, first } = Astro.props;
+const { org, origin, link, first, edit = "" } = Astro.props;
 const t = copy.admin.organizers;
 const a = copy.yours.about;
 const live = org.status === "Live";
 
 const { results: people } = await env.DB.prepare(
-  `SELECT p.name, p.email, op.role,
+  `SELECT p.id, p.name, p.email, op.role,
           (SELECT MAX(created_at) FROM submissions s WHERE s.person_id = p.id AND s.org_id = op.org_id) AS last_sent
    FROM org_people op JOIN people p ON p.id = op.person_id
    WHERE op.org_id = ?1 ORDER BY p.name COLLATE NOCASE`,
 )
   .bind(org.id)
-  .all<{ name: string; email: string; role: string | null; last_sent: string | null }>();
+  .all<{ id: string; name: string; email: string; role: string | null; last_sent: string | null }>();
 
 const answers = await env.DB.prepare(
   `SELECT a.struggles, a.struggle_other, a.hand_off, a.chat, a.connect, a.profile, a.created_at, p.name
@@ -68,6 +70,34 @@ const notice = t.notices[link as keyof typeof t.notices];
         <li>
           <strong>{p.name}</strong>{p.role && ` (${p.role})`} · <a href={`mailto:${p.email}`}>{p.email}</a>
           {p.last_sent && <span class="admin-muted"> · {t.lastSent(day(p.last_sent))}</span>}
+          <details class="org-edit" open={edit === p.id}>
+            <summary>{t.edit}<span class="visually-hidden"> {p.name}</span></summary>
+            <form method="post" action={`/admin/groups/${org.id}/organizers`} class="org-invite">
+              <input type="hidden" name="action" value="edit-person" />
+              <input type="hidden" name="person" value={p.id} />
+              <div class="gf-field">
+                <label for={`edit-name-${p.id}`}>{t.editName}</label>
+                <input id={`edit-name-${p.id}`} name="name" type="text" value={p.name} autocomplete="off" required />
+              </div>
+              <div class="gf-field">
+                <label for={`edit-email-${p.id}`}>{t.editEmail}</label>
+                <input id={`edit-email-${p.id}`} name="email" type="text" inputmode="email" value={p.email} autocomplete="off" required />
+              </div>
+              <div class="gf-field">
+                <label for={`edit-role-${p.id}`}>{t.editRole}</label>
+                <input id={`edit-role-${p.id}`} name="role" type="text" value={p.role ?? ""} autocomplete="off" />
+              </div>
+              <div class="rv-actions">
+                <button class="ink-btn" type="submit">{t.save}</button>
+              </div>
+            </form>
+            <form method="post" action={`/admin/groups/${org.id}/organizers`} class="org-remove">
+              <input type="hidden" name="action" value="remove-person" />
+              <input type="hidden" name="person" value={p.id} />
+              <button class="paper-btn" type="submit">{t.remove}</button>
+              <p class="gf-hint">{t.removeHint}</p>
+            </form>
+          </details>
         </li>
       ))}
     </ul>
