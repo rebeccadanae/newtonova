@@ -124,10 +124,10 @@ export async function decide(db: D1Database, id: string, outcome: "approved" | "
     .run();
 }
 
-// "Looks good": the group is now checked by its organizer.
+// "Looks good": the group is now confirmed by its organizer (verified_at dates it).
 export async function approveConfirm(db: D1Database, s: Submission): Promise<void> {
   await db.batch([
-    db.prepare("UPDATE orgs SET verified = 1, updated_at = ?1 WHERE id = ?2").bind(new Date().toISOString(), s.orgId),
+    db.prepare("UPDATE orgs SET verified = 1, verified_at = ?1, updated_at = ?1 WHERE id = ?2").bind(new Date().toISOString(), s.orgId),
     db.prepare("UPDATE submissions SET status = 'approved', decided_at = ?1 WHERE id = ?2 AND status = 'pending'").bind(new Date().toISOString(), s.id),
   ]);
 }
@@ -147,11 +147,12 @@ export function reviewValues(s: Submission, current: OrgRow | null): Group {
   return { ...base, ...(s.proposed ?? {}) };
 }
 
-// Saves an approved change or new group, marks it verified, links the organizer
+// Saves an approved change or new group, marks it verified (dated), links the organizer
 // and their answers to it, and closes the submission. Returns the group's id.
 export async function approveWithGroup(db: D1Database, s: Submission, id: string | null, g: Group): Promise<string> {
   const savedId = await saveGroup(db, id, { ...g, verified: true });
   await db.batch([
+    db.prepare("UPDATE orgs SET verified_at = ?1 WHERE id = ?2").bind(new Date().toISOString(), savedId),
     db.prepare("INSERT OR IGNORE INTO org_people (org_id, person_id, role) VALUES (?1, ?2, ?3)").bind(savedId, s.person.id, s.person.role || null),
     db.prepare("UPDATE org_answers SET org_id = ?1 WHERE submission_id = ?2 AND org_id IS NULL").bind(savedId, s.id),
     db.prepare("UPDATE submissions SET status = 'approved', decided_at = ?1 WHERE id = ?2 AND status = 'pending'").bind(new Date().toISOString(), s.id),

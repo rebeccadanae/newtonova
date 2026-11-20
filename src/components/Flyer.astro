@@ -5,13 +5,14 @@
 import { copy } from "../copy";
 import { placeColor } from "../routes";
 import { tilts, pins, type FlyerOrg, type NextEvent } from "../flyer";
+import { confirmedMonth } from "../verified";
 import "../styles/flyer.css";
 
 interface Props {
   org: FlyerOrg;
   index: number;
   next: NextEvent[];
-  /** "Yours? Check it" tab. Left out on the organizer pages. */
+  /** "Your group? Verify it" tab ("Update it" once verified). Left out on the organizer pages. */
   claimHref?: string;
   /** Heading level for the group's name: h3 on the board, h2 on its own. */
   headingLevel?: 2 | 3;
@@ -23,6 +24,8 @@ interface Props {
 const { org: o, index: i, next, claimHref, headingLevel = 3, as = "li", nextLabel = copy.listing.nextLabel } = Astro.props;
 const Tag = as;
 const H = `h${headingLevel}` as "h2" | "h3";
+const confirmed = confirmedMonth(o.verifiedAt);
+const claimTab = o.verified ? copy.listing.claimTabVerified : copy.listing.claimTab;
 ---
 
 <Tag
@@ -53,6 +56,12 @@ const H = `h${headingLevel}` as "h2" | "h3";
     <span class="kinds">{o.category.join(" + ")}</span>
   </p>
   <p class="blurb">{o.blurb}</p>
+  {confirmed && (
+    <p class="confirmed">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12.5l2.7 2.7L16 9.8"></path></svg>
+      {copy.listing.confirmed(confirmed)}
+    </p>
+  )}
   <div class="tabs">
     <a
       class="tab tab-next"
@@ -78,8 +87,8 @@ const H = `h${headingLevel}` as "h2" | "h3";
     )}
     {claimHref && (
       <a class="tab" href={claimHref}>
-        <span class="tab-k">{copy.listing.claimTab[0]}</span>
-        <span>{copy.listing.claimTab[1]}<span class="visually-hidden">: {o.name}</span></span>
+        <span class="tab-k">{claimTab[0]}</span>
+        <span>{claimTab[1]}<span class="visually-hidden">: {o.name}</span></span>
       </a>
     )}
   </div>

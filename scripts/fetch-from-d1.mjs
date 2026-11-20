@@ -26,7 +26,7 @@ const write = (name, rows) => {
 
 // ---- Groups
 
-const orgs = query(target, "SELECT id, name, website, category, area, blurb, verified FROM orgs WHERE status = 'Live'")
+const orgs = query(target, "SELECT id, name, website, category, area, blurb, verified, verified_at FROM orgs WHERE status = 'Live'")
   .map((r) => ({
     id: r.id,
     name: r.name.trim(),
@@ -36,6 +36,9 @@ const orgs = query(target, "SELECT id, name, website, category, area, blurb, ver
     blurb: r.blurb ?? "",
     status: "Live",
     verified: Boolean(r.verified),
+    // When its organizer last confirmed it (flyer: "Confirmed by the group, Nov 2026").
+    // Only while it's still marked verified.
+    verifiedAt: r.verified && r.verified_at ? r.verified_at : "",
   }))
   .filter((o) => o.name)
   .sort((a, b) => a.name.localeCompare(b.name));

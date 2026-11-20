@@ -22,12 +22,10 @@
 - [M] Go through the copy everywhere
 - [S] Organizer flow: add an "Other" option
 - [S] Organizer flow: split Creative into Arts & Crafts and Performing Arts
-- [S] Organizer flow: the post-it is too wide on desktop (fold into the block 8b design pass)
 - [S] Organizer flow: rewrite the copy on the One more thing page
 - [M] Move the search bar down and make it actually work
 - [S] More text for search
 - [M] Try design tools on the site: Impeccable (https://impeccable.style/) and the design-for-ai Claude Code plugin (https://github.com/ryanthedev/design-for-ai)
-- [M] Flyer tab "Yours? Check it" becomes "Your group? Verify it" ("Update it" once verified), plus a verified mark on the flyer with the month it was approved. Wording: "confirmed", "approved" or "reviewed", not "checked". Needs a verified-on date from the review queue
 - [M] Email Becca when an organizer sends something (Cloudflare `send_email` binding to her own verified address): what kind, which group, a link to /admin/review/<id>; no organizer email in it
 
 ## Someday

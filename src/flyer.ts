@@ -7,6 +7,10 @@ export type FlyerOrg = {
   category: string[];
   area: string[];
   blurb: string;
+  /** Marked verified in admin: its tab reads "Update it" instead of "Verify it". */
+  verified?: boolean;
+  /** When its organizer last confirmed it (ISO), or empty: shows the confirmed line. */
+  verifiedAt?: string;
 };
 
 // One of a group's next events, as the flyer's Next tab shows it.

@@ -70,7 +70,10 @@ export async function runFlow(s: FlowSetup): Promise<{ redirect: string } | Flow
   const { db, request, step, row } = s;
   const current: GroupDetails | null = row ? fromRow(row) : null;
   const org: FlyerOrg | null = row && current
-    ? { id: row.id, name: current.name, website: current.website, category: current.category, area: current.area, blurb: current.blurb }
+    ? {
+        id: row.id, name: current.name, website: current.website, category: current.category, area: current.area, blurb: current.blurb,
+        verified: Boolean(row.verified), verifiedAt: row.verified ? row.verified_at ?? "" : "",
+      }
     : null;
 
   const state: FlowState = {

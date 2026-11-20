@@ -62,6 +62,11 @@ A free directory of Northern Virginia groups that welcome new people: creative c
       - The list has a place-colour dot per group.
       - The check step's flyer is shown at its board width (at most 340px), so it keeps the near-square shape it has on Groups. A mini flyer on confirm, fix and remove was tried and taken out (it looked like a sticker, and the headings already name the group).
       - On Add your group, the progress line starts with "Your group".
+  - Verified mark, done 2026-11-19 on `staging`:
+    - The flyer tab reads "Your group? Verify it", or "Update it" once verified.
+    - Confirmed groups show "Confirmed by the group, Nov 2026", from `orgs.verified_at`.
+    - **Migration `0004_verified_at.sql` is applied to local and staging only. Apply it to the real database (`npm run db:migrate`) before merging to `main`, or the build's fetch step fails on the missing column.**
+  - Next: email Becca when an organizer sends something (BACKLOG.md), then phase 2 block 5.
 - **Email signup: Kit** (free plan), on its own page at `/join` (`src/pages/join.astro`). The form is our own HTML form posting to Kit form 10076200 ("Mills form", `https://app.kit.com/forms/10076200/subscriptions`), not Kit's JavaScript embed, so it has visible labels and the site's look. Fields: `email_address` (required), `fields[interests]` (what they're looking for) and `fields[source]` (how they heard about the site), both optional free text saved as Kit custom fields. Answers stay in Kit, never in this repo or Notion. After signing up, Kit redirects to `/join/thanks/` (set in the form's settings in Kit). The homepage signup sheet links to `/join`. Questions will become dropdowns once patterns show up in the answers. Labels and page copy are in `copy.join` and `copy.joinThanks` in `src/copy.ts`.
 
 - **Analytics: Umami Cloud** (free Hobby plan), cookieless, so no banner. One script tag in `src/layouts/Base.astro` with `data-domains="newtonova.org"`, so local and workers.dev visits aren't counted.
@@ -91,7 +96,7 @@ A free directory of Northern Virginia groups that welcome new people: creative c
 | Area | multi-select | Location line with pin icon |
 | Blurb | text | Card body |
 | Status | select: Collecting, Ready, Live (Removed isn't an option in Notion yet; the D1 table allows it) | Publish only Live. Removed = the org asked to come down; keep the row so it isn't re-added |
-| Verified | checkbox | Not shown yet |
+| Verified | checkbox | Tab reads "Update it" instead of "Verify it"; with `verified_at` (D1 only, set when Becca approves an organizer's confirm, change or new group), the flyer shows "Confirmed by the group, Nov 2026" |
 | Found via | url | Never shown (internal) |
 | Where | text | Not used until the map |
 | No fixed place | checkbox | Not used until the map |
@@ -120,7 +125,7 @@ In short: paper pinned to a pale blue fabric board; colour means place (route co
 - **Top:** headline with "new people" on the marker stripe, Becca's note (photo + her words), search ("Search the board"). On the right, the taped **Coming up** sheet: the next four events from Live groups, each with a dot in its event's place colour (falling back to the group's towns), and "All events". On phones it shows the next three stacked, name on one line, no group name.
 - **Where are you headed?** Four route signs (Inside the Beltway, I-66 West, Dulles Toll Road, I-95 South). Click a sign's name for the whole route or a town for one town; click again to clear; "All of NoVA" clears. **Statewide and National groups count under every town.** A note explains lilac (statewide, national, or in lots of places). On phones the towns fold behind an arrow.
 - **Kind tags:** "Everything" plus each category with a Live group; one row that swipes on phones. Search, place and kind combine (AND). The count reads "40 groups", or "Showing 10 of 40 groups" when filtered (`role="status"`).
-- **Flyers:** one per Live group, filled with its place colour, tilted and pinned: name (links to its site), bold place line + kinds, the full blurb, then tear-off tabs: **Next** (its next event, or "Nothing listed yet"), **Visit** their site, **"Yours? Check it"** (`/yours/?org=<id>`, same tab). Each flyer has id `org-<page id>` so Events can link to it.
+- **Flyers:** one per Live group, filled with its place colour, tilted and pinned: name (links to its site), bold place line + kinds, the full blurb, then "Confirmed by the group, <month>" once an organizer has confirmed it (`src/verified.ts`), then tear-off tabs: **Next** (its next event, or "Nothing listed yet"), **Visit** their site, **"Your group? Verify it"** ("Update it" once verified; `/yours/?org=<id>`, same tab). Each flyer has id `org-<page id>` so Events can link to it.
 - **Bottom:** two pinned sheets, organizers (to `/yours/`) and "Stay in the loop" (to `/join`).
 
 ## /events page
@@ -149,10 +154,10 @@ Becca only. Server-rendered (`prerender = false`), layout `src/layouts/Admin.ast
 ## Later (not now)
 
 - **Map view:** Leaflet with OpenStreetMap tiles. People enter a ZIP (looked up from a static ZIP-to-coordinates table shipped with the site) or use "Use my location", so no address leaves the browser and there's no geocoding API. The address in Notion's **Where** field gets turned into coordinates at build time, with results cached. Orgs marked **No fixed place** stay in the list with no pin. Check OpenStreetMap's tile usage policy before launch.
-- Events newsletter content, Verified badge, org pages.
+- Events newsletter content, org pages.
 
 ## Backlog
 
 - When an idea comes up that isn't the current task, or I say "park this", add one line to BACKLOG.md under Next (with a size) or Someday, then go back to the current task. Don't start it.
 - At the end of a session, or when I say "wrap up", update Now with where we stopped and what's next.
-- Don't reorder or prune BACKLOG.md unless I ask.
+- When an item is done, remove its line from BACKLOG.md in the same commit, so it isn't picked up twice. Otherwise don't reorder or prune BACKLOG.md unless I ask.

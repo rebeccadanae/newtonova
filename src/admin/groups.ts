@@ -58,6 +58,7 @@ export type OrgRow = {
   area: string;
   status: string;
   verified: number;
+  verified_at: string | null;
   found_via: string | null;
   events_page: string | null;
   where_text: string | null;

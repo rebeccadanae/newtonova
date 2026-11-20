@@ -105,7 +105,10 @@ export const copy = {
     nextLabel: "Next",
     nextNone: "Nothing listed yet",
     visitTab: ["Visit", "their site"],
-    claimTab: ["Yours?", "Check it"],
+    claimTab: ["Your group?", "Verify it"],
+    claimTabVerified: ["Your group?", "Update it"],
+    // Above the tabs once an organizer has confirmed the group: "Confirmed by the group, Nov 2026".
+    confirmed: (month: string) => `Confirmed by the group, ${month}`,
     total: (n: number) => `${n} ${n === 1 ? "group" : "groups"}`,
     showing: (shown: number, total: number) => `Showing ${shown} of ${total} groups`,
   },
