@@ -470,8 +470,6 @@ export const copy = {
       lastBuilt: (when: string) => `Last published ${when}.`,
       failed: "Publishing didn't start. Try again in a minute; if it keeps failing, check the Deploy Hook in Cloudflare.",
     },
-    notionNote:
-      "Groups can be edited here now. Each build still copies Notion in, but a group edited here keeps this version unless it's edited in Notion afterwards, so once you've changed a group here, keep editing it here. Changes show on the site once you publish.",
     groupsHeading: "Groups",
     newGroup: "New group",
     saved: (name: string) => `Saved ${name}. It shows on the site once you publish.`,

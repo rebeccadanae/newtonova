@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "fetch": "node --env-file-if-exists=.env scripts/import-from-notion.mjs --remote && node --env-file-if-exists=.env scripts/fetch-from-d1.mjs",
+    "fetch": "node --env-file-if-exists=.env scripts/fetch-from-d1.mjs",
     "predev": "npm run fetch",
     "dev": "wrangler types >/dev/null && astro dev",
     "prebuild": "npm run fetch",
@@ -13,13 +13,10 @@
     "preview": "astro preview",
     "db:migrate:local": "wrangler d1 migrations apply newtonova --local",
     "db:migrate": "wrangler d1 migrations apply newtonova --remote",
-    "import:local": "node --env-file-if-exists=.env scripts/import-from-notion.mjs",
-    "import": "node --env-file-if-exists=.env scripts/import-from-notion.mjs --remote",
     "test": "vitest run"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.7",
-    "@notionhq/client": "^5.27.1",
     "astro": "^7.4.0",
     "jose": "^6.2.17"
   },

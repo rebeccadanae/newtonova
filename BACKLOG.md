@@ -1,17 +1,12 @@
 # Backlog
 
 ## Now
-- Phase 2 of the move off Notion: blocks 1 to 4b are done (server setup, Access lock, group forms, event forms, repeating events), and the `staging` Worker and database are set up.
-- Organizer flow is finished and live (blocks 1–8b). Live on newtonova.org since 2026-11-19, with `main` and `staging` at 545d877:
-  - the `/yours/` design pass (8b)
-  - the "Your group? Verify it" tab, with "Confirmed by the group, <month>" (migration 0004, applied everywhere)
-  - an email to Becca for each organizer submission (`NOTIFY_TO` set on both Workers)
-  Stopped there. Next is phase 2 block 5, the switch off Notion, done on `staging` first. It starts with Becca picking how admin edits reach the public pages: a Publish button plus a nightly Deploy Hook rebuild (recommended), live pages, or a rebuild on every save. One doc-only commit on `staging` (49a59a4) and this backlog update aren't pushed; they go up with the next push.
+- The move off Notion is finished (2026-11-20). Admin edits reach the site through the Publish button in `/admin` (live since 2026-11-20) or the nightly rebuild. The last Notion import ran 2026-11-20, and Notion is out of the build.
+- Before it's all done: the "Nightly" Deploy Hook and `NIGHTLY_DEPLOY_HOOK_URL` secret, one test run of the nightly workflow, and `NOTION_TOKEN` removed from both Workers' build settings and `.env`.
+- Next big piece: pick from Next (the event scraper, or phase 3 accounts).
 
 ## Next
 - [S] Flyer tab on Groups: label "Next" → "Next event" (`copy.listing.nextLabel`), and check the tab still fits at phone width
-- [M] Phase 2 block 5B, the rest of the switch off Notion, on `staging` first: run one last import, then take the Notion import and `NOTION_TOKEN` out of the build (block A, the Publish button, done 2026-11-20)
-- [S] Nightly rebuild: a scheduled GitHub Action that POSTs to its own Workers Builds Deploy Hook on `newtonova` (part of block 5B)
 - [L] Phase 3: owner and member accounts with Better Auth on D1 (email code sign-in, Becca as admin), claims, an edit queue Becca approves, and a verification process
 - [L] Phase 4: owners add events
 - [L] Event scraper: a scheduled job pulls new events from groups' events pages into a review queue in `/admin`; nothing goes Live until Becca approves it

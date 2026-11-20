@@ -1,0 +1,31 @@
+# Rebuilds newtonova.org every night, so the day's admin edits go live even
+# without pressing Publish, and passed events drop off the pages.
+# It POSTs to a Deploy Hook on the `newtonova` Worker (Workers & Pages >
+# newtonova > Settings > Build > Deploy Hooks, one named "Nightly"), whose URL
+# is the NIGHTLY_DEPLOY_HOOK_URL secret in this repo's Actions settings.
+# Scheduled runs use this file as it is on `main`.
+name: Nightly rebuild
+
+on:
+  schedule:
+    # 09:00 UTC: 4am in New York in winter, 5am in summer.
+    - cron: "0 9 * * *"
+  workflow_dispatch: # "Run workflow" button, for testing
+
+permissions: {}
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Start a build of newtonova
+        env:
+          HOOK: ${{ secrets.NIGHTLY_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::NIGHTLY_DEPLOY_HOOK_URL isn't set in this repo's Actions secrets"
+            exit 1
+          fi
+          curl --fail --silent --show-error --max-time 30 -X POST "$HOOK" > /dev/null
+          echo "Build started"

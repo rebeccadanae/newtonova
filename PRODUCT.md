@@ -42,7 +42,7 @@ Success, a year out:
 
 ## Capabilities and Constraints
 
-- Fully static Astro site on Cloudflare Workers; search and filters run in the browser. Data comes from two Notion databases at build time; only rows with Status = Live are published.
+- Fully static Astro site on Cloudflare Workers; search and filters run in the browser. Data lives in Cloudflare D1, edited in /admin, and is read at build time; only rows with Status = Live are published.
 - **Contact details stay private** (rule changed 2026-11-18).
   - An organizer's own name and email may be stored in D1 so Becca can reply.
   - They are never shown on the site, never in the public JSON, and never in the repo.
@@ -67,7 +67,7 @@ Success, a year out:
 ## Evidence on Hand
 
 - About page with Becca's story and photo (`src/pages/about.astro`).
-- About 40 live groups and a running set of upcoming events, from Notion.
+- About 40 live groups and a running set of upcoming events, edited in /admin.
 - No testimonials, user counts, subscriber numbers, press or partner logos exist. Do not invent any.
 
 ## Product Principles

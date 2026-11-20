@@ -2,7 +2,7 @@
 // src/data/events.json for the site. Runs before every build (npm "prebuild").
 // Writes only what the site shows, plus ids: never Found via, Where for orgs,
 // Summary, the new detail fields, or contact info.
-// Rebuilds are manual, so past events are dropped now and again in the browser.
+// Past events are dropped now and again in the browser, which covers the hours between rebuilds.
 //
 //   node scripts/fetch-from-d1.mjs           (the real database)
 //   node scripts/fetch-from-d1.mjs --local   (the test copy)

@@ -1,6 +1,6 @@
 // Route groups for "Where are you headed?" on the homepage.
 // Each group's colour also marks place everywhere on the site (flyers, Coming up dots).
-// Towns listed here must match Notion's Area options. Statewide and National are "anywhere".
+// Towns listed here must match the Area options in the admin group form. Statewide and National are "anywhere".
 
 export type Route = {
   id: string;
