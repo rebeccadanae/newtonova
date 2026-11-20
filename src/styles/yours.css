@@ -737,9 +737,38 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  max-height: 420px;
-  overflow-y: auto;
   border-top: 1px solid rgb(29 42 47 / 0.14);
+}
+
+/* The count, and "Not on the list? Add your group" where it's seen first */
+.find-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 16px;
+}
+
+.find-bar p {
+  margin: 0;
+}
+
+.find-add a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 700;
+}
+
+.find-none {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.find-none[hidden],
+.yours-btn[hidden] {
+  display: none;
 }
 
 .find-list li {

@@ -3,6 +3,7 @@
 // and the public path (/yours/). The logic is in src/organizers/flow.ts; the
 // page passes in its state and its links.
 //   check: the flyer, "Looks good", Fix something, Take us off
+//   confirm (public path only): "who's checking", after Looks good
 //   fix / remove / new: a form, then "who's sending"
 //   about: "help me help" (optional), then thanks
 // On the public path (turnstileKey set) each send form carries the Turnstile
@@ -37,7 +38,7 @@ const thanksBody =
   : sent?.kind === "new" ? p.thanksNew
   : t.thanksConfirm;
 const showFlyerLink = sent?.orgId && sent.kind !== "remove" && sent.kind !== "new";
-const needsWidget = isPublic && (step === "check" || step === "fix" || step === "remove" || step === "new");
+const needsWidget = isPublic && (step === "confirm" || step === "fix" || step === "remove" || step === "new");
 ---
 
 {needsWidget && turnstileKey && (
@@ -173,6 +174,23 @@ const needsWidget = isPublic && (step === "check" || step === "fix" || step === 
       </WhoSend>
     </form>
   </>
+) : step === "confirm" && org ? (
+  <>
+    <Steps current={1} />
+    <p class="yours-back"><a href={links.step("check")}>← {t.back}</a></p>
+    <div class="yours-intro">
+      <h1>{p.confirmHeading} <span class="hl">{org.name}</span></h1>
+      <p>{p.confirmIntro}</p>
+    </div>
+    {formErrors && <p class="yours-alert" role="alert">{t.fixErrors}</p>}
+    {notHuman && <p class="yours-alert" role="alert">{p.notHuman}</p>}
+    <form method="post" action={links.step("confirm")} class="yours-sheet yours-fields" novalidate>
+      <WhoSend knownName={knownName} who={who} errors={whoErrors} emailKnown={emailKnown}>
+        {turnstileKey && <div class="cf-turnstile yours-human" data-sitekey={turnstileKey}></div>}
+        <button class="yours-btn ink" type="submit">{p.confirmSend}</button>
+      </WhoSend>
+    </form>
+  </>
 ) : step === "fix" ? (
   <>
     <Steps current={1} />
@@ -231,12 +249,16 @@ const needsWidget = isPublic && (step === "check" || step === "fix" || step === 
       <h2 id="question">{t.question}</h2>
       {pendingDate && <p class="yours-note">{t.pending(pendingDate)}</p>}
       {notHuman && <p class="yours-alert" role="alert">{p.notHuman}</p>}
-      <form method="post" action={links.step("check")} novalidate>
-        <WhoSend knownName={knownName} who={who} errors={whoErrors} emailKnown={emailKnown}>
-          {turnstileKey && <div class="cf-turnstile yours-human" data-sitekey={turnstileKey}></div>}
-          <button class="yours-btn ink" type="submit">{t.looksGood}</button>
-        </WhoSend>
-      </form>
+      {isPublic ? (
+        // The public path asks who's checking on the next step, so the choice comes first.
+        <a class="yours-btn ink" href={links.step("confirm")}>{t.looksGood}</a>
+      ) : (
+        <form method="post" action={links.step("check")} novalidate>
+          <WhoSend knownName={knownName} who={who} errors={whoErrors} emailKnown={emailKnown}>
+            <button class="yours-btn ink" type="submit">{t.looksGood}</button>
+          </WhoSend>
+        </form>
+      )}
       <a class="yours-btn paper" href={links.step("fix")}>{t.fixButton}</a>
       <p class="yours-quiet-link"><a href={links.step("remove")}>{t.removeLink}</a></p>
     </section>

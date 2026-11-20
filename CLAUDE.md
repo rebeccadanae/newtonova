@@ -46,7 +46,17 @@ A free directory of Northern Virginia groups that welcome new people: creative c
   - Turnstile widget "newtonova organizer forms" (hostnames newtonova.org and both workers.dev addresses) created 2026-11-19; `TURNSTILE_SECRET` is set on both Workers. Checked on staging 2026-11-19.
   - Block 8a was done 2026-11-19: every organizer link points to `/yours/` (stored once as `ORGANIZER_URL` in `src/copy.ts`). Each flyer's "Yours? Check it" tab goes to `/yours/?org=<id>` in the same tab; the organizer sheets on Groups and Events, the footer's "Suggest a group", the suggest button on Groups and About's "How the list works" go to `/yours/`. Tally is out of the code, and the Tally form was turned off 2026-11-19.
   - Public "Add your group" is worded for organizers. Someone suggesting another group can still use it (role is optional), and Becca checks every new group by hand.
-  - Next is block 8b: an Impeccable design pass on `/yours/` (list, add a group, every step) at desktop and phone width. It comes before phase 2 block 5.
+  - Block 8b, an Impeccable design pass on `/yours/`, comes before phase 2 block 5. The critique (27/40) was done 2026-11-19 and saved in `.impeccable/critique/`.
+    - Part 1 was done 2026-11-19 on `staging`:
+      - On the public check step, "Looks good" now goes to `?step=confirm` (public only), which asks who's checking.
+      - The list scrolls with the page. It has "Not on the list? Add your group" by the search, and search matches towns.
+      - With no match, the button says "Add <typed name>" and opens `?step=new&name=…` with the name filled in.
+      - Removals skip the questions and go straight to thanks.
+    - Still to do:
+      - error summaries that list and link each problem and get focus (fix, new, remove)
+      - the remove page naming the group
+      - a way forward from a dead personal link
+      - the board look (tape, place dots, the flyer on fix and remove)
 - **Email signup: Kit** (free plan), on its own page at `/join` (`src/pages/join.astro`). The form is our own HTML form posting to Kit form 10076200 ("Mills form", `https://app.kit.com/forms/10076200/subscriptions`), not Kit's JavaScript embed, so it has visible labels and the site's look. Fields: `email_address` (required), `fields[interests]` (what they're looking for) and `fields[source]` (how they heard about the site), both optional free text saved as Kit custom fields. Answers stay in Kit, never in this repo or Notion. After signing up, Kit redirects to `/join/thanks/` (set in the form's settings in Kit). The homepage signup sheet links to `/join`. Questions will become dropdowns once patterns show up in the answers. Labels and page copy are in `copy.join` and `copy.joinThanks` in `src/copy.ts`.
 
 - **Analytics: Umami Cloud** (free Hobby plan), cookieless, so no banner. One script tag in `src/layouts/Base.astro` with `data-domains="newtonova.org"`, so local and workers.dev visits aren't counted.

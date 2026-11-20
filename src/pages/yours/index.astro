@@ -98,10 +98,13 @@ const groups = showSteps || gone
           <label for="find">{t.searchLabel}</label>
           <input id="find" type="search" autocomplete="off" placeholder={t.searchPlaceholder} aria-controls="find-list" />
         </div>
-        <p class="yours-small" id="find-count" role="status">{t.count(groups.length)}</p>
+        <div class="find-bar">
+          <p class="yours-small" id="find-count" role="status">{t.count(groups.length)}</p>
+          <p class="yours-small find-add">{t.notListed} <a href="/yours/?step=new">{t.addGroup}</a></p>
+        </div>
         <ul class="find-list" id="find-list">
           {groups.map((g) => (
-            <li data-name={g.name.toLowerCase()}>
+            <li data-search={`${g.name} ${g.towns}`.toLowerCase()}>
               <a href={`/yours/?org=${encodeURIComponent(g.id)}`}>
                 <span class="find-name">{g.name}</span>
                 {g.towns && <span class="find-towns">{g.towns}</span>}
@@ -109,25 +112,37 @@ const groups = showSteps || gone
             </li>
           ))}
         </ul>
-        <p class="yours-muted" id="find-none" hidden>{t.noMatch}</p>
-        <a class="yours-btn ink" href="/yours/?step=new">{t.addGroup}</a>
+        <div class="find-none" id="find-none" hidden>
+          <p class="yours-muted">{t.noMatch}</p>
+          <a class="yours-btn ink" id="find-add-named" href="/yours/?step=new">{t.addGroup}</a>
+        </div>
+        <a class="yours-btn ink" id="find-add-end" href="/yours/?step=new">{t.addGroup}</a>
       </section>
       <p class="yours-small">{t.footnote}</p>
-      <script define:vars={{ one: t.count(1), many: t.count(99).replace("99", "{n}") }}>
-        // Filters the list as you type (names only).
+      <script define:vars={{ one: t.count(1), many: t.count(99).replace("99", "{n}"), addNamed: t.addNamed("{n}") }}>
+        // Filters the list as you type (name or town). With no match, the add
+        // button carries what was typed into the new-group form as its name.
         const input = document.getElementById("find");
         const items = [...document.querySelectorAll("#find-list li")];
         const none = document.getElementById("find-none");
+        const addTyped = document.getElementById("find-add-named");
+        const addEnd = document.getElementById("find-add-end");
         const count = document.getElementById("find-count");
         input.addEventListener("input", () => {
-          const q = input.value.trim().toLowerCase();
+          const typed = input.value.trim();
+          const q = typed.toLowerCase();
           let shown = 0;
           for (const li of items) {
-            const match = !q || li.dataset.name.includes(q);
+            const match = !q || li.dataset.search.includes(q);
             li.hidden = !match;
             if (match) shown++;
           }
           none.hidden = shown > 0;
+          addEnd.hidden = shown === 0;
+          if (shown === 0) {
+            addTyped.textContent = addNamed.replace("{n}", typed);
+            addTyped.href = `/yours/?${new URLSearchParams({ step: "new", name: typed })}`;
+          }
           count.textContent = shown === 1 ? one : many.replace("{n}", String(shown));
         });
       </script>

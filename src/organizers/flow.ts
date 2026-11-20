@@ -9,12 +9,14 @@ import { readAnswers, isEmpty, saveAnswers, answersFor } from "./answers";
 import { isUpcoming, whenShort } from "../event-dates";
 import type { FlyerOrg, NextEvent } from "../flyer";
 
-export const STEPS = ["check", "fix", "remove", "new", "about", "thanks"] as const;
+export const STEPS = ["check", "confirm", "fix", "remove", "new", "about", "thanks"] as const;
 export type Step = (typeof STEPS)[number];
 
-export function readStep(url: URL, allowNew: boolean): Step {
+// "new" (add a group) and "confirm" (who's saying Looks good) are public-path
+// steps; a personal link already knows who is sending, so it confirms from check.
+export function readStep(url: URL, isPublic: boolean): Step {
   const asked = url.searchParams.get("step") ?? "";
-  if (asked === "new" && !allowNew) return "check";
+  if ((asked === "new" || asked === "confirm") && !isPublic) return "check";
   return (STEPS as readonly string[]).includes(asked) ? (asked as Step) : "check";
 }
 
@@ -76,7 +78,8 @@ export async function runFlow(s: FlowSetup): Promise<{ redirect: string } | Flow
     org,
     who: { name: s.knownName, email: "", role: "" },
     whoErrors: {},
-    details: step === "new" ? blankDetails() : current,
+    // A new group can arrive with its name from the list's search (?name=).
+    details: step === "new" ? { ...blankDetails(), name: (s.url.searchParams.get("name") ?? "").trim().slice(0, 200) } : current,
     detailErrors: {},
     note: "",
     notHuman: false,
@@ -86,7 +89,7 @@ export async function runFlow(s: FlowSetup): Promise<{ redirect: string } | Flow
     saidYesToChat: false,
   };
 
-  const sending = step === "check" || step === "fix" || step === "remove" || step === "new";
+  const sending = step === "check" || step === "confirm" || step === "fix" || step === "remove" || step === "new";
   if (sending && request.method === "POST" && (row || step === "new")) {
     const form = await request.formData();
     const emailKnown = Boolean(s.knownEmail);
@@ -122,7 +125,8 @@ export async function runFlow(s: FlowSetup): Promise<{ redirect: string } | Flow
         proposed,
         note: state.note,
       });
-      return { redirect: s.links.after("about", id) };
+      // Someone taking their group off skips the "help me help" questions.
+      return { redirect: s.links.after(kind === "remove" ? "thanks" : "about", id) };
     }
     return state;
   }
