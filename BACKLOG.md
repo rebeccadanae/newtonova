@@ -18,6 +18,12 @@
 - [S] "I'm feeling lucky" button that opens a random group
 - [S] Desktop hover: a soft shadow that shifts with the cursor, so cards feel physical. Check it against the quiet C1 direction first
 - [S] Fix spacing on mobile on signs
+- [S] A subdomain for the staging site (the `staging` Worker), so it has a stable address
+- [M] Go through the copy everywhere
+- [S] Organizer flow: add an "Other" option
+- [S] Organizer flow: split Creative into Arts & Crafts and Performing Arts
+- [S] Organizer flow: the post-it is too wide on desktop (fold into the block 8b design pass)
+- [S] Organizer flow: rewrite the copy on the One more thing page
 - [M] Move the search bar down and make it actually work
 - [S] More text for search
 - [M] Try design tools on the site: Impeccable (https://impeccable.style/) and the design-for-ai Claude Code plugin (https://github.com/ryanthedev/design-for-ai)
