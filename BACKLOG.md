@@ -10,6 +10,8 @@
 - [L] Phase 3: owner and member accounts with Better Auth on D1 (email code sign-in, Becca as admin), claims, an edit queue Becca approves, and a verification process
 - [L] Phase 4: owners add events
 - [L] Event scraper: a scheduled job pulls new events from groups' events pages into a review queue in `/admin`; nothing goes Live until Becca approves it
+- [M] Group details page: one page per group showing what the group form now collects (schedule, cost, accessibility, ages, first time, where), linked from its flyer. Soon, since organizers are already filling these in
+- [M] Design pass on the organizer form (`/yours/`), beyond what 8b did
 - [S] Reset / show-all button beside the result count once area or type filters are applied
 - [S] Click a tag or location on a card to apply that filter
 - [S] Make most of each card tappable as the link to the group (mobile users expect it)
@@ -31,16 +33,17 @@
 - Map view: Leaflet + OpenStreetMap, ZIP lookup or "Use my location" in the browser, Where geocoded at build time and cached, No fixed place groups get no pin; check OSM's tile policy first
 - Events newsletter content
 - Verified badge
-- Org pages
-- Photos (on hold)
+- Photos on group listings and details pages (on hold, but wanted eventually)
 - Kit sign-up questions become dropdowns once patterns show up in the answers
 - Design: tear-off tabs that look actually torn, pins in varied spots, Becca's handwriting font for small asides
 - If the site reads as too Claude-y: redesign from outside reference points, or build around a Google font (partly done: C1 uses Instrument Serif and Instrument Sans)
-- More nuanced types of groups and businesses: classes, individual lessons, volunteer groups
+- Broader kinds of listings, since not everything saved is a group: businesses that offer space, online resources (Facebook groups, newsletters), classes and individual lessons, volunteer groups. Needs a sturdier way to mark and filter what kind of thing each listing is
 - Icons next to types, and other ways to filter and sort
 - A quiz for what you might be interested in
 - A/B testing
-- Sign up for customized feeds
+- Community members sign up for updates and say what they're interested in (after organizer accounts in phase 3), leading to customized feeds
 - A way for people to suggest an organization
-- A web clipper that saves straight to newtonova
+- A web clipper that saves events and groups straight to D1 as drafts (not Live) for later processing, next to the event scraper's review queue
 - Organizer fix form: a flyer that updates live as you type, so editing feels like changing your own paper on the board
+- Built-in AI to help draft descriptions (blurbs), in admin and maybe the organizer form. Costs money per use (an AI API), so price it first
+- Member community on top of accounts: find a buddy to try a new group with, and members leave testimonials about groups they've joined
