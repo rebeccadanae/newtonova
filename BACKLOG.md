@@ -2,7 +2,7 @@
 
 ## Now
 - The move off Notion is finished (2026-11-20). Admin edits reach the site through the Publish button in `/admin` (live since 2026-11-20) or the nightly rebuild. The last Notion import ran 2026-11-20, and Notion is out of the build.
-- Before it's all done: the "Nightly" Deploy Hook and `NIGHTLY_DEPLOY_HOOK_URL` secret, one test run of the nightly workflow, and `NOTION_TOKEN` removed from both Workers' build settings and `.env`.
+- Checked 2026-11-20: Publish on newtonova.org starts a newtonova build, the nightly workflow's test run started one too (it runs at 09:00 UTC), and `NOTION_TOKEN` is gone from both Workers and `.env`. `main` and `staging` are at 4c86a34; this backlog update is committed on `staging` only and goes up with the next push.
 - Next big piece: pick from Next (the event scraper, or phase 3 accounts).
 
 ## Next
